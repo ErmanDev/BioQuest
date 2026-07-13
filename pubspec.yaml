@@ -1,0 +1,163 @@
+name: bioquest
+description: "BioQuest: A Journey Toward Research Discovery - an offline mobile learning game."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.5+1
+  go_router: ^17.3.0
+  sqflite: ^2.4.2+1
+  path: ^1.9.1
+  flutter_tts: ^4.2.5
+  audioplayers: ^6.7.0
+  shared_preferences: ^2.5.5
+  crypto: ^3.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^6.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  assets:
+    - assets/audio/
+    - assets/images/
+    - assets/images/backgrounds/mission_forest_bg.png
+    - assets/images/backgrounds/takeaway_station1_bg.png
+    - assets/images/backgrounds/moss_structure.png
+    - assets/images/research_mission_bg.png
+    - assets/images/ui/tap_here_to_start.png
+    - assets/images/ui/btn_expedition_map_circle.png
+    - assets/images/moss_mission/
+    - assets/images/avatars/
+    - assets/images/backgrounds/
+    - assets/images/stations/
+    - assets/images/station2/
+    - assets/images/station2/trail_checkpoint_station_2.png
+    - assets/images/station2/station2_badge_bg.png
+    - assets/images/station2/cards/
+    - assets/images/station2/mountain_diversity/
+    - assets/images/station2/mountain_diversity/study_area_bg.png
+    - assets/images/station2/mountain_diversity/species/shrub.png
+    - assets/images/station2/mountain_diversity/species/flowering_pink.png
+    - assets/images/station2/mountain_diversity/species/flowering_yellow.png
+    - assets/images/station2/mountain_diversity/species/moss.png
+    - assets/images/station2/mountain_diversity/species/fern.png
+    - assets/images/station2/mountain_diversity/tools/
+    - assets/images/station2/mountain_diversity/species/
+    - assets/images/station2/stratified_sampling/
+    - assets/images/station3/
+    - assets/images/station3/dstop_station_3.png
+    - assets/images/station3/station_3_RM.png
+    - assets/images/station3/mission_3.png
+    - assets/images/station3/station_3_takeaway.png
+    - assets/images/station3/trail_checkpoint_station_3.png
+    - assets/images/station3/moss_replicates/
+    - assets/images/station3/jar.png
+    - assets/images/station3/research_instruments/
+    - assets/images/station4/
+    - assets/images/station4/dstop_station4.png
+    - assets/images/station4/tabular_st4.png
+    - assets/images/station4/research_mission_bg_station_four.png
+    - assets/images/station4/activity2_lab_bg.png
+    - assets/images/station4/common_phytochemical_tests.png
+    - assets/images/station4/forms/
+    - assets/images/station4/moss/
+    - assets/images/phytochem/alkaloids/
+    - assets/images/phytochem/flavonoids/
+    - assets/images/phytochem/tannins/
+    - assets/images/phytochem/saponins/
+    - assets/images/phytochem/glycosides/
+    - assets/images/phytochem/
+    - assets/images/station5/
+    - assets/images/station5/discovery_stop_station_5.png
+    - assets/images/station5/station5.png
+    - assets/images/station5/station_5_content_image.jpg
+    - assets/images/station5/graphical_presentation_station5.png
+    - assets/images/station5/station5_takeaway_question.png
+    - assets/images/station5/trail_checkpoint_station_5.png
+    - assets/images/station5/sort_items/
+    - assets/images/summit/
+    - assets/images/summit/summit_summative_bg.png
+    - assets/images/summit/summit_certificate.png
+    - assets/images/ui/
+    - assets/images/ui/badge_field_pathfinder.png
+    - assets/images/ui/badge_bioactive.png
+    - assets/images/ui/badge_data_decoding.png
+
+  fonts:
+    - family: GreatVibes
+      fonts:
+        - asset: assets/fonts/GreatVibes-Regular.ttf
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
