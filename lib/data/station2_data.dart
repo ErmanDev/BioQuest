@@ -1,4 +1,5 @@
 import '../models/mc_question.dart';
+import '../models/vocab_word.dart';
 
 /// Welcome script for Station 2 (spoken when the station is opened).
 const String kStation2Intro =
@@ -101,6 +102,31 @@ const String kStation2Content =
   // Infographic details are shown visually; narration covers the summary above
   // and the closing paragraph below.
     '$kStation2DiscoveryPart7';
+
+/// Word Quest vocabulary shown in the Discovery Stop overlay.
+const List<VocabWord> kStation2Vocabulary = [
+  VocabWord(
+    term: 'Habitat',
+    definition:
+        'The natural place or environment where an organism lives and '
+        'grows.',
+    context:
+        'Different moss species may grow in different habitats because '
+        'environmental conditions vary from lowland forests to higher '
+        'mountainous areas.',
+  ),
+  VocabWord(
+    term: 'Biodiversity',
+    definition:
+        'The variety of living organisms found in a particular area or '
+        'ecosystem.',
+    context:
+        'Researchers study moss distribution as part of ecological and '
+        'biodiversity studies to understand the variety and distribution '
+        'of mosses in different areas of the mountain.',
+  ),
+];
+
 /// Station 2 Research Mission intro background (parchment panel artwork).
 const String kStation2MissionBackgroundAsset =
     'assets/images/station2/research_mission_bg_station_two.png';

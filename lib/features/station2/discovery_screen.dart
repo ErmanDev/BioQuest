@@ -8,6 +8,7 @@ import '../../core/text_format.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/voiceover_toggle.dart';
+import '../../core/widgets/word_quest.dart';
 import '../../data/station2_data.dart';
 import '../../data/stations.dart';
 import '../../models/explorer_avatar.dart';
@@ -139,26 +140,38 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
                   ),
                 ),
                 const SizedBox(height: 8),
-                Center(
-                  child: PrimaryButton(
-                    label: 'Proceed',
-                    color: BioColors.forest,
-                    fontSize: 34,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 16,
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Center(
+                      child: PrimaryButton(
+                        label: 'Proceed',
+                        color: BioColors.forest,
+                        fontSize: 34,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 16,
+                        ),
+                        onTap: () async {
+                          await stopNarration(context);
+                          if (!context.mounted) return;
+                          await context
+                              .read<ProgressService>()
+                              .markDiscoveryComplete('station2');
+                          if (context.mounted) {
+                            context.go(stationHubRoute('station2'));
+                          }
+                        },
+                      ),
                     ),
-                    onTap: () async {
-                      await stopNarration(context);
-                      if (!context.mounted) return;
-                      await context
-                          .read<ProgressService>()
-                          .markDiscoveryComplete('station2');
-                      if (context.mounted) {
-                        context.go(stationHubRoute('station2'));
-                      }
-                    },
-                  ),
+                    Positioned(
+                      right: 0,
+                      child: WordQuestButton(
+                        onTap: () =>
+                            showWordQuestOverlay(context, kStation2Vocabulary),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
