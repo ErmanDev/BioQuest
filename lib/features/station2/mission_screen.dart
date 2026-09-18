@@ -27,10 +27,10 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
 
   /// Inner parchment text bounds on [kStation2MissionBackgroundAsset].
   /// Fractions of the full GameCanvas (not padded) so they match the BG.
-  static const _storyContentLeft = 0.365;
-  static const _storyContentRight = 0.695;
-  static const _storyContentTop = 0.285;
-  static const _storyContentBottom = 0.685;
+  static const _storyContentLeft = 0.32;
+  static const _storyContentRight = 0.675;
+  static const _storyContentTop = 0.345;
+  static const _storyContentBottom = 0.75;
 
   int _phase = 0; // 0 story, 1 pop/sample, 2 diversity
   final _storyScrollCtrl = ScrollController();
