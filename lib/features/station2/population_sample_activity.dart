@@ -82,8 +82,11 @@ class _PopulationSampleActivityState extends State<PopulationSampleActivity> {
           const SizedBox(height: 4),
           Text.rich(
             readingTextSpan(
-              'Look at each situation below. Decide whether it shows a '
-              '**POPULATION** or a **SAMPLE**.',
+              '**Directions:** Look at each picture and read its caption '
+              'carefully. Then decide if it shows a **POPULATION** (the '
+              'whole group) or a **SAMPLE** (only a part of the group). '
+              'Click the correct box below each picture to choose your '
+              'answer.',
               fontSize: 14,
               color: BioColors.ink,
             ),
