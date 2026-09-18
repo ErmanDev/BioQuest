@@ -1,5 +1,6 @@
 import '../core/text_format.dart';
 import '../models/mc_question.dart';
+import '../models/vocab_word.dart';
 
 /// Welcome script for Station 1 (spoken when the station is opened).
 const String kStation1Intro =
@@ -118,6 +119,53 @@ const McTableStimulus kStation1QuantitativeResearchTable = McTableStimulus(
 /// Moss structure diagram shown beside paragraphs 3–4.
 const String kStation1MossDiagramAsset =
     'assets/images/moss_structure.png';
+
+/// Word Quest vocabulary shown in the Discovery Stop overlay.
+const List<VocabWord> kStation1Vocabulary = [
+  VocabWord(
+    term: 'Rhizoids',
+    definition:
+        'Root-like structures that help mosses attach to surfaces and '
+        'absorb moisture.',
+    context:
+        'Since mosses do not have true roots, they use rhizoids to attach '
+        'themselves to rocks, trees, and other surfaces and absorb '
+        'moisture.',
+  ),
+  VocabWord(
+    term: 'Xylem',
+    definition:
+        'Plant tissue that transports water and minerals throughout the '
+        'plant.',
+    context:
+        'Mosses do not have xylem, the tissue that normally transports '
+        'water and minerals in vascular plants.',
+  ),
+  VocabWord(
+    term: 'Phloem',
+    definition:
+        'Plant tissue that transports food or sugars throughout the plant.',
+    context:
+        'Mosses do not have phloem, the tissue that normally transports '
+        'food or sugars in vascular plants.',
+  ),
+  VocabWord(
+    term: 'Reliable',
+    definition: 'Able to be trusted or depended on.',
+    context:
+        'A well-planned quantitative research design helps researchers '
+        'produce reliable scientific results that can be trusted.',
+  ),
+  VocabWord(
+    term: 'Numerical Data',
+    definition:
+        'Information expressed in numbers that can be counted or measured.',
+    context:
+        'In quantitative research, researchers collect and analyze '
+        'numerical data, such as the number of mosses found in a '
+        'particular area.',
+  ),
+];
 
 /// Full Discovery Stop text (TTS and shared station content).
 const String kStation1Content =

@@ -12,6 +12,7 @@ import '../../core/widgets/voiceover_toggle.dart';
 import '../../data/station1_data.dart';
 import '../../data/stations.dart';
 import '../../models/explorer_avatar.dart';
+import '../../models/vocab_word.dart';
 import '../../services/auth_service.dart';
 import '../../services/narration_helper.dart';
 import '../../services/progress_service.dart';
@@ -134,26 +135,35 @@ class _Station1DiscoveryScreenState extends State<Station1DiscoveryScreen>
                   ),
                 ),
                 const SizedBox(height: 8),
-                Center(
-                  child: PrimaryButton(
-                    label: 'Proceed',
-                    color: BioColors.forest,
-                    fontSize: 28,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 36,
-                      vertical: 14,
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Center(
+                      child: PrimaryButton(
+                        label: 'Proceed',
+                        color: BioColors.forest,
+                        fontSize: 28,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 36,
+                          vertical: 14,
+                        ),
+                        onTap: () async {
+                          await stopNarration(context);
+                          if (!context.mounted) return;
+                          await context
+                              .read<ProgressService>()
+                              .markDiscoveryComplete('station1');
+                          if (context.mounted) {
+                            context.go(stationHubRoute('station1'));
+                          }
+                        },
+                      ),
                     ),
-                    onTap: () async {
-                      await stopNarration(context);
-                      if (!context.mounted) return;
-                      await context
-                          .read<ProgressService>()
-                          .markDiscoveryComplete('station1');
-                      if (context.mounted) {
-                        context.go(stationHubRoute('station1'));
-                      }
-                    },
-                  ),
+                    Positioned(
+                      right: 0,
+                      child: _WordQuestButton(onTap: _showWordQuestOverlay),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -310,6 +320,90 @@ class _Station1DiscoveryScreenState extends State<Station1DiscoveryScreen>
     );
   }
 
+  void _showWordQuestOverlay() {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560, maxHeight: 640),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 22, 24, 14),
+            decoration: BoxDecoration(
+              color: BioColors.parchment,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: BioColors.deepSky, width: 3),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black45,
+                  blurRadius: 16,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.auto_stories,
+                      color: BioColors.deepSky,
+                      size: 26,
+                    ),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        'WORD QUEST',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: BioColors.deepSky,
+                          letterSpacing: 0.6,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Close',
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      icon: const Icon(Icons.close, color: BioColors.deepSky),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Learn new words from this station:',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: BioColors.ink,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: kStation1Vocabulary.length,
+                    separatorBuilder: (_, _) => const Divider(
+                      height: 22,
+                      color: BioColors.leaf,
+                    ),
+                    itemBuilder: (context, i) =>
+                        _VocabItem(word: kStation1Vocabulary[i]),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _guideAvatar(double width, double scale) {
     final id = context.watch<AuthService>().currentUser?.avatarId ?? 0;
     final explorer = ExplorerAvatar.fromId(id);
@@ -336,6 +430,113 @@ class _Station1DiscoveryScreenState extends State<Station1DiscoveryScreen>
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Bottom-right button that opens the Word Quest vocabulary overlay.
+class _WordQuestButton extends StatelessWidget {
+  const _WordQuestButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: BioColors.deepSky,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 4,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.auto_stories, color: Colors.white, size: 24),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Text(
+                    'Word Quest',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                  Text(
+                    'Tap to learn new words!',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 10.5,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One vocabulary entry (term, definition, in-context sentence) in the
+/// Word Quest overlay.
+class _VocabItem extends StatelessWidget {
+  const _VocabItem({required this.word});
+
+  final VocabWord word;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          word.term,
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+            color: BioColors.deepSky,
+          ),
+        ),
+        const SizedBox(height: 4),
+        _VocabLine(label: 'Definition: ', text: word.definition),
+        const SizedBox(height: 4),
+        _VocabLine(label: 'In Context: ', text: word.context),
+      ],
+    );
+  }
+}
+
+class _VocabLine extends StatelessWidget {
+  const _VocabLine({required this.label, required this.text});
+
+  final String label;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(
+          fontSize: 14,
+          height: 1.35,
+          color: BioColors.ink,
+        ),
+        children: [
+          TextSpan(
+            text: label,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          TextSpan(text: text),
+        ],
       ),
     );
   }
