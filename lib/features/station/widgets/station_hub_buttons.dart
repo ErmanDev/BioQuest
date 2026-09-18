@@ -81,7 +81,9 @@ class _MissionTargetsButton extends StatelessWidget {
   final bool elevated;
 
   void _showOverlay(BuildContext context) {
-    final targets = contentOf(stationKey).missionTargets;
+    final content = contentOf(stationKey);
+    final competency = content.targetCompetency;
+    final targets = content.missionTargets;
     showDialog<void>(
       context: context,
       barrierColor: Colors.black54,
@@ -118,7 +120,7 @@ class _MissionTargetsButton extends StatelessWidget {
                     const SizedBox(width: 10),
                     const Expanded(
                       child: Text(
-                        'TARGET COMPETENCY',
+                        'MISSION TARGETS',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
@@ -133,6 +135,28 @@ class _MissionTargetsButton extends StatelessWidget {
                       icon: const Icon(Icons.close, color: BioColors.forest),
                     ),
                   ],
+                ),
+                const SizedBox(height: 10),
+                if (competency != null) ...[
+                  const _TargetSectionLabel(
+                    icon: Icons.gps_fixed,
+                    text: 'TARGET COMPETENCY',
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    competency,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: BioColors.ink,
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                const _TargetSectionLabel(
+                  icon: Icons.checklist_rtl,
+                  text: 'TARGET OBJECTIVES',
                 ),
                 const SizedBox(height: 4),
                 const Text(
@@ -193,6 +217,32 @@ class _MissionTargetsButton extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _TargetSectionLabel extends StatelessWidget {
+  const _TargetSectionLabel({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 17, color: BioColors.moss),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: BioColors.moss,
+            letterSpacing: 0.8,
+          ),
+        ),
+      ],
     );
   }
 }

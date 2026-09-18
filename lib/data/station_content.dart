@@ -18,6 +18,11 @@ class StationContent {
   final List<McQuestion> checkpoint;
   final String badgeAsset;
   final String nextStationMessage;
+
+  /// Single target-competency statement (with DepEd code), shown above the
+  /// objectives in the Mission Targets overlay. Null for stations that don't
+  /// have one recorded yet.
+  final String? targetCompetency;
   final List<String> missionTargets;
 
   const StationContent({
@@ -30,6 +35,7 @@ class StationContent {
     required this.checkpoint,
     required this.badgeAsset,
     required this.nextStationMessage,
+    this.targetCompetency,
     required this.missionTargets,
   });
 }
@@ -64,10 +70,13 @@ const Map<String, StationContent> kStationContent = {
     badgeAsset: kStation2BadgeAsset,
     nextStationMessage:
         'Excellent sampling! Station 3 is now unlocked on the Expedition Map.',
+    targetCompetency:
+        'Describes sampling procedure and the sample (CS_RS12-IIa-c-2)',
     missionTargets: [
-      'Describe how moss distribution changes across different mountain elevations.',
-      'Describe appropriate sampling procedures used in field research.',
-      'Identify the population and sample in a research study.',
+      'Describe appropriate sampling procedures used in a research study.',
+      'Identify the population and sample in a given research situation.',
+      'Recognize the importance of proper sampling in obtaining accurate '
+          'and reliable research data.',
     ],
   ),
   'station3': StationContent(
