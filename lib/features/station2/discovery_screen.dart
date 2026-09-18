@@ -30,10 +30,10 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
   static const _backgroundAsset = 'assets/images/discovery_stop.png';
 
   /// Inner parchment margins on [discovery_stop.png] (fractions of canvas size).
-  static const _parchmentContentLeft = 0.238;
-  static const _parchmentContentRight = 0.689;
-  static const _parchmentContentTop = 0.20;
-  static const _parchmentContentHeight = 0.55;
+  static const _parchmentContentLeft = 0.32;
+  static const _parchmentContentRight = 0.78;
+  static const _parchmentContentTop = 0.15;
+  static const _parchmentContentHeight = 0.53;
 
   @override
   String? get autoNarrateText => stripReadingMarkup(kStation2Content);
@@ -70,7 +70,7 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
         GameCanvas(
           letterboxColor: Colors.transparent,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 36),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -138,15 +138,15 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
                     },
                   ),
                 ),
+                const SizedBox(height: 8),
                 Center(
                   child: PrimaryButton(
                     label: 'Proceed',
-                    icon: Icons.arrow_forward_rounded,
                     color: BioColors.forest,
-                    fontSize: 22,
+                    fontSize: 34,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 14,
+                      horizontal: 40,
+                      vertical: 16,
                     ),
                     onTap: () async {
                       await stopNarration(context);
@@ -169,11 +169,16 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
   }
 
   List<Widget> _discoveryContent(double maxWidth) {
-    const fontSize = 16.5;
+    const fontSize = 28.0;
     const gap = 10.0;
 
     Text bodyText(String text) => Text.rich(
-          readingTextSpan(text, fontSize: fontSize, color: BioColors.ink),
+          readingTextSpan(
+            text,
+            fontSize: fontSize,
+            color: BioColors.ink,
+            indentFirstLine: true,
+          ),
           style: const TextStyle(height: 1.4),
         );
 
@@ -183,13 +188,9 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
             child: SizedBox(
               width: maxWidth,
               height: maxWidth * aspect,
-              child: GameImage(
+              child: _zoomableImage(
                 asset: asset,
                 label: label,
-                fit: BoxFit.contain,
-                color: BioColors.moss,
-                icon: Icons.landscape,
-                cacheWidth: 1024,
               ),
             ),
           ),
@@ -225,6 +226,102 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
       bodyText(kStation2DiscoveryPart7),
       const SizedBox(height: 8),
     ];
+  }
+
+  Widget _zoomableImage({required String asset, required String label}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _openImageZoom(asset: asset, label: label),
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            Positioned.fill(
+              child: GameImage(
+                asset: asset,
+                label: label,
+                fit: BoxFit.contain,
+                color: BioColors.moss,
+                icon: Icons.landscape,
+                cacheWidth: 1024,
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.zoom_in_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openImageZoom({required String asset, required String label}) {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.88),
+      builder: (dialogContext) {
+        final size = MediaQuery.sizeOf(dialogContext);
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: size.width,
+            height: size.height * 0.88,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: InteractiveViewer(
+                    minScale: 1,
+                    maxScale: 5,
+                    child: Center(
+                      child: GameImage(
+                        asset: asset,
+                        label: label,
+                        fit: BoxFit.contain,
+                        color: BioColors.moss,
+                        icon: Icons.landscape,
+                        cacheWidth: 1600,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Material(
+                    color: Colors.white,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () => Navigator.of(dialogContext).pop(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.close,
+                          color: BioColors.forest,
+                          size: 26,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _guideAvatar(double width, double scale) {

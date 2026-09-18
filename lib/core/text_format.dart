@@ -5,12 +5,15 @@ String stripReadingMarkup(String text) => text
     .replaceAllMapped(RegExp(r'\*\*(.+?)\*\*'), (m) => m.group(1)!)
     .replaceAllMapped(RegExp(r'\*(.+?)\*'), (m) => m.group(1)!);
 
-/// Renders reading content with **bold** and *italic* segments.
+/// Renders reading content with **bold** and *italic* segments. When
+/// [indentFirstLine] is true, the first line of each paragraph (paragraphs
+/// are split on blank lines) is indented, matching print-style body text.
 TextSpan readingTextSpan(
   String text, {
   required double fontSize,
   Color color = const Color(0xFF263238),
   double height = 1.55,
+  bool indentFirstLine = false,
 }) {
   final baseStyle = TextStyle(
     fontSize: fontSize,
@@ -18,9 +21,22 @@ TextSpan readingTextSpan(
     color: color,
   );
 
-  return TextSpan(
-    children: _markupSpans(text, baseStyle),
+  if (!indentFirstLine) {
+    return TextSpan(children: _markupSpans(text, baseStyle));
+  }
+
+  final indent = WidgetSpan(
+    alignment: PlaceholderAlignment.middle,
+    child: SizedBox(width: fontSize * 1.6),
   );
+  final paragraphs = text.split('\n\n');
+  final spans = <InlineSpan>[];
+  for (var i = 0; i < paragraphs.length; i++) {
+    if (i > 0) spans.add(TextSpan(text: '\n\n', style: baseStyle));
+    spans.add(indent);
+    spans.addAll(_markupSpans(paragraphs[i], baseStyle));
+  }
+  return TextSpan(children: spans);
 }
 
 List<TextSpan> _markupSpans(String text, TextStyle baseStyle) {

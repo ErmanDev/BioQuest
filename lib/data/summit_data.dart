@@ -18,7 +18,8 @@ const String kSummitSummativeDirections =
 const String kSummitSummativeTableNote =
     'For numbers 17–20, refer to the hypothetical data table below.';
 
-const McTableStimulus kSummativeMossShootTable = kPretestMossShootTable;
+const McTableStimulus kSummativeMossShootTable =
+    kSummativeMossShootTableSource;
 
 /// 20-item summative test at the Discovery Summit (question order from answer key).
 const List<McQuestion> kSummative = [

@@ -26,15 +26,15 @@ class Station3MissionScreen extends StatefulWidget {
 
 class _Station3MissionScreenState extends State<Station3MissionScreen>
     with SingleTickerProviderStateMixin, RouteAware, AutoNarrateOnEnter {
-  /// Inner parchment text bounds on [kStation3MissionBackgroundAsset].
-  static const _storyContentLeft = 0.255;
-  static const _storyContentRight = 0.702;
-  static const _storyContentTop = 0.27;
-  static const _storyContentBottom = 0.72;
+  /// Story / Part I panel bounds — wide centered parchment (~78% × tall).
+  static const _storyContentLeft = 0.11;
+  static const _storyContentRight = 0.89;
+  static const _storyContentTop = 0.28;
+  static const _storyContentBottom = 0.92;
 
   /// Part I activity panel sits on the same parchment, slightly taller.
   static const _activityContentTop = 0.24;
-  static const _activityContentBottom = 0.88;
+  static const _activityContentBottom = 0.92;
 
   /// Mission 3 content panel on [kStation3Mission3BackgroundAsset].
   static const _mission3ContentLeft = 0.025;
@@ -128,24 +128,28 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
         ),
         GameCanvas(
           letterboxColor: Colors.transparent,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(4, 4, 4, _phase == 0 ? 10 : 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _topBar(context),
-                SizedBox(height: _phase == 0 ? 12 : 6),
-                Expanded(
-                  child: switch (_phase) {
-                    0 => _story(),
-                    1 => _order(),
-                    2 => _match(),
-                    3 => _mission3(),
-                    _ => _done(),
-                  },
-                ),
-              ],
-            ),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: switch (_phase) {
+                  // Story/activity panels use full-canvas fractions aligned to BG.
+                  0 => _story(),
+                  1 => _order(),
+                  2 => _match(),
+                  3 => _mission3(),
+                  _ => Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 72, 4, 4),
+                      child: _done(),
+                    ),
+                },
+              ),
+              Positioned(
+                left: 8,
+                top: 8,
+                right: 8,
+                child: _topBar(context),
+              ),
+            ],
           ),
         ),
       ],
@@ -173,87 +177,113 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
     );
   }
 
+  /// Cream parchment panel matching the lab mission look (not the BG art).
+  Widget _parchmentBox({required Widget child}) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: BioColors.parchment.withValues(alpha: 0.97),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: BioColors.bark.withValues(alpha: 0.55),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(26),
+        child: child,
+      ),
+    );
+  }
+
   Widget _story() {
     return LayoutBuilder(
       builder: (context, constraints) {
         final w = constraints.maxWidth;
         final h = constraints.maxHeight;
 
-        final textLeft = w * _storyContentLeft;
-        final textW = w * (_storyContentRight - _storyContentLeft);
-        final textTop = h * _storyContentTop;
-        final textH = h * _storyContentBottom - textTop;
+        final boxLeft = w * _storyContentLeft;
+        final boxW = w * (_storyContentRight - _storyContentLeft);
+        final boxTop = h * _storyContentTop;
+        final boxH = (h * _storyContentBottom - boxTop).clamp(120.0, h);
 
         return Stack(
-          clipBehavior: Clip.none,
+          clipBehavior: Clip.hardEdge,
           children: [
             Positioned(
-              left: textLeft,
-              top: textTop,
-              width: textW,
-              height: textH,
-              child: ClipRect(
-                clipBehavior: Clip.hardEdge,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'MISSION STORY',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 38,
-                        fontWeight: FontWeight.bold,
-                        color: BioColors.forest,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      child: NotificationListener<ScrollMetricsNotification>(
-                        onNotification: (_) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted) _onStoryScroll();
-                          });
-                          return false;
-                        },
-                        child: Stack(
-                          children: [
-                            Scrollbar(
-                              controller: _storyScrollCtrl,
-                              child: SingleChildScrollView(
-                                controller: _storyScrollCtrl,
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: _storyContent(),
-                                ),
-                              ),
-                            ),
-                            if (_showScrollHint) _scrollDownHint(),
-                          ],
+              left: boxLeft,
+              top: boxTop,
+              width: boxW,
+              height: boxH,
+              child: _parchmentBox(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'MISSION STORY',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: BioColors.forest,
+                          height: 1.15,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: NotificationListener<ScrollMetricsNotification>(
+                          onNotification: (_) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted) _onStoryScroll();
+                            });
+                            return false;
+                          },
+                          child: Stack(
+                            children: [
+                              Scrollbar(
+                                controller: _storyScrollCtrl,
+                                child: SingleChildScrollView(
+                                  controller: _storyScrollCtrl,
+                                  padding:
+                                      const EdgeInsets.fromLTRB(2, 0, 4, 12),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: _storyContent(),
+                                  ),
+                                ),
+                              ),
+                              if (_showScrollHint) _scrollDownHint(),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      PrimaryButton(
+                        label: 'Tap here to Start',
+                        color: BioColors.forest,
+                        fontSize: 20,
+                        expand: true,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 14,
+                        ),
+                        onTap: () async {
+                          await stopNarration(context);
+                          if (mounted) setState(() => _phase = 1);
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-            Positioned(
-              left: textLeft,
-              bottom: h * 0.08,
-              width: textW,
-              child: PrimaryButton(
-                label: 'Tap here to Start',
-                color: BioColors.forest,
-                fontSize: 20,
-                expand: true,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 14,
-                ),
-                onTap: () async {
-                  await stopNarration(context);
-                  if (mounted) setState(() => _phase = 1);
-                },
               ),
             ),
           ],
@@ -263,8 +293,8 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
   }
 
   List<Widget> _storyContent() {
-    const fontSize = 15.0;
-    const bodyStyle = TextStyle(fontSize: fontSize, height: 1.45, color: BioColors.ink);
+    const fontSize = 18.0;
+    const bodyStyle = TextStyle(fontSize: fontSize, height: 1.4, color: BioColors.ink);
 
     return [
       _storyPart(
@@ -527,14 +557,19 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
         final panelH = h * _activityContentBottom - panelTop;
 
         return Stack(
-          clipBehavior: Clip.none,
+          clipBehavior: Clip.hardEdge,
           children: [
             Positioned(
               left: panelLeft,
               top: panelTop,
               width: panelW,
               height: panelH,
-              child: child,
+              child: _parchmentBox(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                  child: child,
+                ),
+              ),
             ),
           ],
         );

@@ -129,10 +129,12 @@ class _Station1TakeawayScreenState extends State<Station1TakeawayScreen> {
   Widget build(BuildContext context) {
     return BioScaffold(
       title: 'Takeaway Question',
+      titleFontSize: 28,
       backgroundAsset: kStation1TakeawayBackgroundAsset,
       backgroundLabel: 'Takeaway',
       fullBleedBackground: true,
       scrimOpacity: 0.38,
+      backButtonSize: 72,
       onBack: () => context.go(stationHubRoute('station1')),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -163,7 +165,7 @@ class _Station1TakeawayScreenState extends State<Station1TakeawayScreen> {
           const Text(
             kStation1TakeawayPrompt,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
               height: 1.35,
               color: BioColors.ink,
@@ -180,13 +182,13 @@ class _Station1TakeawayScreenState extends State<Station1TakeawayScreen> {
             ),
             child: const Row(
               children: [
-                Icon(Icons.edit_note, color: BioColors.forest, size: 22),
+                Icon(Icons.edit_note, color: BioColors.forest, size: 28),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     kStation1TakeawayInstruction,
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: BioColors.forest,
                     ),
@@ -216,10 +218,11 @@ class _Station1TakeawayScreenState extends State<Station1TakeawayScreen> {
               maxLines: null,
               expands: true,
               textAlignVertical: TextAlignVertical.top,
-              style: const TextStyle(fontSize: 18, height: 1.4),
+              style: const TextStyle(fontSize: 24, height: 1.4),
               decoration: const InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Write 2-3 sentences here...',
+                hintStyle: TextStyle(fontSize: 22),
               ),
             ),
           ),
@@ -230,6 +233,7 @@ class _Station1TakeawayScreenState extends State<Station1TakeawayScreen> {
             label: 'Submit Answer',
             icon: Icons.send,
             color: BioColors.sun,
+            fontSize: 24,
             onTap: _submit,
           ),
         ),
@@ -249,6 +253,8 @@ class _Station1TakeawayScreenState extends State<Station1TakeawayScreen> {
         child: PrimaryButton(
           label: 'Proceed Outside',
           icon: Icons.exit_to_app,
+          fontSize: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 18),
           onTap: () async {
             final progress = context.read<ProgressService>();
             final router = GoRouter.of(context);

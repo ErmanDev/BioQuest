@@ -11,7 +11,7 @@ Summit. Built for low-end Android devices.
 - Avatar selection (pants/shirt/shoes outfits, no skirts).
 - Basecamp orientation: talking guide, Short Overview / General Instructions /
   Instructional Objectives, each with an optional **voiceover** (TTS) toggle.
-- 20-item **Pretest** (auto-scored, answers never revealed).
+- 10-item **Pretest** (auto-scored, answers never revealed).
 - **Expedition Map** with a progress chart and sequential station unlocking.
 - **Station 1 (Moss Quest)** fully playable:
   - Discovery Stop (scrollable content + voiceover)

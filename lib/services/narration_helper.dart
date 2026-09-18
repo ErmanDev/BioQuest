@@ -29,12 +29,19 @@ Future<void> autoNarrateIfEnabled(BuildContext context, String text) async {
 }
 
 /// Stops narration and restores background music volume.
+///
+/// Uses a short timeout so a wedged TTS plugin (common after hot reload)
+/// cannot block navigation forever.
 Future<void> stopNarration(BuildContext context) async {
   final tts = context.read<TtsService>();
   final audio = context.read<AudioService>();
   tts.stopImmediately();
-  await tts.stop();
-  await audio.unduck();
+  try {
+    await tts.stop().timeout(const Duration(milliseconds: 400));
+  } catch (_) {}
+  try {
+    await audio.unduck().timeout(const Duration(milliseconds: 400));
+  } catch (_) {}
 }
 
 /// Stops narration, then pops the current route.

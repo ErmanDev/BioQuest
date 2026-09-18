@@ -1,3 +1,4 @@
+import '../core/text_format.dart';
 import '../models/mc_question.dart';
 
 /// Welcome script for Station 1 (spoken when the station is opened).
@@ -6,14 +7,21 @@ const String kStation1Intro =
     'mountain research journey by discovering the fascinating world of mosses.\n\n'
     'As you investigate their characteristics, habitats, and ecological '
     'importance, you will also begin thinking like real researchers by learning '
-    'how to:\n'
-    '• Choose an appropriate quantitative research design\n\n'
+    'how to choose an appropriate quantitative research design '
+    '(**CS_RS12-IIa-c-1**):\n'
+    '• Identify the characteristics and purposes of different quantitative '
+    'research designs.\n'
+    '• Choose the appropriate quantitative research design for a given '
+    'research situation.\n'
+    '• Recognize the importance of selecting an appropriate quantitative '
+    'research design in conducting research.\n\n'
     'Through this exploration, you will discover that every successful '
     'scientific investigation starts with a well-planned research design that '
     'guides the entire study.';
 
 /// Plain text for TTS (no bullet symbols).
-String get kStation1IntroNarration => kStation1Intro.replaceAll('• ', '');
+String get kStation1IntroNarration =>
+    stripReadingMarkup(kStation1Intro.replaceAll('• ', ''));
 
 /// Discovery Stop reading content — four paragraphs with a moss diagram
 /// between the second and third sections in the UI.
@@ -59,7 +67,7 @@ const String kStation1DiscoveryPart4 =
 const String kStation1DiscoveryPart5 =
     'A **Quantitative Research Design** is a systematic way of collecting and '
     'analyzing **numerical data** to produce **reliable scientific results**. '
-    'There are four main types of quantitative research as shown in the table below:';
+    'There are four main types of **quantitative research** as shown in the table below:';
 
 /// Four main quantitative research types (Discovery Stop table).
 const McTableStimulus kStation1QuantitativeResearchTable = McTableStimulus(
@@ -119,7 +127,7 @@ const String kStation1Content =
     '$kStation1DiscoveryPart4\n\n'
     '$kStation1DiscoveryPart5';
 
-/// Moss health visuals shown after the Research Mission (score out of 10).
+/// Moss health visuals shown after the Research Mission (score out of 5).
 const String kMossDyingAsset = 'assets/images/moss_mission/moss_dying.png';
 const String kMossThinAsset = 'assets/images/moss_mission/moss_thin.png';
 const String kMossThickAsset = 'assets/images/moss_mission/moss_thick.png';
@@ -136,7 +144,8 @@ const String kStation1MissionStory =
 
 /// Directions shown during the Research Mission activity.
 const String kStation1MissionDirections =
-    'Tap the colored box that represents the correct quantitative research design.';
+    'Read each research scenario carefully, then tap the box containing the '
+    'correct quantitative research design.';
 
 /// Color-coded labels for each tap target (same order as [kResearchDesigns]).
 const List<String> kResearchDesignLabels = [
@@ -160,37 +169,28 @@ class MissionItem {
   const MissionItem(this.statement, this.correctDesign);
 }
 
-/// Research Mission: tap the correct design for each statement (10 items).
+/// Research Mission: tap the correct design for each statement (5 items).
 const List<MissionItem> kStation1Mission = [
   MissionItem(
-      'A researcher identifies the different moss species growing on rocks near a river.',
-      0),
+    'A researcher identifies the different moss species growing on rocks near a river.',
+    0,
+  ),
   MissionItem(
-      'A researcher studies whether colder places have greater moss abundance.',
-      1),
+    'A researcher studies whether colder places have greater moss abundance.',
+    1,
+  ),
   MissionItem(
-      'A researcher compares moss growth in shaded and sunny areas.', 2),
+    'A researcher tests the effect of different nutrient solutions on moss growth inside the laboratory.',
+    3,
+  ),
   MissionItem(
-      'A researcher tests the effect of different nutrient solutions on moss growth inside the laboratory.',
-      3),
+    'Determining the relationship between elevation and moss species distribution in a mountain ecosystem.',
+    1,
+  ),
   MissionItem(
-      'A researcher determines the relationship between elevation and moss species distribution in a mountain ecosystem.',
-      1),
-  MissionItem(
-      'A researcher compares moss abundance between disturbed and undisturbed forest areas.',
-      2),
-  MissionItem(
-      'A researcher evaluates the antibacterial activity of moss extracts against bacteria.',
-      3),
-  MissionItem(
-      'A researcher counts the number of moss colonies growing on tree trunks.',
-      0),
-  MissionItem(
-      'Determining the relationship between elevation and moss species distribution in a mountain ecosystem',
-      1),
-  MissionItem(
-      'Testing the antibacterial activity of moss extracts against bacterial growth under laboratory conditions',
-      3),
+    'Testing the antibacterial activity of moss extracts against bacterial growth under laboratory conditions.',
+    3,
+  ),
 ];
 
 /// Takeaway free-text question + rubric for auto-scoring.
@@ -221,18 +221,18 @@ const List<String> kStation1TakeawayKeywords = [
   'proper',
 ];
 
-/// Trail Checkpoint: 10 multiple-choice questions.
+/// Trail Checkpoint: 5 multiple-choice questions.
 const List<McQuestion> kStation1Checkpoint = [
   McQuestion(
     prompt:
         'Which quantitative research design is used when a study only describes existing conditions or characteristics?',
     options: [
-      'Descriptive Research',
-      'Experimental Research',
       'Correlational Research',
+      'Experimental Research',
+      'Descriptive Research',
       'Quasi-Experimental Research',
     ],
-    correctIndex: 0,
+    correctIndex: 2,
   ),
   McQuestion(
     prompt:
@@ -247,28 +247,7 @@ const List<McQuestion> kStation1Checkpoint = [
   ),
   McQuestion(
     prompt:
-        'Which research design is best used when comparing moss growth in shaded and sunny areas?',
-    options: [
-      'Experimental Research',
-      'Descriptive Research',
-      'Correlational Research',
-      'Quasi-Experimental Research',
-    ],
-    correctIndex: 3,
-  ),
-  McQuestion(
-    prompt:
-        'Which research design involves manipulating variables under controlled laboratory conditions?',
-    options: [
-      'Descriptive Research',
-      'Correlational Research',
-      'Experimental Research',
-      'Quasi-Experimental Research',
-    ],
-    correctIndex: 2,
-  ),
-  McQuestion(
-    prompt: 'What makes correlational research different from descriptive research?',
+        'What makes correlational research different from descriptive research?',
     options: [
       'It allows to compare groups or environments.',
       'It studies relationships between variables.',
@@ -276,37 +255,6 @@ const List<McQuestion> kStation1Checkpoint = [
       'It only describes existing conditions.',
     ],
     correctIndex: 1,
-  ),
-  McQuestion(
-    prompt:
-        'A researcher tests the antibacterial activity of moss extracts against bacteria. Which research design should be used?',
-    options: [
-      'Experimental Research',
-      'Descriptive Research',
-      'Correlational Research',
-      'Quasi-Experimental Research',
-    ],
-    correctIndex: 0,
-  ),
-  McQuestion(
-    prompt: 'Which statement best describes quasi-experimental research?',
-    options: [
-      'It describes existing conditions only.',
-      'It determines relationships between variables.',
-      'It compares groups or conditions without complete control of variables.',
-      'It always uses laboratory experiments and equipment which involves manipulation of variables.',
-    ],
-    correctIndex: 2,
-  ),
-  McQuestion(
-    prompt: 'Which pair of variables is MOST likely studied in correlational research?',
-    options: [
-      'Moss species and moss color',
-      'Sunny area and shaded area',
-      'Elevation and moss abundance',
-      'Nutrient solution and laboratory setup',
-    ],
-    correctIndex: 2,
   ),
   McQuestion(
     prompt: 'Which study title is an example of descriptive research?',
@@ -319,7 +267,8 @@ const List<McQuestion> kStation1Checkpoint = [
     correctIndex: 0,
   ),
   McQuestion(
-    prompt: 'Why is it important to choose the correct research design in a scientific study?',
+    prompt:
+        'Why is it important to choose the correct research design in a scientific study?',
     options: [
       'To make the study longer and better',
       'To avoid long duration of collecting data',

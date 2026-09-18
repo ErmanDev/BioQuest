@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../app/theme.dart';
 import '../../core/widgets/bio_scaffold.dart';
+import '../../core/widgets/circle_image_button.dart';
 import '../../core/widgets/forest_image_button.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/guide_hint.dart';
 import '../../core/widgets/station_progress_bar.dart';
+import '../../data/references_data.dart';
 import '../../data/stations.dart';
 import '../../models/station_info.dart';
 import '../../models/station_progress.dart';
@@ -39,6 +41,8 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
   final TransformationController _tc = TransformationController();
   bool _legendOpen = false;
   bool _badgesOpen = false;
+  bool _referencesOpen = false;
+  bool _aiDeclarationOpen = false;
   bool _defaultViewApplied = false;
   Size? _viewportSize;
 
@@ -213,10 +217,58 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
                     ),
                   ),
                 ],
+                if (_referencesOpen) ...[
+                  Positioned.fill(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () => setState(() => _referencesOpen = false),
+                    ),
+                  ),
+                  Center(
+                    child: _referencesOverlay(
+                      onClose: () => setState(() => _referencesOpen = false),
+                    ),
+                  ),
+                ],
+                if (_aiDeclarationOpen) ...[
+                  Positioned.fill(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () => setState(() => _aiDeclarationOpen = false),
+                    ),
+                  ),
+                  Center(
+                    child: _infoOverlay(
+                      title: 'AI Use Declaration',
+                      icon: Icons.memory_rounded,
+                      onClose: () =>
+                          setState(() => _aiDeclarationOpen = false),
+                      body:
+                          'Artificial Intelligence (AI) tools were utilized in '
+                          'the development of this instructional material to '
+                          'assist in content drafting, language enhancement, '
+                          'instructional design, and the enhancement of images '
+                          'from sketches into educational visuals. All '
+                          'AI-assisted outputs were critically reviewed, '
+                          'verified, and refined by the author to ensure '
+                          'accuracy, curriculum alignment, and appropriateness '
+                          'for educational use. The author retains full '
+                          'responsibility for the final content and design of '
+                          'this material.',
+                    ),
+                  ),
+                ],
                 Positioned(
                   right: 14,
                   bottom: 14,
-                  child: _zoomControls(),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _mapInfoButtons(),
+                      const SizedBox(width: 16),
+                      _zoomControls(),
+                    ],
+                  ),
                 ),
               ],
             );
@@ -312,6 +364,209 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
     );
   }
 
+  Widget _mapInfoButtons() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        CircleImageButton(
+          asset: 'assets/images/ui/btn_references_circle.png',
+          label: 'References',
+          size: 72,
+          borderColor: BioColors.sun,
+          onTap: () => setState(() {
+            _referencesOpen = true;
+            _aiDeclarationOpen = false;
+            _legendOpen = false;
+            _badgesOpen = false;
+          }),
+        ),
+        const SizedBox(width: 14),
+        CircleImageButton(
+          asset: 'assets/images/ui/btn_ai_declaration_circle.png',
+          label: 'AI Use Declaration',
+          size: 72,
+          borderColor: BioColors.sun,
+          onTap: () => setState(() {
+            _aiDeclarationOpen = true;
+            _referencesOpen = false;
+            _legendOpen = false;
+            _badgesOpen = false;
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _referencesOverlay({required VoidCallback onClose}) {
+    const bodyStyle = TextStyle(
+      fontSize: 18,
+      height: 1.45,
+      fontWeight: FontWeight.w500,
+      color: BioColors.ink,
+    );
+
+    return Material(
+      color: Colors.transparent,
+      elevation: 12,
+      shadowColor: Colors.black45,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        width: 720,
+        constraints: const BoxConstraints(maxHeight: 520),
+        padding: const EdgeInsets.fromLTRB(28, 22, 16, 24),
+        decoration: BoxDecoration(
+          color: BioColors.parchment,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: BioColors.forest, width: 4),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black38,
+              blurRadius: 28,
+              offset: Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.menu_book_rounded,
+                  color: BioColors.forest,
+                  size: 34,
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'References',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: BioColors.forest,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: onClose,
+                  icon: const Icon(
+                    Icons.close,
+                    color: BioColors.forest,
+                    size: 30,
+                  ),
+                  tooltip: 'Close',
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Scrollbar(
+                thumbVisibility: true,
+                child: ListView.separated(
+                  padding: const EdgeInsets.only(right: 12, top: 4, bottom: 8),
+                  itemCount: kReferences.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 20),
+                  itemBuilder: (context, index) {
+                    final entry = kReferences[index];
+                    return Text.rich(
+                      TextSpan(
+                        style: bodyStyle,
+                        children: [
+                          for (final run in entry)
+                            TextSpan(
+                              text: run.text,
+                              style: run.italic
+                                  ? bodyStyle.copyWith(
+                                      fontStyle: FontStyle.italic,
+                                    )
+                                  : null,
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoOverlay({
+    required String title,
+    required IconData icon,
+    required VoidCallback onClose,
+    required String body,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      elevation: 12,
+      shadowColor: Colors.black45,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        width: 640,
+        constraints: const BoxConstraints(maxHeight: 420),
+        padding: const EdgeInsets.fromLTRB(28, 24, 16, 28),
+        decoration: BoxDecoration(
+          color: BioColors.parchment,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: BioColors.forest, width: 4),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black38,
+              blurRadius: 28,
+              offset: Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: BioColors.forest, size: 34),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: BioColors.forest,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: onClose,
+                  icon: const Icon(Icons.close, color: BioColors.forest, size: 30),
+                  tooltip: 'Close',
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Text(
+                  body,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    height: 1.5,
+                    fontWeight: FontWeight.w500,
+                    color: BioColors.ink,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _roundBtn(IconData icon, String tip, VoidCallback onTap) {
     return Material(
       color: Colors.white,
@@ -361,6 +616,8 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
         onTap: () => setState(() {
           _legendOpen = true;
           _badgesOpen = false;
+          _referencesOpen = false;
+          _aiDeclarationOpen = false;
         }),
         borderRadius: BorderRadius.circular(20),
         child: const Padding(
@@ -395,6 +652,8 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
         onTap: () => setState(() {
           _badgesOpen = true;
           _legendOpen = false;
+          _referencesOpen = false;
+          _aiDeclarationOpen = false;
         }),
         borderRadius: BorderRadius.circular(20),
         child: Padding(

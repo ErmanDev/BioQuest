@@ -1,4 +1,4 @@
-/// Tabular stimulus material shown above a quiz prompt (e.g. pretest Q17–20).
+/// Tabular stimulus material shown above a quiz prompt (e.g. summative Q17–20).
 class McTableStimulus {
   final String intro;
   final List<String> headers;

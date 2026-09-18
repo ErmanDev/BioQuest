@@ -16,6 +16,12 @@ class Station1CheckpointScreen extends StatelessWidget {
       questions: kStation1Checkpoint,
       continueLabel: 'Claim My Badge',
       showAnswerFeedback: true,
+      titleFontSize: 28,
+      promptFontSize: 28,
+      optionFontSize: 26,
+      nextFontSize: 26,
+      showNextIcon: false,
+      backButtonSize: 72,
       onBack: () => context.go(stationHubRoute('station1')),
       onComplete: (score, total) async {
         final progress = context.read<ProgressService>();

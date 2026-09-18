@@ -142,22 +142,25 @@ class _AvatarSelectScreenState extends State<AvatarSelectScreen>
                         },
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: PrimaryButton(
+                          label: 'Start My Adventure',
+                          icon: Icons.explore,
+                          color: BioColors.sun,
+                          fontSize: 26,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 36,
+                            vertical: 18,
+                          ),
+                          onTap: _startAdventure,
+                        ),
+                      ),
+                    ),
                   ],
-                ),
-              ),
-              Positioned(
-                right: 20,
-                bottom: 16,
-                child: PrimaryButton(
-                  label: 'Start My Adventure',
-                  icon: Icons.explore,
-                  color: BioColors.sun,
-                  fontSize: 26,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 36,
-                    vertical: 18,
-                  ),
-                  onTap: _startAdventure,
                 ),
               ),
             ],

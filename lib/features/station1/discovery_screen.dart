@@ -7,6 +7,7 @@ import '../../core/mixins/auto_narrate_on_enter.dart';
 import '../../core/text_format.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/quiz_stimulus_table.dart';
 import '../../core/widgets/voiceover_toggle.dart';
 import '../../data/station1_data.dart';
 import '../../data/stations.dart';
@@ -65,7 +66,7 @@ class _Station1DiscoveryScreenState extends State<Station1DiscoveryScreen>
         GameCanvas(
           letterboxColor: Colors.transparent,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 36),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -101,7 +102,7 @@ class _Station1DiscoveryScreenState extends State<Station1DiscoveryScreen>
                       const avatarScale = 1.75;
 
                       // Parchment text bounds (aligned to reference red lines).
-                      final textLeft = avatarW + w * 0.008;
+                      final textLeft = avatarW + w * 0.06;
                       final textW = w * 0.47;
                       final textTop = h * 0.16;
                       final textH = h * 0.50;
@@ -132,14 +133,14 @@ class _Station1DiscoveryScreenState extends State<Station1DiscoveryScreen>
                     },
                   ),
                 ),
+                const SizedBox(height: 8),
                 Center(
                   child: PrimaryButton(
                     label: 'Proceed',
-                    icon: Icons.arrow_forward_rounded,
                     color: BioColors.forest,
-                    fontSize: 22,
+                    fontSize: 28,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
+                      horizontal: 36,
                       vertical: 14,
                     ),
                     onTap: () async {
@@ -163,12 +164,16 @@ class _Station1DiscoveryScreenState extends State<Station1DiscoveryScreen>
   }
 
   List<Widget> _discoveryContent(double width) {
-    const fontSize = 18.0;
+    const fontSize = 24.0;
     const gap = 10.0;
     const table = kStation1QuantitativeResearchTable;
 
-    TextSpan body(String text) =>
-        readingTextSpan(text, fontSize: fontSize, color: BioColors.ink);
+    TextSpan body(String text) => readingTextSpan(
+          text,
+          fontSize: fontSize,
+          color: BioColors.ink,
+          indentFirstLine: true,
+        );
 
     Text bodyText(String text) => Text.rich(
           body(text),
@@ -185,90 +190,123 @@ class _Station1DiscoveryScreenState extends State<Station1DiscoveryScreen>
       bodyText(kStation1DiscoveryPart4),
       const SizedBox(height: gap),
       Center(
-        child: GameImage(
-          asset: kStation1MossDiagramAsset,
-          label: 'Structure of moss',
-          fit: BoxFit.contain,
-          color: BioColors.moss,
-          icon: Icons.grass,
-        ),
+        child: _zoomableMossDiagram(),
       ),
       const SizedBox(height: gap),
       bodyText(kStation1DiscoveryPart5),
       const SizedBox(height: gap),
-      for (var i = 0; i < table.rows.length; i++) ...[
-        _researchTypeCard(
-          title: table.rows[i][0],
-          description: table.rows[i][1],
-          question: table.rows[i][2],
-          whenToUse: table.rows[i][3],
-          samples: table.rows[i][4],
-          fontSize: fontSize - 2,
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(10),
         ),
-        if (i < table.rows.length - 1) const SizedBox(height: 8),
-      ],
+        clipBehavior: Clip.antiAlias,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: width < 640 ? 780 : width,
+            child: QuizStimulusTable(
+              table: table,
+              fontSize: 16,
+              bodyTextAlign: TextAlign.left,
+              boldFirstColumn: true,
+            ),
+          ),
+        ),
+      ),
       const SizedBox(height: 8),
     ];
   }
 
-  Widget _researchTypeCard({
-    required String title,
-    required String description,
-    required String question,
-    required String whenToUse,
-    required String samples,
-    required double fontSize,
-  }) {
-    Widget label(String text) => Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w800,
-            color: BioColors.forest,
-          ),
-        );
-
-    Widget value(String text) => Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            height: 1.35,
-            color: BioColors.ink,
-          ),
-        );
-
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.88),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: BioColors.bark.withValues(alpha: 0.45)),
+  Widget _zoomableMossDiagram() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _openMossZoom,
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            GameImage(
+              asset: kStation1MossDiagramAsset,
+              label: 'Structure of moss',
+              fit: BoxFit.contain,
+              color: BioColors.moss,
+              icon: Icons.grass,
+            ),
+            Container(
+              margin: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.zoom_in_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: fontSize + 1,
-              fontWeight: FontWeight.w900,
-              color: BioColors.forest,
+    );
+  }
+
+  void _openMossZoom() {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.88),
+      builder: (dialogContext) {
+        final size = MediaQuery.sizeOf(dialogContext);
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: size.width,
+            height: size.height * 0.88,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: InteractiveViewer(
+                    minScale: 1,
+                    maxScale: 5,
+                    child: Center(
+                      child: GameImage(
+                        asset: kStation1MossDiagramAsset,
+                        label: 'Structure of moss',
+                        fit: BoxFit.contain,
+                        color: BioColors.moss,
+                        icon: Icons.grass,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Material(
+                    color: Colors.white,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () => Navigator.of(dialogContext).pop(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.close,
+                          color: BioColors.forest,
+                          size: 26,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 6),
-          label('Description'),
-          value(description),
-          const SizedBox(height: 4),
-          label('Key Question'),
-          value(question),
-          const SizedBox(height: 4),
-          label('When to use'),
-          value(whenToUse),
-          const SizedBox(height: 4),
-          label('Sample Studies'),
-          value(samples),
-        ],
-      ),
+        );
+      },
     );
   }
 

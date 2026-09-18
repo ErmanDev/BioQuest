@@ -9,12 +9,14 @@ import 'game_image.dart';
 class BioScaffold extends StatelessWidget {
   final Widget body;
   final String? title;
+  final double titleFontSize;
   final String? backgroundAsset;
   final String? backgroundLabel;
   final List<Color>? gradient;
   final double scrimOpacity;
   final double backgroundOpacity;
   final VoidCallback? onBack;
+  final double backButtonSize;
   final List<Widget> actions;
   final EdgeInsets padding;
   /// When true, the background image and scrim extend edge-to-edge behind
@@ -25,12 +27,14 @@ class BioScaffold extends StatelessWidget {
     super.key,
     required this.body,
     this.title,
+    this.titleFontSize = 20,
     this.backgroundAsset,
     this.backgroundLabel,
     this.gradient,
     this.scrimOpacity = 0.25,
     this.backgroundOpacity = 1.0,
     this.onBack,
+    this.backButtonSize = 46,
     this.actions = const [],
     this.padding = const EdgeInsets.fromLTRB(28, 16, 28, 24),
     this.fullBleedBackground = false,
@@ -122,7 +126,7 @@ class BioScaffold extends StatelessWidget {
         if (onBack != null)
           _circleButton(Icons.arrow_back, onBack!)
         else
-          const SizedBox(width: 48),
+          SizedBox(width: backButtonSize),
         const SizedBox(width: 12),
         Expanded(
           child: title == null
@@ -137,8 +141,8 @@ class BioScaffold extends StatelessWidget {
                     title!,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 20,
+                    style: TextStyle(
+                      fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
                       color: BioColors.forest,
                     ),
@@ -152,15 +156,19 @@ class BioScaffold extends StatelessWidget {
   }
 
   Widget _circleButton(IconData icon, VoidCallback onTap) {
+    final iconSize = backButtonSize * 0.55;
     return Material(
       color: Colors.white,
+      elevation: 3,
+      shadowColor: Colors.black26,
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Icon(icon, color: BioColors.forest, size: 26),
+        child: SizedBox(
+          width: backButtonSize,
+          height: backButtonSize,
+          child: Icon(icon, color: BioColors.forest, size: iconSize),
         ),
       ),
     );

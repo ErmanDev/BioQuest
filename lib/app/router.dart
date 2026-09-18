@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import '../app/route_observer.dart';
 import '../features/auth/auth_screen.dart';
+import '../features/splash/splash_screen.dart';
 import '../features/avatar/avatar_select_screen.dart';
 import '../features/basecamp/basecamp_screen.dart';
 import '../features/basecamp/general_instructions_screen.dart';
@@ -64,7 +65,8 @@ Widget _missionFor(String key) {
 }
 
 List<RouteBase> get _appRoutes => [
-    GoRoute(path: '/', builder: (c, s) => const AuthScreen()),
+    GoRoute(path: '/', builder: (c, s) => const SplashScreen()),
+    GoRoute(path: '/auth', builder: (c, s) => const AuthScreen()),
     GoRoute(path: '/avatar', builder: (c, s) => const AvatarSelectScreen()),
     GoRoute(
       path: '/basecamp',
@@ -202,16 +204,19 @@ GoRouter createAppRouter({
     observers: [appRouteObserver],
     redirect: (context, state) {
       final loc = state.matchedLocation;
-      final onAuth = loc == '/';
+      final onSplash = loc == '/';
+      final onAuth = loc == '/auth';
       final onAvatar = loc == '/avatar';
 
       if (!auth.isLoggedIn) {
-        return onAuth ? null : '/';
+        if (onSplash || onAuth) return null;
+        return '/auth';
       }
 
       final home = homeForLoggedInUser();
-      if (home == null) return onAuth ? null : '/';
+      if (home == null) return onSplash || onAuth ? null : '/';
 
+      if (onSplash) return null;
       if (onAuth) return home;
       if (onAvatar && auth.currentUser!.avatarChosen) return home;
       if (!onAvatar && !auth.currentUser!.avatarChosen) return '/avatar';

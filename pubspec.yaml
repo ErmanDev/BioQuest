@@ -68,6 +68,7 @@ flutter:
   assets:
     - assets/audio/
     - assets/images/
+    - assets/images/backgrounds/splash.jpg
     - assets/images/backgrounds/mission_forest_bg.png
     - assets/images/backgrounds/takeaway_station1_bg.png
     - assets/images/backgrounds/moss_structure.png

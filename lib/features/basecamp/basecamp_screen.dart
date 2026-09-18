@@ -5,7 +5,6 @@ import '../../app/theme.dart';
 import '../../core/mixins/auto_narrate_on_enter.dart';
 import '../../core/widgets/avatar_speech_bubble.dart';
 import '../../core/widgets/bio_scaffold.dart';
-import '../../core/widgets/circle_image_button.dart';
 import '../../core/widgets/guide_hint.dart';
 import '../../core/widgets/narration_control.dart';
 import '../../core/widgets/primary_button.dart';
@@ -188,113 +187,108 @@ class _BasecampScreenState extends State<BasecampScreen>
         progress.hasReadInstructions &&
         !progress.hasReadObjectives;
     final showPretestGuide = sequential && progress.orientationComplete;
-    final showExpeditionMap = progress.hasReadOverview && !widget.fromMap;
 
     final speechText = _orientationSpeechText(progress);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final totalH = constraints.maxHeight;
-        final totalW = constraints.maxWidth;
-        final avatarSize = totalH * 0.34;
-        const avatarScale = 1.75;
-        const menuWidth = 220.0;
-        final speechMaxWidth =
-            (totalW - avatarSize - menuWidth - 56).clamp(260.0, 500.0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _orientationHeader(progress),
+        const SizedBox(height: 10),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final totalH = constraints.maxHeight;
+              final totalW = constraints.maxWidth;
+              // Size against the flex area (not the full screen) so the CTA
+              // row below never pushes past the bottom.
+              const ctaReserve = 100.0;
+              final bodyH = (totalH - ctaReserve).clamp(100.0, totalH);
+              final avatarSize = bodyH * 0.42;
+              const avatarScale = 1.75;
+              const menuWidth = 220.0;
+              final speechMaxWidth =
+                  (totalW - avatarSize - menuWidth - 56).clamp(260.0, 500.0);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _orientationHeader(progress),
-            const SizedBox(height: 10),
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          AvatarSpeechBubble(
-                            key: ValueKey(speechText),
-                            text: speechText,
-                            avatarSize: avatarSize,
-                            avatarScale: avatarScale,
-                            alignSpeechTop: true,
-                            centerContent: true,
-                            avatarOffsetY: 22,
-                            speechMaxWidth: speechMaxWidth,
-                            fontSize: 24,
-                            speechBackground: BioColors.parchment.withValues(
-                              alpha: 0.94,
-                            ),
-                            speechBorderColor:
-                                BioColors.forest.withValues(alpha: 0.35),
-                            speechBorderWidth: 1.5,
-                            speechShadow: _speechShadow,
-                          ),
-                          const SizedBox(width: 16),
-                          _menuPanel(
-                            context,
-                            buttonWidth: menuWidth,
-                            progress: progress,
-                            sequential: sequential,
-                            showOverviewGuide: showOverviewGuide,
-                            showInstructionsGuide: showInstructionsGuide,
-                            showObjectivesGuide: showObjectivesGuide,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (showExpeditionMap) ...[
-                            CircleImageButton(
-                              asset:
-                                  'assets/images/ui/btn_expedition_map_circle.png',
-                              label: 'Expedition Map',
-                              size: 84,
-                              onTap: () => context.go('/map'),
-                            ),
-                            const SizedBox(width: 20),
-                          ],
-                          GuideHint(
-                            enabled: showPretestGuide,
-                            label: 'Take the Pretest next',
-                            child: PrimaryButton(
-                              label: widget.fromMap
-                                  ? 'Back to Expedition Map'
-                                  : 'Proceed to Pretest',
-                              icon: widget.fromMap
-                                  ? Icons.map
-                                  : Icons.arrow_forward,
-                              color: BioColors.sun,
-                              fontSize: 25,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 26,
-                                vertical: 13,
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              AvatarSpeechBubble(
+                                key: ValueKey(speechText),
+                                text: speechText,
+                                avatarSize: avatarSize,
+                                avatarScale: avatarScale,
+                                alignSpeechTop: true,
+                                centerContent: true,
+                                avatarOffsetY: 22,
+                                speechMaxWidth: speechMaxWidth,
+                                fontSize: 24,
+                                speechBackground:
+                                    BioColors.parchment.withValues(
+                                  alpha: 0.94,
+                                ),
+                                speechBorderColor: BioColors.forest
+                                    .withValues(alpha: 0.35),
+                                speechBorderWidth: 1.5,
+                                speechShadow: _speechShadow,
                               ),
-                              onTap: canProceedToPretest
-                                  ? () => context.go(
-                                      widget.fromMap ? '/map' : '/pretest',
-                                    )
-                                  : null,
-                            ),
+                              const SizedBox(width: 16),
+                              _menuPanel(
+                                context,
+                                buttonWidth: menuWidth,
+                                progress: progress,
+                                sequential: sequential,
+                                showOverviewGuide: showOverviewGuide,
+                                showInstructionsGuide: showInstructionsGuide,
+                                showObjectivesGuide: showObjectivesGuide,
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: GuideHint(
+                        enabled: showPretestGuide,
+                        label: 'Take the Pretest next',
+                        child: PrimaryButton(
+                          label: widget.fromMap
+                              ? 'Back to Expedition Map'
+                              : 'Proceed to Pretest',
+                          icon: widget.fromMap
+                              ? Icons.map
+                              : Icons.arrow_forward,
+                          color: BioColors.sun,
+                          fontSize: 25,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 26,
+                            vertical: 13,
+                          ),
+                          onTap: canProceedToPretest
+                              ? () => context.go(
+                                  widget.fromMap ? '/map' : '/pretest',
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ),
-          ],
-        );
-      },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 

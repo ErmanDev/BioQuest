@@ -107,9 +107,9 @@ class _Station2CheckpointMatchingActivityState
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(child: _statementsColumn()),
+              Expanded(flex: 11, child: _statementsColumn()),
               const SizedBox(width: 12),
-              Expanded(child: _choicesColumn()),
+              Expanded(flex: 10, child: _choicesColumn()),
             ],
           ),
         ),
@@ -135,42 +135,53 @@ class _Station2CheckpointMatchingActivityState
   }
 
   Widget _directionsCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: BioColors.parchment.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: BioColors.forest.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Part I. Matching',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: BioColors.forest,
-            ),
+    return Align(
+      alignment: Alignment.centerRight,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(left: 120),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: BioColors.parchment.withValues(alpha: 0.96),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: BioColors.forest.withValues(alpha: 0.25)),
           ),
-          const SizedBox(height: 6),
-          Text(
-            kStation2CheckpointPart2Directions,
-            style: const TextStyle(fontSize: 15, height: 1.4),
-          ),
-          if (!_submitted && _selectedChoiceId != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Selected: ${_choiceById(_selectedChoiceId)!.label} — tap a '
-              'statement on the left',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: BioColors.deepSky,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const Text(
+                'Part I. Matching',
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: BioColors.forest,
+                ),
               ),
-            ),
-          ],
-        ],
+              const SizedBox(height: 6),
+              Text(
+                kStation2CheckpointPart2Directions,
+                textAlign: TextAlign.right,
+                style: const TextStyle(fontSize: 20, height: 1.4),
+              ),
+              if (!_submitted && _selectedChoiceId != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Selected: ${_choiceById(_selectedChoiceId)!.label} — tap a '
+                  'statement on the left',
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: BioColors.deepSky,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -225,17 +236,17 @@ class _Station2CheckpointMatchingActivityState
           ),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
-              radius: 14,
+              radius: 16,
               backgroundColor: BioColors.forest,
               child: Text(
                 '${item.number}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                  fontSize: 18,
                 ),
               ),
             ),
@@ -243,7 +254,12 @@ class _Station2CheckpointMatchingActivityState
             Expanded(
               child: Text(
                 item.statement,
-                style: const TextStyle(fontSize: 15, height: 1.35),
+                style: const TextStyle(
+                  fontSize: 22,
+                  height: 1.3,
+                  fontWeight: FontWeight.w600,
+                  color: BioColors.ink,
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -257,8 +273,8 @@ class _Station2CheckpointMatchingActivityState
   Widget _blankSlot(String? label, {required bool highlighted}) {
     final filled = label != null;
     return Container(
-      constraints: const BoxConstraints(minWidth: 120, minHeight: 34),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      constraints: const BoxConstraints(minWidth: 168, maxWidth: 210, minHeight: 44),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: filled
             ? BioColors.moss.withValues(alpha: 0.18)
@@ -277,10 +293,13 @@ class _Station2CheckpointMatchingActivityState
       child: Text(
         filled ? label : '________',
         textAlign: TextAlign.center,
+        maxLines: 2,
+        softWrap: true,
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 18,
           fontWeight: FontWeight.bold,
-          letterSpacing: 0.4,
+          letterSpacing: 0.3,
+          height: 1.15,
           color: filled ? BioColors.forest : BioColors.ink.withValues(alpha: 0.45),
         ),
       ),
@@ -301,7 +320,7 @@ class _Station2CheckpointMatchingActivityState
           const Text(
             'Terms',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
               color: BioColors.forest,
             ),
@@ -310,7 +329,7 @@ class _Station2CheckpointMatchingActivityState
           Expanded(
             child: ListView.separated(
               itemCount: _availableChoices.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 8),
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final choice = _availableChoices[index];
                 final selected = _selectedChoiceId == choice.id;
@@ -322,19 +341,23 @@ class _Station2CheckpointMatchingActivityState
                     onTap: _submitted ? null : () => _selectChoice(choice.id),
                     child: Container(
                       width: double.infinity,
+                      constraints: const BoxConstraints(minHeight: 52),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
+                        horizontal: 14,
                         vertical: 14,
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         choice.label,
                         textAlign: TextAlign.center,
+                        maxLines: 2,
+                        softWrap: true,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          letterSpacing: 0.3,
+                          fontSize: 20,
+                          letterSpacing: 0.4,
+                          height: 1.15,
                         ),
                       ),
                     ),

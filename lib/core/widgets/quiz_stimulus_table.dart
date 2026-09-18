@@ -7,12 +7,14 @@ class QuizStimulusTable extends StatelessWidget {
   final McTableStimulus table;
   final double fontSize;
   final TextAlign bodyTextAlign;
+  final bool boldFirstColumn;
 
   const QuizStimulusTable({
     super.key,
     required this.table,
     this.fontSize = 15,
     this.bodyTextAlign = TextAlign.center,
+    this.boldFirstColumn = false,
   });
 
   @override
@@ -65,18 +67,21 @@ class QuizStimulusTable extends StatelessWidget {
             for (final row in table.rows)
               TableRow(
                 children: [
-                  for (final cell in row)
+                  for (var i = 0; i < row.length; i++)
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 8,
                       ),
                       child: Text(
-                        cell,
+                        row[i],
                         textAlign: bodyTextAlign,
                         style: TextStyle(
                           fontSize: fontSize,
                           height: 1.3,
+                          fontWeight: boldFirstColumn && i == 0
+                              ? FontWeight.w800
+                              : FontWeight.w500,
                           color: BioColors.ink,
                         ),
                       ),

@@ -29,8 +29,8 @@ class Station3DiscoveryScreen extends StatefulWidget {
 class _Station3DiscoveryScreenState extends State<Station3DiscoveryScreen>
     with RouteAware, AutoNarrateOnEnter {
   /// Inner parchment margins on [kStation3DiscoveryBackgroundAsset].
-  static const _parchmentContentLeft = 0.288;
-  static const _parchmentContentRight = 0.680;
+  static const _parchmentContentLeft = 0.345;
+  static const _parchmentContentRight = 0.725;
   static const _parchmentContentTop = 0.20;
   static const _parchmentContentHeight = 0.55;
 
@@ -102,8 +102,8 @@ class _Station3DiscoveryScreenState extends State<Station3DiscoveryScreen>
                     builder: (context, constraints) {
                       final w = constraints.maxWidth;
                       final h = constraints.maxHeight;
-                      final avatarW = w * 0.24;
-                      const avatarScale = 1.75;
+                      final avatarW = w * 0.19;
+                      const avatarScale = 1.4;
 
                       final textLeft = w * _parchmentContentLeft;
                       final textW =
@@ -169,11 +169,16 @@ class _Station3DiscoveryScreenState extends State<Station3DiscoveryScreen>
   }
 
   List<Widget> _discoveryContent(double maxWidth) {
-    const fontSize = 16.5;
-    const gap = 10.0;
+    const fontSize = 22.0;
+    const gap = 12.0;
 
     Text bodyText(String text) => Text.rich(
-          readingTextSpan(text, fontSize: fontSize, color: BioColors.ink),
+          readingTextSpan(
+            text,
+            fontSize: fontSize,
+            color: BioColors.ink,
+            indentFirstLine: true,
+          ),
           style: const TextStyle(height: 1.4),
         );
 
@@ -206,7 +211,7 @@ class _Station3DiscoveryScreenState extends State<Station3DiscoveryScreen>
       const SizedBox(height: gap),
       bodyText(kStation3DiscoveryPart4),
       const SizedBox(height: gap),
-      ResearchInstrumentsTable(fontSize: fontSize - 1.5),
+      ResearchInstrumentsTable(fontSize: fontSize - 2),
       const SizedBox(height: gap),
       bodyText(kStation3DiscoveryPart5),
       const SizedBox(height: 8),

@@ -92,20 +92,26 @@ class _CircleImageButtonState extends State<CircleImageButton> {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                widget.label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: enabled ? Colors.white : Colors.white60,
-                  shadows: const [
-                    Shadow(
-                      color: Color(0x99000000),
-                      blurRadius: 4,
-                      offset: Offset(0, 1),
-                    ),
-                  ],
+              SizedBox(
+                width: widget.size + 20,
+                child: Text(
+                  widget.label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    height: 1.15,
+                    color: enabled ? Colors.white : Colors.white60,
+                    shadows: const [
+                      Shadow(
+                        color: Color(0x99000000),
+                        blurRadius: 4,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

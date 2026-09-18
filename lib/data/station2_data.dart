@@ -264,46 +264,68 @@ const List<Station2SamplingToolInfo> kStation2SamplingTools = [
     label: 'Stratified Sampling',
     imageAsset:
         'assets/images/station2/mountain_diversity/tools/tool_stratified.png',
-    countRule: 'Count plants in **all zones** of the stratified grid.',
+    countRule:
+        'Count plants in the **mid-elevation zone** only (between the two red lines).',
   ),
 ];
 
 /// Plant markers on the study area (normalized 0–1 coordinates).
-/// Positions inside the quadrat use a spaced grid so icons do not overlap.
+/// Plants across three elevation zones (high / mid / low).
+/// Mid-elevation counts match [kStation2MountainDiversityAnswerKey].
 const List<({String speciesId, double x, double y})> kStation2MountainPlantMarkers =
     [
-  (speciesId: 'shrub', x: 0.18, y: 0.32),
-  (speciesId: 'shrub', x: 0.72, y: 0.28),
-  (speciesId: 'floweringYellow', x: 0.25, y: 0.55),
-  (speciesId: 'shrub', x: 0.36, y: 0.28),
-  (speciesId: 'floweringPink', x: 0.46, y: 0.28),
-  (speciesId: 'floweringPink', x: 0.36, y: 0.38),
-  (speciesId: 'floweringPink', x: 0.66, y: 0.38),
-  (speciesId: 'floweringYellow', x: 0.46, y: 0.58),
-  (speciesId: 'moss', x: 0.56, y: 0.28),
-  (speciesId: 'moss', x: 0.66, y: 0.28),
-  (speciesId: 'moss', x: 0.46, y: 0.38),
-  (speciesId: 'moss', x: 0.36, y: 0.48),
-  (speciesId: 'moss', x: 0.46, y: 0.48),
-  (speciesId: 'moss', x: 0.66, y: 0.48),
-  (speciesId: 'fern', x: 0.56, y: 0.38),
-  (speciesId: 'fern', x: 0.56, y: 0.48),
+  // High elevation
+  (speciesId: 'shrub', x: 0.28, y: 0.16),
+  (speciesId: 'moss', x: 0.55, y: 0.20),
+  (speciesId: 'floweringPink', x: 0.78, y: 0.14),
+  // Mid elevation (sample zone) — shrub 2, flowering A 3, moss 3, fern 1
+  (speciesId: 'shrub', x: 0.25, y: 0.42),
+  (speciesId: 'shrub', x: 0.48, y: 0.50),
+  (speciesId: 'floweringPink', x: 0.35, y: 0.38),
+  (speciesId: 'floweringPink', x: 0.55, y: 0.44),
+  (speciesId: 'floweringPink', x: 0.72, y: 0.40),
+  (speciesId: 'moss', x: 0.22, y: 0.55),
+  (speciesId: 'moss', x: 0.60, y: 0.52),
+  (speciesId: 'moss', x: 0.78, y: 0.58),
+  (speciesId: 'fern', x: 0.40, y: 0.60),
+  // Low elevation
+  (speciesId: 'floweringYellow', x: 0.38, y: 0.82),
+  (speciesId: 'moss', x: 0.68, y: 0.78),
 ];
+
+/// Correct mid-elevation species counts for the data table.
+const Map<String, int> kStation2MountainDiversityAnswerKey = {
+  'shrub': 2,
+  'floweringPink': 3,
+  'floweringYellow': 0,
+  'moss': 3,
+  'fern': 1,
+};
+
+/// Elevation zone boundaries on the study area (y=0 top, y=1 bottom).
+/// Two divider lines create high / mid / low bands.
+const double kStation2ElevationHighMidY = 0.34;
+const double kStation2ElevationMidLowY = 0.68;
+
+bool station2InMidElevationZone(({String speciesId, double x, double y}) marker) =>
+    marker.y >= kStation2ElevationHighMidY &&
+    marker.y < kStation2ElevationMidLowY;
 
 const String kStation2MountainDiversityIntro =
     'Researchers are studying different plant species found on a mountain. '
     'Different species are growing in different parts of the area.';
 
 const List<String> kStation2MountainDiversitySteps = [
-  'Choose **ONE** sampling tool from the options below.',
-  'Tap the study area to place your tool.',
-  'Count the plant individuals of each species using the guide.',
+  'The mountain is divided into **ELEVATION ZONES**.',
+  'Using stratified sampling, record the total number of individuals of each '
+      'species counted in your sample collected from the mid-elevation zone.',
+  'Use the plant species guide as your reference.',
   'Record your answers in the data table and submit.',
 ];
 
 const String kStation2MountainDiversityReminder =
-    '**REMEMBER:** Count only the plants that are inside the quadrat or '
-    'touching the line, depending on your tool.';
+    '**REMEMBER:** For stratified sampling, count only the plants inside the '
+    '**mid-elevation zone** (between the two red lines).';
 
 /// Quadrat bounds on the study area (normalized).
 const double kStation2QuadratLeft = 0.32;
@@ -328,7 +350,7 @@ bool station2PlantCounted(
     case Station2SamplingTool.lineTransect:
       return (marker.y - kStation2TransectY).abs() <= kStation2TransectTolerance;
     case Station2SamplingTool.stratified:
-      return true;
+      return station2InMidElevationZone(marker);
   }
 }
 

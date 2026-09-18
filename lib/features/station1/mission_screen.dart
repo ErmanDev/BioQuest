@@ -12,13 +12,6 @@ import '../../data/station1_data.dart';
 import '../../data/stations.dart';
 import '../../services/progress_service.dart';
 
-const List<Color> _designColors = [
-  BioColors.deepSky, // Blue — Descriptive
-  BioColors.moss, // Green — Correlational
-  const Color(0xFFFF7043), // Orange — Quasi-Experimental
-  BioColors.danger, // Red — Experimental
-];
-
 class Station1MissionScreen extends StatefulWidget {
   const Station1MissionScreen({super.key});
 
@@ -58,9 +51,9 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
   }
 
   String _mossAssetForScore(int score) {
-    if (score <= 4) return kMossDyingAsset;
-    if (score <= 7) return kMossThinAsset;
-    if (score <= 9) return kMossThickAsset;
+    if (score <= 2) return kMossDyingAsset;
+    if (score <= 3) return kMossThinAsset;
+    if (score <= 4) return kMossThickAsset;
     return kMossCapsuleAsset;
   }
 
@@ -128,49 +121,60 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
         ),
         GameCanvas(
           letterboxColor: Colors.transparent,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              4,
-              4,
-              4,
-              _started && !_finished ? 4 : 10,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _topBar(context),
-                SizedBox(height: _started && !_finished ? 6 : 12),
-                Expanded(
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    4,
+                    96,
+                    4,
+                    _started && !_finished ? 4 : 10,
+                  ),
                   child: _finished
                       ? _result(context)
                       : _started
                           ? _activity()
                           : _story(),
                 ),
-              ],
-            ),
+              ),
+              Positioned(
+                left: 24,
+                top: 12,
+                right: 24,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _backButton(context),
+                    if (_started && !_finished) ...[
+                      const SizedBox(width: 14),
+                      Expanded(child: _healthBar()),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _topBar(BuildContext context) {
-    return Row(
-      children: [
-        Material(
-          color: Colors.white,
-          shape: const CircleBorder(),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: () => context.go(stationHubRoute('station1')),
-            child: const Padding(
-              padding: EdgeInsets.all(10),
-              child: Icon(Icons.arrow_back, color: BioColors.forest, size: 26),
-            ),
-          ),
+  Widget _backButton(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      elevation: 4,
+      shadowColor: Colors.black45,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () => context.go(stationHubRoute('station1')),
+        child: const SizedBox(
+          width: 72,
+          height: 72,
+          child: Icon(Icons.arrow_back, color: BioColors.forest, size: 40),
         ),
-      ],
+      ),
     );
   }
 
@@ -181,12 +185,12 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
         final h = constraints.maxHeight;
 
         // Bounds aligned to the empty parchment panel in research_mission_bg.png.
-        final panelLeft = w * 0.245;
+        final panelLeft = w * 0.30;
         final panelWidth = w * 0.47;
-        final panelTop = h * 0.26;
-        final panelHeight = h * 0.52;
-        final buttonWidth = panelWidth * 0.96;
-        const buttonHeight = 108.0;
+        final panelTop = h * 0.20;
+        final panelHeight = h * 0.60;
+        final buttonWidth = panelWidth * 0.58;
+        const buttonHeight = 72.0;
 
         return Stack(
           clipBehavior: Clip.none,
@@ -216,8 +220,9 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
                         child: Text(
                           kStation1MissionStory,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 28,
                             height: 1.5,
+                            fontWeight: FontWeight.w500,
                             color: BioColors.ink,
                           ),
                         ),
@@ -234,11 +239,11 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
               child: PrimaryButton(
                 label: 'Tap here to Start',
                 color: BioColors.forest,
-                fontSize: 20,
+                fontSize: 26,
                 expand: true,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 14,
+                  horizontal: 24,
+                  vertical: 16,
                 ),
                 onTap: () {
                   _beginMission();
@@ -266,13 +271,16 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _healthBar(),
-                  const SizedBox(height: 8),
                   _directionsPanel(),
-                  const SizedBox(height: 8),
-                  _questionCard(item, total),
                   const SizedBox(height: 10),
-                  Expanded(child: _answerRows()),
+                  _questionCard(item, total),
+                  const SizedBox(height: 14),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: _answerRows(constraints.maxHeight),
+                    ),
+                  ),
                   SizedBox(height: constraints.maxHeight * 0.01),
                 ],
               ),
@@ -286,7 +294,7 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
 
   Widget _questionCard(MissionItem item, int total) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: BioColors.parchment,
         borderRadius: BorderRadius.circular(12),
@@ -296,7 +304,7 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: BioColors.sun,
               borderRadius: BorderRadius.circular(12),
@@ -305,7 +313,7 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
               '${_index + 1}/$total',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 28,
               ),
             ),
           ),
@@ -314,7 +322,7 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
             child: Text(
               item.statement,
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: 32,
                 height: 1.3,
                 fontWeight: FontWeight.w700,
                 color: BioColors.ink,
@@ -326,37 +334,26 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
     );
   }
 
-  Widget _answerRows() {
+  Widget _answerRows(double maxHeight) {
+    final boxHeight = (maxHeight * 0.12).clamp(64.0, 84.0);
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(child: _designBox(0)),
-              const SizedBox(width: 10),
-              Expanded(child: _designBox(1)),
-            ],
+        for (var i = 0; i < 4; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          SizedBox(
+            height: boxHeight,
+            width: double.infinity,
+            child: _designBox(i),
           ),
-        ),
-        const SizedBox(height: 10),
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(child: _designBox(2)),
-              const SizedBox(width: 10),
-              Expanded(child: _designBox(3)),
-            ],
-          ),
-        ),
+        ],
       ],
     );
   }
 
   Widget _directionsPanel() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: BioColors.parchment,
         borderRadius: BorderRadius.circular(12),
@@ -368,62 +365,23 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
           const Text(
             'Directions:',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 30,
               fontWeight: FontWeight.w900,
               color: BioColors.ink,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             kStation1MissionDirections,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 28,
               height: 1.35,
               fontWeight: FontWeight.w600,
               color: BioColors.ink,
             ),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              for (var i = 0; i < kResearchDesignLabels.length; i++) ...[
-                if (i > 0) const SizedBox(width: 8),
-                Expanded(child: _compactLegend(i)),
-              ],
-            ],
-          ),
         ],
       ),
-    );
-  }
-
-  Widget _compactLegend(int index) {
-    return Row(
-      children: [
-        Container(
-          width: 18,
-          height: 18,
-          decoration: BoxDecoration(
-            color: _designColors[index],
-            border: Border.all(color: Colors.white, width: 2),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        const SizedBox(width: 5),
-        Expanded(
-          child: Text(
-            kResearchDesigns[index],
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 12,
-              height: 1.2,
-              fontWeight: FontWeight.w700,
-              color: BioColors.ink,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -467,50 +425,66 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
     final answered = _picked != null;
     final isPicked = _picked == displaySlot;
     final isCorrect = designIndex == correctIndex;
-    Color color = _designColors[designIndex];
+
+    Color fill = Colors.white;
+    Color border = BioColors.bark.withValues(alpha: 0.45);
+    Color textColor = BioColors.ink;
     Widget? badge;
+
     if (answered) {
       if (isCorrect) {
-        color = BioColors.correct;
+        fill = BioColors.correct;
+        border = BioColors.correct;
+        textColor = Colors.white;
         badge = const Icon(Icons.check_circle, color: Colors.white);
-      } else if (isPicked) {
-        color = BioColors.danger;
-        badge = const Icon(Icons.cancel, color: Colors.white);
       } else {
-        color = _designColors[designIndex];
+        fill = BioColors.danger;
+        border = BioColors.danger;
+        textColor = Colors.white;
+        if (isPicked) {
+          badge = const Icon(Icons.cancel, color: Colors.white);
+        }
       }
     }
+
     return GestureDetector(
       onTap: answered ? null : () => _pick(displaySlot),
       child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: color,
+          color: fill,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white, width: 2.5),
+          border: Border.all(color: border, width: 2.5),
+          boxShadow: answered
+              ? null
+              : const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Flexible(
+            Expanded(
               child: Text(
                 kResearchDesigns[designIndex],
-                textAlign: TextAlign.center,
-                maxLines: 3,
+                textAlign: TextAlign.left,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: textColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  fontSize: 32,
                   height: 1.15,
                 ),
               ),
             ),
             if (badge != null) ...[
-              const SizedBox(width: 6),
-              SizedBox(width: 22, height: 22, child: badge),
+              const SizedBox(width: 10),
+              SizedBox(width: 28, height: 28, child: badge),
             ],
           ],
         ),
@@ -520,16 +494,24 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
 
   Widget _healthBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      height: 72,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           SizedBox(
-            width: 64,
-            height: 64,
+            width: 52,
+            height: 52,
             child: GameImage(
               asset: _mossAssetForScore(_correct),
               label: 'Moss health',
@@ -540,11 +522,11 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
             ),
           ),
           const SizedBox(width: 10),
-          const Icon(Icons.favorite, color: BioColors.danger),
+          const Icon(Icons.favorite, color: BioColors.danger, size: 26),
           const SizedBox(width: 8),
           const Text(
             'Moss Health',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -562,7 +544,7 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
           const SizedBox(width: 12),
           Text(
             '$_correct / ${kStation1Mission.length}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
         ],
       ),
@@ -570,19 +552,19 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
   }
 
   ({String asset, String label, Color color}) _mossState() {
-    if (_correct <= 4) {
+    if (_correct <= 2) {
       return (
         asset: kMossDyingAsset,
         label: 'The moss is dying. Keep learning and try again!',
         color: BioColors.bark,
       );
-    } else if (_correct <= 7) {
+    } else if (_correct <= 3) {
       return (
         asset: kMossThinAsset,
         label: 'The moss is healthy, but thin and short.',
         color: BioColors.leaf,
       );
-    } else if (_correct <= 9) {
+    } else if (_correct <= 4) {
       return (
         asset: kMossThickAsset,
         label: 'The moss is healthy, tall, and thick!',

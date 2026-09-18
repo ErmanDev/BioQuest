@@ -6,6 +6,7 @@ import '../../core/widgets/bio_scaffold.dart';
 import '../../core/widgets/voiceover_toggle.dart';
 import '../../data/station1_data.dart';
 import '../../data/station2_data.dart';
+import '../../data/station3_data.dart';
 import '../../data/station5_data.dart';
 import '../../data/station_content.dart';
 import '../../data/stations.dart';
@@ -30,6 +31,8 @@ class _StationIntroScreenState extends State<StationIntroScreen>
         return kStation1IntroNarration;
       case 'station2':
         return kStation2IntroNarration;
+      case 'station3':
+        return kStation3IntroNarration;
       case 'station5':
         return kStation5IntroNarration;
       default:

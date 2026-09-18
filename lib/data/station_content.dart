@@ -18,6 +18,7 @@ class StationContent {
   final List<McQuestion> checkpoint;
   final String badgeAsset;
   final String nextStationMessage;
+  final List<String> missionTargets;
 
   const StationContent({
     required this.intro,
@@ -29,6 +30,7 @@ class StationContent {
     required this.checkpoint,
     required this.badgeAsset,
     required this.nextStationMessage,
+    required this.missionTargets,
   });
 }
 
@@ -44,6 +46,12 @@ const Map<String, StationContent> kStationContent = {
     badgeAsset: 'badge_research_beginner.png',
     nextStationMessage:
         'Great work, Young Researcher! Station 2 is now unlocked on the Expedition Map.',
+    missionTargets: [
+      'Identify the characteristics, habitats, and ecological importance of mosses.',
+      'Identify the characteristics and purposes of different quantitative research designs.',
+      'Choose the appropriate quantitative research design for a given research situation.',
+      'Recognize the importance of selecting an appropriate quantitative research design in conducting research.',
+    ],
   ),
   'station2': StationContent(
     intro: kStation2Intro,
@@ -56,6 +64,11 @@ const Map<String, StationContent> kStationContent = {
     badgeAsset: kStation2BadgeAsset,
     nextStationMessage:
         'Excellent sampling! Station 3 is now unlocked on the Expedition Map.',
+    missionTargets: [
+      'Describe how moss distribution changes across different mountain elevations.',
+      'Describe appropriate sampling procedures used in field research.',
+      'Identify the population and sample in a research study.',
+    ],
   ),
   'station3': StationContent(
     intro: kStation3Intro,
@@ -67,6 +80,11 @@ const Map<String, StationContent> kStationContent = {
     checkpoint: kStation3Checkpoint,
     badgeAsset: kStation3BadgeAsset,
     nextStationMessage: kStation3BadgeNextMessage,
+    missionTargets: [
+      'Explain the process of in vitro propagation of moss.',
+      'Plan a data collection procedure (CS_RS12-IIa-c-5).',
+      'Collect data using appropriate research instruments (CS_RS12-IId-g-1).',
+    ],
   ),
   'station4': StationContent(
     intro: kStation4Intro,
@@ -78,6 +96,11 @@ const Map<String, StationContent> kStationContent = {
     checkpoint: kStation4Checkpoint,
     badgeAsset: kStation4BadgeAsset,
     nextStationMessage: kStation4BadgeNextMessage,
+    missionTargets: [
+      'Explain the purpose of phytochemical screening in identifying bioactive compounds.',
+      'Organize and present scientific data using appropriate tables and graphs.',
+      'Interpret data based on observed patterns and results.',
+    ],
   ),
   'station5': StationContent(
     intro: kStation5Intro,
@@ -89,6 +112,11 @@ const Map<String, StationContent> kStationContent = {
     checkpoint: kStation5Checkpoint,
     badgeAsset: kStation5BadgeAsset,
     nextStationMessage: kStation5BadgeNextMessage,
+    missionTargets: [
+      'Investigate the antibacterial activity of moss genera using scientific reasoning.',
+      'Apply statistics and hypothesis testing to analyze research data.',
+      'Decide whether to accept or reject a null hypothesis based on evidence.',
+    ],
   ),
 };
 

@@ -22,6 +22,10 @@ class QuizScreen extends StatefulWidget {
   final double promptFontSize;
   final double optionFontSize;
   final double stimulusFontSize;
+  final double nextFontSize;
+  final bool showNextIcon;
+  final double titleFontSize;
+  final double backButtonSize;
 
   const QuizScreen({
     super.key,
@@ -39,6 +43,10 @@ class QuizScreen extends StatefulWidget {
     this.promptFontSize = 21,
     this.optionFontSize = 17,
     this.stimulusFontSize = 15,
+    this.nextFontSize = 22,
+    this.showNextIcon = true,
+    this.titleFontSize = 20,
+    this.backButtonSize = 46,
   });
 
   @override
@@ -76,6 +84,8 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget build(BuildContext context) {
     return BioScaffold(
       title: widget.title,
+      titleFontSize: widget.titleFontSize,
+      backButtonSize: widget.backButtonSize,
       backgroundAsset: widget.backgroundAsset,
       backgroundLabel: widget.backgroundLabel ?? widget.title,
       gradient: widget.gradient ?? const [BioColors.deepSky, BioColors.leaf],
@@ -112,12 +122,23 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
             if (widget.showAnswerFeedback) ...[
               const Spacer(),
-              Text(
-                'Score: $_score / ${widget.questions.length}',
-                style: TextStyle(
-                  fontSize: widget.optionFontSize - 2,
-                  fontWeight: FontWeight.w800,
-                  color: BioColors.forest,
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.94),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: BioColors.bark.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: Text(
+                  'Score: $_score / ${widget.questions.length}',
+                  style: TextStyle(
+                    fontSize: widget.optionFontSize - 2,
+                    fontWeight: FontWeight.w800,
+                    color: BioColors.ink,
+                  ),
                 ),
               ),
             ],
@@ -183,7 +204,8 @@ class _QuizScreenState extends State<QuizScreen> {
                     child: PrimaryButton(
                       label:
                           _index == widget.questions.length - 1 ? 'Finish' : 'Next',
-                      icon: Icons.arrow_forward,
+                      icon: widget.showNextIcon ? Icons.arrow_forward : null,
+                      fontSize: widget.nextFontSize,
                       onTap: answered ? _next : null,
                     ),
                   ),
@@ -215,23 +237,14 @@ class _QuizScreenState extends State<QuizScreen> {
           fontWeight: FontWeight.bold,
         );
       }
-      if (optionIndex == selectedIndex) {
-        return const _OptionStyle(
-          background: BioColors.danger,
-          border: BioColors.danger,
-          text: Colors.white,
-          letterBackground: Colors.white,
-          letterText: BioColors.danger,
-          fontWeight: FontWeight.bold,
-        );
-      }
+      // All incorrect options turn red once an answer is locked in.
       return const _OptionStyle(
-        background: Colors.white,
-        border: BioColors.bark,
-        text: BioColors.ink,
-        letterBackground: BioColors.paleLeaf,
-        letterText: BioColors.forest,
-        fontWeight: FontWeight.normal,
+        background: BioColors.danger,
+        border: BioColors.danger,
+        text: Colors.white,
+        letterBackground: Colors.white,
+        letterText: BioColors.danger,
+        fontWeight: FontWeight.bold,
       );
     }
 
@@ -269,7 +282,7 @@ class _QuizScreenState extends State<QuizScreen> {
           borderRadius: BorderRadius.circular(12),
           onTap: locked ? null : () => _selectAnswer(optionIndex),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: style.border, width: 2),
@@ -277,7 +290,7 @@ class _QuizScreenState extends State<QuizScreen> {
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: 18,
+                  radius: 22,
                   backgroundColor: style.letterBackground,
                   child: Text(
                     letters[optionIndex],
@@ -288,10 +301,11 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Text(
                     text,
+                    textAlign: TextAlign.left,
                     style: TextStyle(
                       fontSize: widget.optionFontSize,
                       color: style.text,

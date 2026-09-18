@@ -24,14 +24,34 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
   final _controllers = {
     for (final s in kStation2PlantSpecies) s.id: TextEditingController(),
   };
+  final _focusNodes = {
+    for (final s in kStation2PlantSpecies) s.id: FocusNode(),
+  };
+  /// null = not checked yet; true/false after the field loses focus.
+  final Map<String, bool?> _fieldCorrect = {
+    for (final s in kStation2PlantSpecies) s.id: null,
+  };
   String? _feedback;
   bool _submitted = false;
   int _activityScore = 0;
 
   @override
+  void initState() {
+    super.initState();
+    for (final entry in _focusNodes.entries) {
+      entry.value.addListener(() {
+        if (!entry.value.hasFocus) _validateField(entry.key);
+      });
+    }
+  }
+
+  @override
   void dispose() {
     for (final c in _controllers.values) {
       c.dispose();
+    }
+    for (final n in _focusNodes.values) {
+      n.dispose();
     }
     super.dispose();
   }
@@ -46,6 +66,9 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
       _feedback = null;
       _submitted = false;
       _activityScore = 0;
+      for (final id in _fieldCorrect.keys) {
+        _fieldCorrect[id] = null;
+      }
     });
   }
 
@@ -60,6 +83,39 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
     });
   }
 
+  int _scoreFromFields() {
+    var score = 0;
+    for (final species in kStation2PlantSpecies) {
+      if (_fieldCorrect[species.id] == true) score++;
+    }
+    return score;
+  }
+
+  void _validateField(String speciesId) {
+    if (!_toolPlaced || _submitted || !mounted) return;
+    final raw = _controllers[speciesId]!.text.trim();
+    if (raw.isEmpty) {
+      setState(() {
+        _fieldCorrect[speciesId] = null;
+        _activityScore = _scoreFromFields();
+        _feedback = null;
+      });
+      return;
+    }
+
+    final entered = int.tryParse(raw);
+    final expected = kStation2MountainDiversityAnswerKey[speciesId]!;
+    setState(() {
+      _fieldCorrect[speciesId] = entered == expected;
+      _activityScore = _scoreFromFields();
+      final checked = _fieldCorrect.values.where((v) => v != null).length;
+      if (checked > 0) {
+        _feedback =
+            'Score: $_activityScore / ${kStation2PlantSpecies.length}';
+      }
+    });
+  }
+
   void _submit() {
     if (_selectedTool == null || !_toolPlaced) {
       setState(
@@ -68,20 +124,21 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
       return;
     }
 
-    final expected = station2ExpectedCounts(_selectedTool!);
-    var score = 0;
     for (final species in kStation2PlantSpecies) {
       final entered = int.tryParse(_controllers[species.id]!.text.trim());
-      if (entered == expected[species.id]) score++;
+      final expected = kStation2MountainDiversityAnswerKey[species.id]!;
+      _fieldCorrect[species.id] = entered == expected;
     }
 
+    final score = _scoreFromFields();
     final total = kStation2PlantSpecies.length;
     setState(() {
       _submitted = true;
       _activityScore = score;
       _feedback = score == total
-          ? 'Excellent! Your counts match the plants in your sample.'
-          : 'You scored $score out of $total species. Tap Next Activity to continue.';
+          ? 'Excellent! Your counts match the plants in your sample. '
+              'Score: $score / $total'
+          : 'You scored $score out of $total species. Tap Continue to takeaway.';
     });
   }
 
@@ -399,6 +456,8 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
                 cacheWidth: 1200,
               ),
               if (placed && tool != null) ..._toolOverlay(tool),
+              ..._elevationDividers(),
+              _elevationSideLabels(),
               ..._plantMarkers(tool, placed),
               if (_selectedTool != null && !placed) _studyHint('TAP TO PLACE TOOL'),
               if (_selectedTool == null) _studyHint('SELECT A TOOL FIRST'),
@@ -469,6 +528,84 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
           ),
         ];
     }
+  }
+
+  List<Widget> _elevationDividers() {
+    return [
+      for (final y in [
+        kStation2ElevationHighMidY,
+        kStation2ElevationMidLowY,
+      ])
+        Positioned(
+          left: 56,
+          right: 8,
+          top: 0,
+          bottom: 0,
+          child: Align(
+            alignment: Alignment(0, y * 2 - 1),
+            child: Container(
+              height: 3,
+              decoration: BoxDecoration(
+                color: BioColors.danger,
+                borderRadius: BorderRadius.circular(2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black38,
+                    blurRadius: 2,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+    ];
+  }
+
+  Widget _elevationSideLabels() {
+    return Positioned(
+      left: 4,
+      top: 8,
+      bottom: 8,
+      width: 48,
+      child: Column(
+        children: [
+          Expanded(
+            child: _elevationLabel('High'),
+          ),
+          Expanded(
+            child: _elevationLabel('Mid'),
+          ),
+          Expanded(
+            child: _elevationLabel('Lower'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _elevationLabel(String text) {
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.92),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: BioColors.danger.withValues(alpha: 0.75)),
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            height: 1.15,
+            color: BioColors.forest,
+          ),
+        ),
+      ),
+    );
   }
 
   List<Widget> _plantMarkers(Station2SamplingTool? tool, bool placed) {
@@ -662,6 +799,8 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
 
   Widget _dataTable() {
     final canSubmit = _toolPlaced && !_submitted;
+    final checkedCount =
+        _fieldCorrect.values.where((v) => v != null).length;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -684,10 +823,25 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
           ),
           const SizedBox(height: 6),
           const Text(
-            'Enter how many of each species you counted in your sample.',
+            'Enter the total number of individuals of each species counted '
+            'in your sample collected from the mid-elevation zone.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, height: 1.35),
           ),
+          if (checkedCount > 0) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Score: $_activityScore / ${kStation2PlantSpecies.length}',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: _activityScore == kStation2PlantSpecies.length
+                    ? BioColors.correct
+                    : BioColors.forest,
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           for (final species in kStation2PlantSpecies) ...[
             _dataRow(species),
@@ -711,12 +865,26 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
   }
 
   Widget _dataRow(Station2PlantSpecies species) {
+    final correct = _fieldCorrect[species.id];
+    final borderColor = correct == null
+        ? BioColors.leaf.withValues(alpha: 0.5)
+        : (correct ? BioColors.correct : BioColors.danger);
+    final inputBorderColor = correct == null
+        ? BioColors.forest
+        : (correct ? BioColors.correct : BioColors.danger);
+    final fillColor = !_toolPlaced
+        ? BioColors.paleLeaf.withValues(alpha: 0.4)
+        : correct == null
+            ? Colors.white
+            : (correct ? BioColors.correct : BioColors.danger)
+                .withValues(alpha: 0.12);
+
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: BioColors.leaf.withValues(alpha: 0.5)),
+        border: Border.all(color: borderColor, width: correct == null ? 1 : 2),
       ),
       child: Row(
         children: [
@@ -745,10 +913,19 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
               ),
             ),
           ),
+          if (correct != null) ...[
+            Icon(
+              correct ? Icons.check_circle : Icons.cancel,
+              color: correct ? BioColors.correct : BioColors.danger,
+              size: 26,
+            ),
+            const SizedBox(width: 8),
+          ],
           SizedBox(
             width: 88,
             child: TextField(
               controller: _controllers[species.id],
+              focusNode: _focusNodes[species.id],
               enabled: _toolPlaced && !_submitted,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
@@ -756,11 +933,12 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
+              onEditingComplete: () {
+                _focusNodes[species.id]!.unfocus();
+              },
               decoration: InputDecoration(
                 filled: true,
-                fillColor: _toolPlaced
-                    ? Colors.white
-                    : BioColors.paleLeaf.withValues(alpha: 0.4),
+                fillColor: fillColor,
                 hintText: '0',
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 8,
@@ -771,7 +949,18 @@ class _MountainDiversityActivityState extends State<MountainDiversityActivity> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: BioColors.forest, width: 2),
+                  borderSide: BorderSide(color: inputBorderColor, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(
+                    color: correct == false ? BioColors.danger : BioColors.forest,
+                    width: 2.5,
+                  ),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: inputBorderColor, width: 2),
                 ),
               ),
             ),

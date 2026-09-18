@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 
+import '../core/text_format.dart';
 import '../models/mc_question.dart';
 
+/// Welcome script for Station 3 (shown + spoken on the station splash).
 const String kStation3Intro =
     'Welcome, young researchers! In this station, you will enter the Green '
     'Growth Laboratory, where scientists carefully grow moss inside sterile '
-    'containers through a process called in vitro propagation.\n\n'
+    'containers through a process called *in vitro* propagation.\n\n'
     'But this station is not only about growing moss. More importantly, it will '
-    'train you to think and work like real researchers by learning how to plan '
-    'an effective data collection procedure and collect accurate data using '
-    'appropriate research instruments.\n\n'
+    'train you to think and work like real researchers by learning how to:\n'
+    '• Plan data collection procedure (**CS_RS12-IIa-c-5**)\n'
+    '• Collect data using appropriate research instruments (**CS_RS12-IId-g-1**)\n\n'
     'As you explore the fascinating process of moss propagation, you will also '
     'discover that successful scientific investigations depend on organized '
     'planning and reliable data gathering.';
+
+/// Plain text for TTS (no bullet/markup symbols).
+String get kStation3IntroNarration => stripReadingMarkup(
+      kStation3Intro.replaceAll('• ', ''),
+    );
 
 /// Discovery Stop reading content. Wrap key terms in ** for bold emphasis.
 const String kStation3DiscoveryBackgroundAsset =

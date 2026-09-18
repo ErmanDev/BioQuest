@@ -174,7 +174,12 @@ class _Station4DiscoveryScreenState extends State<Station4DiscoveryScreen>
     const gap = 7.0;
 
     Text bodyText(String text) => Text.rich(
-          readingTextSpan(text, fontSize: fontSize, color: BioColors.ink),
+          readingTextSpan(
+            text,
+            fontSize: fontSize,
+            color: BioColors.ink,
+            indentFirstLine: true,
+          ),
           style: const TextStyle(height: 1.35),
         );
 

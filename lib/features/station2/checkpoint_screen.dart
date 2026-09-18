@@ -22,13 +22,18 @@ class Station2CheckpointScreen extends StatefulWidget {
 }
 
 class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
-  int _phase = 0; // 0 matching (part I), 1 MC (part II)
+  int _phase = 0; // 0 matching (part I), 1 MC (part II), 2 results
   int _part1Score = 0;
   int _part2Index = 0;
   late final List<int?> _part2Answers =
       List<int?>.filled(kStation2CheckpointPart1.length, null);
   late final List<List<int>> _part2OptionOrder;
   int _part2Score = 0;
+
+  int get _matchingTotal => kStation2CheckpointPart2Items.length;
+  int get _mcTotal => kStation2CheckpointPart1.length;
+  int get _totalScore => _part1Score + _part2Score;
+  int get _grandTotal => _matchingTotal + _mcTotal;
 
   @override
   void initState() {
@@ -68,18 +73,20 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
       setState(() => _part2Index++);
       return;
     }
-    setState(() => _part2Score = _scorePart2());
-    _finishCheckpoint();
+    setState(() {
+      _part2Score = _scorePart2();
+      _phase = 2;
+    });
   }
 
-  Future<void> _finishCheckpoint() async {
-    final matchingTotal = kStation2CheckpointPart2Items.length;
-    final mcTotal = kStation2CheckpointPart1.length;
-    final total = matchingTotal + mcTotal;
-    final score = _part1Score + _part2Score;
+  Future<void> _claimBadge() async {
     final progress = context.read<ProgressService>();
-    await progress.recordAssessment('station2_checkpoint', score, total);
-    await progress.completeStation('station2', score);
+    await progress.recordAssessment(
+      'station2_checkpoint',
+      _totalScore,
+      _grandTotal,
+    );
+    await progress.completeStation('station2', _totalScore);
     if (mounted) context.go('/station2/badge');
   }
 
@@ -92,16 +99,80 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
       fullBleedBackground: true,
       scrimOpacity: 0.12,
       onBack: () => context.go(stationHubRoute('station2')),
-      body: _phase == 0
-          ? Station2CheckpointMatchingActivity(
-              onComplete: (score, total) {
-                setState(() {
-                  _part1Score = score;
-                  _phase = 1;
-                });
-              },
-            )
-          : _part2Identification(),
+      body: switch (_phase) {
+        0 => Station2CheckpointMatchingActivity(
+            onComplete: (score, total) {
+              setState(() {
+                _part1Score = score;
+                _phase = 1;
+              });
+            },
+          ),
+        1 => _part2Identification(),
+        _ => _results(),
+      },
+    );
+  }
+
+  Widget _results() {
+    return Center(
+      child: Container(
+        width: 560,
+        padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(
+          color: BioColors.parchment.withValues(alpha: 0.96),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: BioColors.forest, width: 3),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.emoji_events, color: BioColors.sun, size: 64),
+            const SizedBox(height: 8),
+            const Text(
+              'Your Score',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: BioColors.ink,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '$_totalScore / $_grandTotal',
+              style: const TextStyle(
+                fontSize: 52,
+                fontWeight: FontWeight.w900,
+                color: BioColors.forest,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Part I (Matching): $_part1Score / $_matchingTotal',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: BioColors.ink,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Part II (Identification): $_part2Score / $_mcTotal',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: BioColors.ink,
+              ),
+            ),
+            const SizedBox(height: 20),
+            PrimaryButton(
+              label: 'Claim My Badge',
+              icon: Icons.check,
+              onTap: _claimBadge,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -194,7 +265,7 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
                     alignment: Alignment.centerRight,
                     child: PrimaryButton(
                       label: _part2Index == kStation2CheckpointPart1.length - 1
-                          ? 'Claim My Badge'
+                          ? 'View Results'
                           : 'Next',
                       icon: Icons.arrow_forward,
                       onTap: answered ? _nextPart2 : null,

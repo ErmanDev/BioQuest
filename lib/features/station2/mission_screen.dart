@@ -26,10 +26,11 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
   static const _yourMissionsAspect = 184 / 1024;
 
   /// Inner parchment text bounds on [kStation2MissionBackgroundAsset].
-  static const _storyContentLeft = 0.355;
-  static const _storyContentRight = 0.575;
-  static const _storyContentTop = 0.27;
-  static const _storyContentBottom = 0.68;
+  /// Fractions of the full GameCanvas (not padded) so they match the BG.
+  static const _storyContentLeft = 0.365;
+  static const _storyContentRight = 0.695;
+  static const _storyContentTop = 0.285;
+  static const _storyContentBottom = 0.685;
 
   int _phase = 0; // 0 story, 1 pop/sample, 2 diversity
   final _storyScrollCtrl = ScrollController();
@@ -106,63 +107,68 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
         ),
         GameCanvas(
           letterboxColor: Colors.transparent,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(4, 4, 4, _phase == 0 ? 10 : 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _topBar(context),
-                SizedBox(height: _phase == 0 ? 12 : 6),
-                Expanded(
-                  child: switch (_phase) {
-                    0 => _story(),
-                    1 => PopulationSampleActivity(
-                          onComplete: (cardScore) {
-                            setState(() {
-                              _score += cardScore;
-                              _phase = 2;
-                            });
-                          },
-                        ),
-                    2 => MountainDiversityActivity(
-                          onComplete: (activityScore) async {
-                            final progress = context.read<ProgressService>();
-                            final router = GoRouter.of(context);
-                            final finalScore = _score + activityScore;
-                            await progress.saveMissionScore(
-                              'station2',
-                              finalScore,
-                            );
-                            if (mounted) router.go('/station2/takeaway');
-                          },
-                        ),
-                    _ => const SizedBox.shrink(),
-                  },
-                ),
-              ],
-            ),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: switch (_phase) {
+                  // Story uses full-canvas fractions aligned to the BG parchment.
+                  0 => _story(),
+                  1 => Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 96, 4, 4),
+                      child: PopulationSampleActivity(
+                        onComplete: (cardScore) {
+                          setState(() {
+                            _score += cardScore;
+                            _phase = 2;
+                          });
+                        },
+                      ),
+                    ),
+                  2 => Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 96, 4, 4),
+                      child: MountainDiversityActivity(
+                        onComplete: (activityScore) async {
+                          final progress = context.read<ProgressService>();
+                          final router = GoRouter.of(context);
+                          final finalScore = _score + activityScore;
+                          await progress.saveMissionScore(
+                            'station2',
+                            finalScore,
+                          );
+                          if (mounted) router.go('/station2/takeaway');
+                        },
+                      ),
+                    ),
+                  _ => const SizedBox.shrink(),
+                },
+              ),
+              Positioned(
+                left: 24,
+                top: 12,
+                child: _backButton(context),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _topBar(BuildContext context) {
-    return Row(
-      children: [
-        Material(
-          color: Colors.white,
-          shape: const CircleBorder(),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: () => context.go(stationHubRoute('station2')),
-            child: const Padding(
-              padding: EdgeInsets.all(10),
-              child: Icon(Icons.arrow_back, color: BioColors.forest, size: 26),
-            ),
-          ),
+  Widget _backButton(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      elevation: 4,
+      shadowColor: Colors.black45,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () => context.go(stationHubRoute('station2')),
+        child: const SizedBox(
+          width: 72,
+          height: 72,
+          child: Icon(Icons.arrow_back, color: BioColors.forest, size: 40),
         ),
-      ],
+      ),
     );
   }
 
@@ -175,7 +181,8 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
         final textLeft = w * _storyContentLeft;
         final textW = w * (_storyContentRight - _storyContentLeft);
         final textTop = h * _storyContentTop;
-        final textH = h * _storyContentBottom - textTop;
+        final textH =
+            (h * _storyContentBottom - textTop).clamp(80.0, h);
 
         return Stack(
           clipBehavior: Clip.none,
@@ -211,42 +218,39 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
                         child: Stack(
                           children: [
                             Scrollbar(
-                            controller: _storyScrollCtrl,
-                            child: SingleChildScrollView(
                               controller: _storyScrollCtrl,
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Text.rich(
-                                    readingTextSpan(
-                                      kStation2MissionStory,
-                                      fontSize: 16,
-                                      color: BioColors.ink,
+                              child: SingleChildScrollView(
+                                controller: _storyScrollCtrl,
+                                padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text.rich(
+                                      readingTextSpan(
+                                        kStation2MissionStory,
+                                        fontSize: 30,
+                                        color: BioColors.ink,
+                                      ),
+                                      style: const TextStyle(height: 1.45),
                                     ),
-                                    style: const TextStyle(height: 1.45),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  SizedBox(
-                                    width: textW,
-                                    height: textW * _yourMissionsAspect,
-                                    child: GameImage(
-                                      asset: kStation2YourMissionsAsset,
-                                      label: 'Your missions',
-                                      fit: BoxFit.contain,
-                                      color: BioColors.moss,
-                                      icon: Icons.assignment,
-                                      cacheWidth: 1024,
+                                    const SizedBox(height: 12),
+                                    SizedBox(
+                                      width: textW,
+                                      height: textW * _yourMissionsAspect,
+                                      child: _zoomableImage(
+                                        asset: kStation2YourMissionsAsset,
+                                        label: 'Your missions',
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          if (_showScrollHint) _scrollDownHint(),
-                        ],
+                            if (_showScrollHint) _scrollDownHint(),
+                          ],
+                        ),
                       ),
-                    ),
                     ),
                   ],
                 ),
@@ -261,7 +265,10 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
                 color: BioColors.forest,
                 fontSize: 20,
                 expand: true,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
                 onTap: () => setState(() => _phase = 1),
               ),
             ),
@@ -297,4 +304,99 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
     );
   }
 
+  Widget _zoomableImage({required String asset, required String label}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _openImageZoom(asset: asset, label: label),
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            Positioned.fill(
+              child: GameImage(
+                asset: asset,
+                label: label,
+                fit: BoxFit.contain,
+                color: BioColors.moss,
+                icon: Icons.assignment,
+                cacheWidth: 1024,
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.zoom_in_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openImageZoom({required String asset, required String label}) {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.88),
+      builder: (dialogContext) {
+        final size = MediaQuery.sizeOf(dialogContext);
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: size.width,
+            height: size.height * 0.88,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: InteractiveViewer(
+                    minScale: 1,
+                    maxScale: 5,
+                    child: Center(
+                      child: GameImage(
+                        asset: asset,
+                        label: label,
+                        fit: BoxFit.contain,
+                        color: BioColors.moss,
+                        icon: Icons.assignment,
+                        cacheWidth: 1600,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Material(
+                    color: Colors.white,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () => Navigator.of(dialogContext).pop(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.close,
+                          color: BioColors.forest,
+                          size: 26,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
