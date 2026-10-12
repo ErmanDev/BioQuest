@@ -40,7 +40,24 @@ const String kStation5Activity1Tip =
     'A good data analysis follows a logical flow—from collecting data to '
     'making a conclusion based on evidence.';
 
+/// Welcome script for Station 5 (spoken by the avatar when the station opens).
 const String kStation5Intro =
+    'Welcome, young researchers! In this station, you will enter the Defense '
+    'Laboratory, where scientists investigate the antibacterial properties of '
+    'moss through a process called antibacterial assay. Here, you will '
+    'discover that mosses produce natural compounds which help protect them '
+    'from harmful bacteria in their environment.\n\n'
+    'But this station is not only about testing moss extracts against '
+    'bacteria. More importantly, it will train you to think and work like real '
+    'researchers by learning how to:\n'
+    '• Plan data analysis using statistics and hypothesis testing\n\n'
+    'As you explore the fascinating antibacterial properties of mosses, you '
+    'will also discover that successful scientific investigations require '
+    'proper data analysis, careful interpretation of results, and logical '
+    'decision-making based on scientific evidence.';
+
+/// Research Mission story shown before the first activity.
+const String kStation5MissionStory =
     'Welcome, young researchers!\n\n'
     'You are now officially part of the Moss Detectives Research Team. A '
     'mysterious bacterial outbreak has affected a nearby community laboratory, '
@@ -53,7 +70,7 @@ const String kStation5Intro =
     'Let the investigation begin!';
 
 /// Voiceover script when opening Station 5 (splash / intro).
-const String kStation5IntroNarration = kStation5Intro;
+String get kStation5IntroNarration => kStation5Intro.replaceAll('• ', '');
 
 /// Discovery Stop reading content. Wrap key terms in ** for bold emphasis.
 const String kStation5DiscoveryPart1 =
@@ -222,7 +239,7 @@ const List<String> kStation5DiscoveryMeanHeaders = [
 ];
 
 const List<({String treatment, List<String> values, String? mean})>
-    kStation5DiscoveryRawZoneRows = [
+kStation5DiscoveryRawZoneRows = [
   (
     treatment: 'Pyrrhobryum',
     values: ['18 mm', '17 mm', '19 mm', '18 mm', '18 mm'],
@@ -246,7 +263,7 @@ const List<({String treatment, List<String> values, String? mean})>
 ];
 
 const List<({String treatment, List<String> values, String? mean})>
-    kStation5DiscoveryMeanZoneRows = [
+kStation5DiscoveryMeanZoneRows = [
   (
     treatment: 'Pyrrhobryum',
     values: ['18 mm', '17 mm', '19 mm', '18 mm', '18 mm'],
@@ -410,7 +427,10 @@ bool _station5AlternativeHypothesisInvalid(String normalized) =>
 
 /// Mission point for Activity 3: 1 when both hypotheses align well enough with
 /// the sample answers; 0 otherwise. Empty answers are allowed but score 0.
-int scoreStation5HypothesisAnswers(String nullHypothesis, String altHypothesis) {
+int scoreStation5HypothesisAnswers(
+  String nullHypothesis,
+  String altHypothesis,
+) {
   final nullScore = scoreStation5HypothesisField(
     nullHypothesis,
     kStation5NullHypothesisKeywords,
@@ -458,7 +478,8 @@ int scoreStation5MeanBarActivity({
   required int? barOn50Slot,
   required int? barOn100Slot,
 }) {
-  final meansOk = station5MeanValueCorrect(mean100, kStation5MeanBar100Mean) &&
+  final meansOk =
+      station5MeanValueCorrect(mean100, kStation5MeanBar100Mean) &&
       station5MeanValueCorrect(mean50, kStation5MeanBar50Mean);
   final barsOk = barOn50Slot == 0 && barOn100Slot == 1;
   if (meansOk && barsOk) return 1;
@@ -469,7 +490,8 @@ int scoreStation5MeanBarActivity({
 const String kStation5InterpretationTitle = 'INTERPRET YOUR RESULTS';
 const int kStation5InterpretationMaxScore = 9;
 
-const List<({String prompt, String modelAnswer})> kStation5InterpretationQuestions = [
+const List<({String prompt, String modelAnswer})>
+kStation5InterpretationQuestions = [
   (
     prompt:
         'Which concentration of Pyrrhobryum moss extract produced the larger '
@@ -514,15 +536,18 @@ int scoreStation5InterpretationQ2(String input) {
   final normalized = input.toLowerCase().trim();
   if (normalized.isEmpty) return 0;
 
-  final hasDifferentActivity = normalized.contains('different') &&
+  final hasDifferentActivity =
+      normalized.contains('different') &&
       (normalized.contains('antibacterial') || normalized.contains('activity'));
-  final hasTallerStronger = (normalized.contains('taller') ||
+  final hasTallerStronger =
+      (normalized.contains('taller') ||
           normalized.contains('higher') ||
           normalized.contains('greater')) &&
       (normalized.contains('stronger') ||
           normalized.contains('more') ||
           normalized.contains('greater'));
-  final hasZoneIdea = normalized.contains('zone of inhibition') ||
+  final hasZoneIdea =
+      normalized.contains('zone of inhibition') ||
       (normalized.contains('inhibition') &&
           (normalized.contains('larger') ||
               normalized.contains('bigger') ||
@@ -562,8 +587,10 @@ const String kStation5FinalDecisionFindingsResult =
     'concentrations.';
 const String kStation5FinalDecisionPrompt =
     'Based on the statistical results, should the researchers:';
-const String kStation5FinalDecisionRejectLabel = 'REJECT THE NULL HYPOTHESIS (H₀)';
-const String kStation5FinalDecisionAcceptLabel = 'ACCEPT THE NULL HYPOTHESIS (H₀)';
+const String kStation5FinalDecisionRejectLabel =
+    'REJECT THE NULL HYPOTHESIS (H₀)';
+const String kStation5FinalDecisionAcceptLabel =
+    'ACCEPT THE NULL HYPOTHESIS (H₀)';
 const String kStation5FinalDecisionConclusionTitle = 'WRITE YOUR CONCLUSION';
 const String kStation5FinalDecisionConclusionPrompt =
     'Using the results of the investigation, write your scientific conclusion '
@@ -613,10 +640,12 @@ bool station5ConclusionCorrectConcentration(String input) {
   final normalized = input.toLowerCase().trim();
   if (station5ConclusionWrongConcentration(input)) return false;
 
-  final higherConcentration = normalized.contains('higher concentration') ||
+  final higherConcentration =
+      normalized.contains('higher concentration') ||
       normalized.contains('full concentration') ||
       normalized.contains('100% concentration');
-  final positiveOutcome = normalized.contains('stronger') ||
+  final positiveOutcome =
+      normalized.contains('stronger') ||
       normalized.contains('more effective') ||
       normalized.contains('more antibacterial') ||
       ((normalized.contains('larger') ||
@@ -634,13 +663,15 @@ bool station5ConclusionCorrectConcentration(String input) {
           (normalized.contains('larger') ||
               normalized.contains('greater') ||
               normalized.contains('higher'))) ||
-      (normalized.contains('effective') && !normalized.contains('less effective'));
+      (normalized.contains('effective') &&
+          !normalized.contains('less effective'));
 }
 
 bool station5ConclusionWrongConcentration(String input) {
   final normalized = input.toLowerCase().trim();
 
-  final fiftyPositive = (normalized.contains('50%') ||
+  final fiftyPositive =
+      (normalized.contains('50%') ||
           RegExp(r'\b50\s*%').hasMatch(normalized)) &&
       (normalized.contains('stronger') ||
           normalized.contains('more effective') ||
@@ -648,7 +679,8 @@ bool station5ConclusionWrongConcentration(String input) {
           normalized.contains('greater') ||
           normalized.contains('better'));
 
-  final hundredPositive = station5AnswerMentions100Percent(normalized) &&
+  final hundredPositive =
+      station5AnswerMentions100Percent(normalized) &&
       (normalized.contains('stronger') ||
           normalized.contains('more effective') ||
           normalized.contains('larger') ||
@@ -678,22 +710,27 @@ bool station5ConclusionRejectsNull(String input) {
 
 bool station5ConclusionMentionsSignificantDifference(String input) {
   final normalized = input.toLowerCase().trim();
-  return normalized.contains('significant') && normalized.contains('difference');
+  return normalized.contains('significant') &&
+      normalized.contains('difference');
 }
 
 bool station5ConclusionExplainsZoneLink(String input) {
   final normalized = input.toLowerCase().trim();
-  final hasZoneIdea = normalized.contains('zone of inhibition') ||
+  final hasZoneIdea =
+      normalized.contains('zone of inhibition') ||
       (normalized.contains('inhibition') &&
           (normalized.contains('zone') || normalized.contains('mean')));
-  final hasLarger = normalized.contains('larger') ||
+  final hasLarger =
+      normalized.contains('larger') ||
       normalized.contains('greater') ||
       normalized.contains('bigger') ||
       normalized.contains('higher');
-  final hasStrongerActivity = normalized.contains('stronger') ||
+  final hasStrongerActivity =
+      normalized.contains('stronger') ||
       normalized.contains('antibacterial') ||
       normalized.contains('more effective');
-  final hasCausalLink = normalized.contains('indicate') ||
+  final hasCausalLink =
+      normalized.contains('indicate') ||
       normalized.contains('indicates') ||
       normalized.contains('means') ||
       normalized.contains('shows') ||
@@ -740,14 +777,18 @@ int scoreStation5FinalDecisionConclusion(String conclusion) {
   if (station5ConclusionIsUnrelated(conclusion)) return 0;
 
   final normalized = conclusion.toLowerCase().trim();
-  final correctConcentration = station5ConclusionCorrectConcentration(conclusion);
-  final hasSignificant =
-      station5ConclusionMentionsSignificantDifference(conclusion);
+  final correctConcentration = station5ConclusionCorrectConcentration(
+    conclusion,
+  );
+  final hasSignificant = station5ConclusionMentionsSignificantDifference(
+    conclusion,
+  );
   final hasReject = station5ConclusionRejectsNull(conclusion);
   final hasZoneLink = station5ConclusionExplainsZoneLink(conclusion);
   final wrongConcentration = station5ConclusionWrongConcentration(conclusion);
-  final mentionsAntibacterial =
-      station5ConclusionMentionsAntibacterial(conclusion);
+  final mentionsAntibacterial = station5ConclusionMentionsAntibacterial(
+    conclusion,
+  );
 
   if (correctConcentration && hasSignificant && hasReject && hasZoneLink) {
     return 5;
@@ -779,7 +820,8 @@ int scoreStation5FinalDecisionActivity({
 }
 
 const int kStation5FinalDecisionMaxScore =
-    kStation5FinalDecisionDecisionPoints + kStation5FinalDecisionConclusionMaxPoints;
+    kStation5FinalDecisionDecisionPoints +
+    kStation5FinalDecisionConclusionMaxPoints;
 
 const String kStation5TakeawayPrompt =
     'Why is it important to use statistics and hypothesis testing when '
@@ -816,8 +858,7 @@ int scoreStation5TakeawayAnswer(String text) {
   final lower = text.toLowerCase().trim();
   if (lower.isEmpty) return 0;
 
-  final hits =
-      kStation5TakeawayKeywords.where((k) => lower.contains(k)).length;
+  final hits = kStation5TakeawayKeywords.where((k) => lower.contains(k)).length;
   if (hits >= 5) return 5;
   if (hits >= 4) return 4;
   if (hits >= 3) return 3;

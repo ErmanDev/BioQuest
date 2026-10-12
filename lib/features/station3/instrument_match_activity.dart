@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station3_data.dart';
+import '../../services/audio_service.dart';
 
 /// Part II tap-to-match: select an instrument, then tap the matching task.
 class InstrumentMatchActivity extends StatefulWidget {
@@ -79,6 +81,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
       });
       if (_allMatched) widget.onCompleted();
     } else {
+      context.read<AudioService>().playWrong();
       setState(() {
         _shakingTask = taskIndex;
         _wrongInstrumentFile = selected;

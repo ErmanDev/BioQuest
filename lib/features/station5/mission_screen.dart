@@ -29,6 +29,7 @@ class _Station5MissionScreenState extends State<Station5MissionScreen> {
   static const _contentTop = 0.02;
   static const _contentHeight = 0.86;
 
+  bool _storyShown = true;
   int _phase = 0; // 0–5 activities, 6 done
   bool _orderDone = false;
   bool _sortDone = false;
@@ -83,15 +84,17 @@ class _Station5MissionScreenState extends State<Station5MissionScreen> {
                             child: ClipRect(
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(4, 6, 12, 4),
-                                child: switch (_phase) {
-                                  0 => _order(),
-                                  1 => _sort(),
-                                  2 => _hypothesis(),
-                                  3 => _meanBar(),
-                                  4 => _interpret(),
-                                  5 => _finalDecision(),
-                                  _ => _done(),
-                                },
+                                child: _storyShown
+                                    ? _story()
+                                    : switch (_phase) {
+                                        0 => _order(),
+                                        1 => _sort(),
+                                        2 => _hypothesis(),
+                                        3 => _meanBar(),
+                                        4 => _interpret(),
+                                        5 => _finalDecision(),
+                                        _ => _done(),
+                                      },
                               ),
                             ),
                           ),
@@ -127,13 +130,24 @@ class _Station5MissionScreenState extends State<Station5MissionScreen> {
     );
   }
 
+  Widget _story() {
+    return SingleChildScrollView(
+      child: MissionStoryCard(
+        title: 'Mission Story',
+        story: kStation5MissionStory,
+        startLabel: 'Start Activity',
+        onStart: () => setState(() => _storyShown = false),
+      ),
+    );
+  }
+
   Widget _order() {
     return DataAnalysisOrderActivity(
-      onCompleted: () {
+      onCompleted: (correctSteps) {
         if (!_orderDone) {
           setState(() {
             _orderDone = true;
-            _score++;
+            _score += correctSteps;
           });
         }
       },
@@ -216,16 +230,21 @@ class _Station5MissionScreenState extends State<Station5MissionScreen> {
   }
 
   Widget _done() {
-    const missionTotal =
-        4 + kStation5InterpretationMaxScore + kStation5FinalDecisionMaxScore;
+    // Order activity scores 1 per correct step; sort, hypothesis, and
+    // mean/bar graph score 1 each.
+    final missionTotal =
+        kStation5Steps.length +
+        3 +
+        kStation5InterpretationMaxScore +
+        kStation5FinalDecisionMaxScore;
     return MissionCompleteCard(
       score: _score,
       total: missionTotal,
       message: _score == missionTotal
           ? 'Case solved, detective! You completed every research mission '
-              'challenge from planning to your final statistical decision.'
+                'challenge from planning to your final statistical decision.'
           : 'Good analysis! Review your statistical decision and conclusion, '
-              'then continue to the takeaway question.',
+                'then continue to the takeaway question.',
       onContinue: () async {
         final progress = context.read<ProgressService>();
         final router = GoRouter.of(context);

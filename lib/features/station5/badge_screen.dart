@@ -31,9 +31,7 @@ class Station5BadgeScreen extends StatelessWidget {
           ),
         ),
         Positioned.fill(
-          child: ColoredBox(
-            color: Colors.black.withValues(alpha: 0.12),
-          ),
+          child: ColoredBox(color: Colors.black.withValues(alpha: 0.12)),
         ),
         GameCanvas(
           letterboxColor: Colors.transparent,

@@ -18,9 +18,11 @@ class SummativeScreen extends StatelessWidget {
       gradient: const [BioColors.deepSky, BioColors.leaf],
       onBack: () => context.go('/summit'),
       onComplete: (score, total) async {
-        await context
-            .read<ProgressService>()
-            .recordAssessment('summative', score, total);
+        await context.read<ProgressService>().recordAssessment(
+          'summative',
+          score,
+          total,
+        );
         if (context.mounted) context.go('/summit/certificate');
       },
     );

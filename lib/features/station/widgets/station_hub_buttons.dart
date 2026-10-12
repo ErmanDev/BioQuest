@@ -13,11 +13,15 @@ class StationHubButtons extends StatelessWidget {
     required this.stationKey,
     this.elevated = false,
     this.stopNarrationOnTap = false,
+    this.compact = false,
   });
 
   final String stationKey;
   final bool elevated;
   final bool stopNarrationOnTap;
+
+  /// Smaller buttons so a welcome panel above them has room.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +34,7 @@ class StationHubButtons extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _MissionTargetsButton(stationKey: stationKey, elevated: elevated),
-        const SizedBox(height: 16),
+        SizedBox(height: compact ? 8 : 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -42,6 +46,7 @@ class StationHubButtons extends StatelessWidget {
               enabled: true,
               elevated: elevated,
               stopNarrationOnTap: stopNarrationOnTap,
+              compact: compact,
             ),
             _SubpartButton(
               label: 'Research Mission',
@@ -52,6 +57,7 @@ class StationHubButtons extends StatelessWidget {
               lockedHint: 'Complete Discovery Stop first',
               elevated: elevated,
               stopNarrationOnTap: stopNarrationOnTap,
+              compact: compact,
             ),
             _SubpartButton(
               label: 'Trail Checkpoint',
@@ -62,6 +68,7 @@ class StationHubButtons extends StatelessWidget {
               lockedHint: 'Complete Takeaway Questions first',
               elevated: elevated,
               stopNarrationOnTap: stopNarrationOnTap,
+              compact: compact,
             ),
           ],
         ),
@@ -286,6 +293,7 @@ class _SubpartButton extends StatelessWidget {
     required this.enabled,
     required this.elevated,
     required this.stopNarrationOnTap,
+    this.compact = false,
     this.lockedHint,
   });
 
@@ -297,6 +305,7 @@ class _SubpartButton extends StatelessWidget {
   final String? lockedHint;
   final bool elevated;
   final bool stopNarrationOnTap;
+  final bool compact;
 
   void _onTap(BuildContext context) {
     if (!enabled) return;
@@ -322,8 +331,11 @@ class _SubpartButton extends StatelessWidget {
       child: Opacity(
         opacity: enabled ? 1 : 0.55,
         child: Container(
-          width: 220,
-          padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 8),
+          width: compact ? 170 : 220,
+          padding: EdgeInsets.symmetric(
+            vertical: compact ? 10 : 26,
+            horizontal: 8,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -344,7 +356,7 @@ class _SubpartButton extends StatelessWidget {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Icon(icon, size: 60, color: iconColor),
+                  Icon(icon, size: compact ? 34 : 60, color: iconColor),
                   if (!enabled)
                     Positioned(
                       right: -6,
@@ -357,17 +369,17 @@ class _SubpartButton extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: compact ? 4 : 12),
               Text(
                 label,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 19,
+                  fontSize: compact ? 15 : 19,
                   fontWeight: FontWeight.bold,
                   color: enabled ? BioColors.ink : Colors.grey.shade600,
                 ),
               ),
-              if (!enabled && lockedHint != null) ...[
+              if (!enabled && lockedHint != null && !compact) ...[
                 const SizedBox(height: 6),
                 Text(
                   lockedHint!,

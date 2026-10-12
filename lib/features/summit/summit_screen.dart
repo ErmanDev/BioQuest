@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/references_panel.dart';
 import '../../data/summit_data.dart';
 import '../../models/mc_question.dart';
 import '../../services/auth_service.dart';
@@ -28,8 +29,7 @@ class _SummitScreenState extends State<SummitScreen> {
 
   int _page = 0;
   bool _showCertificate = false;
-  late final List<int?> _answers =
-      List<int?>.filled(kSummative.length, null);
+  late final List<int?> _answers = List<int?>.filled(kSummative.length, null);
 
   int get _pageCount => (kSummative.length / 2).ceil();
   int get _firstIndex => _page * 2;
@@ -37,9 +37,11 @@ class _SummitScreenState extends State<SummitScreen> {
   bool get _showsSharedTable => _firstIndex >= 16;
 
   bool get _pageComplete {
-    for (var i = _firstIndex;
-        i < _firstIndex + 2 && i < kSummative.length;
-        i++) {
+    for (
+      var i = _firstIndex;
+      i < _firstIndex + 2 && i < kSummative.length;
+      i++
+    ) {
       if (_answers[i] == null) return false;
     }
     return true;
@@ -197,10 +199,7 @@ class _SummitScreenState extends State<SummitScreen> {
           child: Column(
             children: [
               if (_showsSharedTable) ...[
-                Flexible(
-                  flex: 2,
-                  child: _sharedTablePanel(),
-                ),
+                _sharedTablePanel(),
                 const SizedBox(height: 6),
               ],
               Expanded(
@@ -358,70 +357,66 @@ class _SummitScreenState extends State<SummitScreen> {
         border: Border.all(color: BioColors.forest.withValues(alpha: 0.35)),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            kSummitSummativeTableNote,
-            style: TextStyle(
-              fontSize: 10.5,
+            table.intro.replaceAll('\n\n', ' '),
+            style: const TextStyle(
+              fontSize: 11,
               height: 1.2,
-              fontWeight: FontWeight.w700,
-              color: BioColors.ink.withValues(alpha: 0.9),
+              fontWeight: FontWeight.w600,
+              color: BioColors.ink,
             ),
           ),
-          const SizedBox(height: 3),
-          Text(
-            table.intro,
-            style: const TextStyle(fontSize: 10, height: 1.2),
-          ),
-          const SizedBox(height: 4),
-          Expanded(child: _compactDataTable(table, fontSize: 9.5)),
+          const SizedBox(height: 2),
+          _transposedDataTable(table, fontSize: 11),
         ],
       ),
     );
   }
 
-  Widget _compactDataTable(McTableStimulus table, {required double fontSize}) {
+  /// Shows the table sideways (one row per column of the source) so the
+  /// 4-week data fits the short space above the question cards.
+  Widget _transposedDataTable(
+    McTableStimulus table, {
+    required double fontSize,
+  }) {
     final cellPadding = EdgeInsets.symmetric(
-      horizontal: fontSize < 10 ? 3 : 5,
-      vertical: fontSize * 0.35,
+      horizontal: 6,
+      vertical: fontSize * 0.15,
     );
-
     return Table(
       border: TableBorder.all(color: BioColors.bark.withValues(alpha: 0.45)),
-      columnWidths: {
-        for (var i = 0; i < table.headers.length; i++)
-          i: FlexColumnWidth(i == 0 ? 1.2 : 1),
-      },
+      columnWidths: const {0: FlexColumnWidth(1.4)},
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
-        TableRow(
-          decoration: BoxDecoration(color: Colors.grey.shade300),
-          children: [
-            for (final header in table.headers)
+        for (var col = 0; col < table.headers.length; col++)
+          TableRow(
+            decoration: col == 0
+                ? BoxDecoration(color: Colors.grey.shade300)
+                : null,
+            children: [
               Padding(
                 padding: cellPadding,
                 child: Text(
-                  header,
-                  textAlign: TextAlign.center,
+                  table.headers[col],
                   style: TextStyle(
                     fontSize: fontSize,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
-          ],
-        ),
-        for (final row in table.rows)
-          TableRow(
-            children: [
-              for (final cell in row)
+              for (final row in table.rows)
                 Padding(
                   padding: cellPadding,
                   child: Text(
-                    cell,
+                    row[col],
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: fontSize, height: 1.15),
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: col == 0 ? FontWeight.w800 : FontWeight.w500,
+                    ),
                   ),
                 ),
             ],
@@ -579,6 +574,20 @@ class _SummitScreenState extends State<SummitScreen> {
     );
   }
 
+  void _showReferences(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: ReferencesPanel(
+          onClose: () => Navigator.of(dialogContext).pop(),
+        ),
+      ),
+    );
+  }
+
   Widget _certificateView(BuildContext context) {
     final user = context.read<AuthService>().currentUser;
     final name = user?.displayName ?? 'Young Researcher';
@@ -674,10 +683,22 @@ class _SummitScreenState extends State<SummitScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            PrimaryButton(
-              label: 'Back to Expedition Map',
-              icon: Icons.map,
-              onTap: () => context.go('/map'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                PrimaryButton(
+                  label: 'References',
+                  icon: Icons.menu_book_rounded,
+                  color: BioColors.bark,
+                  onTap: () => _showReferences(context),
+                ),
+                const SizedBox(width: 14),
+                PrimaryButton(
+                  label: 'Back to Expedition Map',
+                  icon: Icons.map,
+                  onTap: () => context.go('/map'),
+                ),
+              ],
             ),
           ],
         );

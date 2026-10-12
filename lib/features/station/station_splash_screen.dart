@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
 import '../../core/mixins/auto_narrate_on_enter.dart';
@@ -12,6 +13,8 @@ import '../../data/station3_data.dart';
 import '../../data/station5_data.dart';
 import '../../data/station_content.dart';
 import '../../data/stations.dart';
+import '../../models/explorer_avatar.dart';
+import '../../services/auth_service.dart';
 import '../../services/narration_helper.dart';
 import 'widgets/station_hub_buttons.dart';
 
@@ -45,10 +48,7 @@ class _StationSplashScreenState extends State<StationSplashScreen>
     }
   }
 
-  bool get _showIntroDialog =>
-      widget.stationKey == 'station3' &&
-      !_introDismissed &&
-      _narrationText.trim().isNotEmpty;
+  bool get _showIntroDialog => !_introDismissed && _intro.trim().isNotEmpty;
 
   @override
   String? get autoNarrateText =>
@@ -103,7 +103,10 @@ class _StationSplashScreenState extends State<StationSplashScreen>
                         },
                         child: const Padding(
                           padding: EdgeInsets.all(12),
-                          child: Icon(Icons.arrow_back, color: BioColors.forest),
+                          child: Icon(
+                            Icons.arrow_back,
+                            color: BioColors.forest,
+                          ),
                         ),
                       ),
                     ),
@@ -114,8 +117,9 @@ class _StationSplashScreenState extends State<StationSplashScreen>
                 if (_showIntroDialog) ...[
                   const SizedBox(height: 8),
                   Expanded(
-                    child: _Station3IntroDialog(
-                      text: kStation3Intro,
+                    child: _StationWelcome(
+                      badge: info.title.split(':').first.trim(),
+                      text: _intro,
                       onDismiss: () {
                         stopNarration(context);
                         setState(() => _introDismissed = true);
@@ -129,6 +133,7 @@ class _StationSplashScreenState extends State<StationSplashScreen>
                   stationKey: widget.stationKey,
                   elevated: true,
                   stopNarrationOnTap: true,
+                  compact: _showIntroDialog,
                 ),
               ],
             ),
@@ -139,109 +144,151 @@ class _StationSplashScreenState extends State<StationSplashScreen>
   }
 }
 
-class _Station3IntroDialog extends StatelessWidget {
-  const _Station3IntroDialog({
+/// The explorer avatar beside a scrollable welcome message; shown when a
+/// station opens and closed with the X button.
+class _StationWelcome extends StatelessWidget {
+  const _StationWelcome({
+    required this.badge,
     required this.text,
     required this.onDismiss,
   });
 
+  final String badge;
   final String text;
   final VoidCallback onDismiss;
 
+  /// Splits "Welcome, young researchers! In this station…" into the greeting
+  /// (shown as the heading) and the rest of the message.
+  (String, String) get _parts {
+    final end = text.indexOf('!');
+    if (end < 0 || end > 60) return ('', text);
+    return (text.substring(0, end + 1), text.substring(end + 1).trimLeft());
+  }
+
   @override
   Widget build(BuildContext context) {
+    final avatarId = context.watch<AuthService>().currentUser?.avatarId ?? 0;
+    final explorer = ExplorerAvatar.fromId(avatarId);
+    final (heading, body) = _parts;
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Align(
-          alignment: Alignment.center,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 720,
-              maxHeight: constraints.maxHeight,
-            ),
-            child: Material(
-              color: BioColors.parchment.withValues(alpha: 0.97),
-              elevation: 8,
-              shadowColor: Colors.black54,
-              borderRadius: BorderRadius.circular(18),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: BioColors.forest, width: 2.5),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 12, 8, 0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: BioColors.forest,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text(
-                              'Green Growth Lab',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            tooltip: 'Close',
-                            onPressed: onDismiss,
-                            icon: const Icon(
-                              Icons.close,
-                              color: BioColors.forest,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(20, 0, 20, 6),
-                      child: Text(
-                        'Welcome, young researchers!',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: BioColors.forest,
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
-                        child: Text.rich(
-                          readingTextSpan(
-                            text.replaceFirst(
-                              'Welcome, young researchers! ',
-                              '',
-                            ),
-                            fontSize: 17,
-                            color: BioColors.ink,
-                            height: 1.45,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+        final avatarH = constraints.maxHeight;
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // The explorer PNGs carry transparent padding, so scale the art
+            // up inside its slot (as the Basecamp avatar does).
+            SizedBox(
+              height: avatarH,
+              width: avatarH * 0.42,
+              child: OverflowBox(
+                alignment: Alignment.bottomCenter,
+                maxHeight: avatarH * 1.12,
+                minHeight: avatarH * 1.12,
+                maxWidth: avatarH * 0.8,
+                child: GameImage(
+                  asset: explorer.assetPath,
+                  label: explorer.label,
+                  fit: BoxFit.fitHeight,
+                  alignment: Alignment.bottomCenter,
+                  color: BioColors.moss,
+                  icon: Icons.emoji_people,
+                  cacheWidth: (avatarH * 1.6).round(),
                 ),
               ),
             ),
-          ),
+            const SizedBox(width: 8),
+            Flexible(child: _dialog(heading, body, constraints.maxHeight)),
+          ],
         );
       },
+    );
+  }
+
+  Widget _dialog(String heading, String body, double maxHeight) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      widthFactor: 1,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 720, maxHeight: maxHeight),
+        child: Material(
+          color: BioColors.parchment.withValues(alpha: 0.97),
+          elevation: 8,
+          shadowColor: Colors.black54,
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: BioColors.forest, width: 2.5),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 12, 8, 0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: BioColors.forest,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          badge,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        tooltip: 'Close',
+                        onPressed: onDismiss,
+                        icon: const Icon(Icons.close, color: BioColors.forest),
+                      ),
+                    ],
+                  ),
+                ),
+                if (heading.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
+                    child: Text(
+                      heading,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: BioColors.forest,
+                      ),
+                    ),
+                  ),
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
+                    child: Text.rich(
+                      readingTextSpan(
+                        body,
+                        fontSize: 17,
+                        color: BioColors.ink,
+                        height: 1.45,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

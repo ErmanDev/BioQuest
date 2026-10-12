@@ -27,17 +27,21 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
   static const _contentBottom = 0.94;
 
   int _page = 0;
-  late final List<int?> _answers =
-      List<int?>.filled(kStation5Checkpoint.length, null);
+  late final List<int?> _answers = List<int?>.filled(
+    kStation5Checkpoint.length,
+    null,
+  );
 
   int get _pageCount => (kStation5Checkpoint.length / 2).ceil();
   int get _firstIndex => _page * 2;
   bool get _isLastPage => _page >= _pageCount - 1;
 
   bool get _pageComplete {
-    for (var i = _firstIndex;
-        i < _firstIndex + 2 && i < kStation5Checkpoint.length;
-        i++) {
+    for (
+      var i = _firstIndex;
+      i < _firstIndex + 2 && i < kStation5Checkpoint.length;
+      i++
+    ) {
       if (_answers[i] == null) return false;
     }
     return true;
@@ -180,10 +184,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
           child: Column(
             children: [
               if (_showsSharedTable) ...[
-                Flexible(
-                  flex: 2,
-                  child: _sharedTablePanel(compact: true),
-                ),
+                Flexible(flex: 2, child: _sharedTablePanel(compact: true)),
                 const SizedBox(height: 6),
               ],
               Expanded(
@@ -338,9 +339,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
             ),
           ),
           SizedBox(height: compact ? 4 : 6),
-          Expanded(
-            child: _compactDataTable(fontSize: compact ? 9.5 : 11.5),
-          ),
+          Expanded(child: _compactDataTable(fontSize: compact ? 9.5 : 11.5)),
         ],
       ),
     );
@@ -414,7 +413,12 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
     final cardPadding = compact ? 8.0 : 12.0;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(cardPadding, cardPadding, cardPadding, cardPadding),
+      padding: EdgeInsets.fromLTRB(
+        cardPadding,
+        cardPadding,
+        cardPadding,
+        cardPadding,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xFFF7F1E4).withValues(alpha: 0.98),
         borderRadius: BorderRadius.circular(14),
@@ -579,9 +583,7 @@ class _DashedDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return const SizedBox(
       width: 10,
-      child: CustomPaint(
-        painter: _DashedLinePainter(),
-      ),
+      child: CustomPaint(painter: _DashedLinePainter()),
     );
   }
 }

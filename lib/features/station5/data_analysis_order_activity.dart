@@ -7,9 +7,11 @@ import '../../core/text_format.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station5_data.dart';
 
-/// Activity 1 — tap a step, then tap the numbered slot where it belongs.
+/// Activity 1 — tap a step, then tap a numbered slot. Any arrangement is
+/// accepted; "Check Answers" scores each slot and reveals the correct order.
 class DataAnalysisOrderActivity extends StatefulWidget {
-  final VoidCallback onCompleted;
+  /// Called once on check with the number of steps in the correct slot.
+  final ValueChanged<int> onCompleted;
   final VoidCallback? onNext;
 
   const DataAnalysisOrderActivity({
@@ -23,8 +25,7 @@ class DataAnalysisOrderActivity extends StatefulWidget {
       _DataAnalysisOrderActivityState();
 }
 
-class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity>
-    with SingleTickerProviderStateMixin {
+class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity> {
   static const _stepStyles = <({IconData icon, Color color})>[
     (icon: Icons.search, color: Color(0xFF1565C0)),
     (icon: Icons.lightbulb_outline, color: Color(0xFF00838F)),
@@ -37,12 +38,7 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity>
   late List<int> _bank;
   final List<int?> _slots = List<int?>.filled(kStation5Steps.length, null);
   int? _selectedStep;
-  late final AnimationController _shake = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 320),
-  );
-  int? _shakingSlot;
-  int? _wrongStep;
+  bool _checked = false;
 
   bool get _allFilled =>
       _slots.every((slot) => slot != null) &&
@@ -59,42 +55,45 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity>
       ..shuffle(math.Random(17));
   }
 
-  @override
-  void dispose() {
-    _shake.dispose();
-    super.dispose();
+  int get _correctCount {
+    var count = 0;
+    for (var i = 0; i < _slots.length; i++) {
+      if (_slots[i] == i) count++;
+    }
+    return count;
   }
 
   void _selectStep(int stepIndex) {
     setState(() {
       _selectedStep = _selectedStep == stepIndex ? null : stepIndex;
-      _wrongStep = null;
     });
   }
 
   void _tapSlot(int slotIndex) {
-    if (_slots[slotIndex] != null) return;
+    if (_checked) return;
+    final placed = _slots[slotIndex];
+    if (placed != null) {
+      // Tapping a filled slot sends its step back to the list.
+      setState(() {
+        _slots[slotIndex] = null;
+        _bank.add(placed);
+      });
+      return;
+    }
 
     final stepIndex = _selectedStep;
     if (stepIndex == null) return;
+    setState(() {
+      _slots[slotIndex] = stepIndex;
+      _bank.remove(stepIndex);
+      _selectedStep = null;
+    });
+  }
 
-    if (stepIndex == slotIndex) {
-      setState(() {
-        _slots[slotIndex] = stepIndex;
-        _bank.remove(stepIndex);
-        _selectedStep = null;
-        _wrongStep = null;
-      });
-      if (_allFilled) widget.onCompleted();
-    } else {
-      setState(() {
-        _shakingSlot = slotIndex;
-        _wrongStep = stepIndex;
-      });
-      _shake.forward(from: 0).whenComplete(() {
-        if (mounted) setState(() => _shakingSlot = null);
-      });
-    }
+  void _check() {
+    if (!_allFilled || _checked) return;
+    setState(() => _checked = true);
+    widget.onCompleted(_correctCount);
   }
 
   @override
@@ -158,8 +157,8 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'RUMBLE! DRAG THESE STEPS',
+        Text(
+          _checked ? 'CORRECT ARRANGEMENT' : 'RUMBLE! DRAG THESE STEPS',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 12.5,
@@ -170,7 +169,9 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity>
         ),
         const SizedBox(height: 6),
         Expanded(
-          child: _bank.length == 0
+          child: _checked
+              ? _correctOrder()
+              : _bank.isEmpty
               ? const SizedBox.shrink()
               : Column(
                   children: [
@@ -189,69 +190,105 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity>
     final label = kStation5Steps[stepIndex];
     final style = _stepStyles[stepIndex];
     final selected = _selectedStep == stepIndex;
-    final wrong = _wrongStep == stepIndex;
 
-    return AnimatedBuilder(
-      animation: _shake,
-      builder: (context, child) {
-        final dx = wrong && _shake.isAnimating
-            ? math.sin(_shake.value * math.pi * 4) * 8 * (1 - _shake.value)
-            : 0.0;
-        return Transform.translate(offset: Offset(dx, 0), child: child);
-      },
-      child: Material(
-        color: wrong
-            ? BioColors.danger.withValues(alpha: 0.12)
-            : selected
-                ? BioColors.paleLeaf.withValues(alpha: 0.9)
-                : Colors.white,
+    return Material(
+      color: selected
+          ? BioColors.paleLeaf.withValues(alpha: 0.9)
+          : Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: () => _selectStep(stepIndex),
-          child: Container(
-            height: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: wrong
-                    ? BioColors.danger
-                    : selected
-                        ? BioColors.forest
-                        : style.color.withValues(alpha: 0.55),
-                width: selected || wrong ? 2 : 1.5,
+        onTap: () => _selectStep(stepIndex),
+        child: Container(
+          height: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: selected
+                  ? BioColors.forest
+                  : style.color.withValues(alpha: 0.55),
+              width: selected ? 2 : 1.5,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: style.color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(style.icon, size: 20, color: style.color),
               ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: style.color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(style.icon, size: 20, color: style.color),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      height: 1.25,
-                      color: BioColors.ink,
-                    ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    height: 1.25,
+                    color: BioColors.ink,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  /// Read-only list of the steps in their correct order, shown after checking.
+  Widget _correctOrder() {
+    return Column(
+      children: [
+        for (var i = 0; i < kStation5Steps.length; i++) ...[
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: BioColors.correct.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: BioColors.correct, width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    '${i + 1}.',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      color: BioColors.forest,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    _stepStyles[i].icon,
+                    size: 18,
+                    color: _stepStyles[i].color,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      kStation5Steps[i],
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: BioColors.ink,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (i < kStation5Steps.length - 1) const SizedBox(height: 5),
+        ],
+      ],
     );
   }
 
@@ -294,97 +331,94 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity>
     final placed = _slots[slotIndex];
     final label = placed != null ? kStation5Steps[placed] : null;
     final style = placed != null ? _stepStyles[placed] : null;
-    final shaking = _shakingSlot == slotIndex;
-    final canPlace = _selectedStep != null && placed == null;
+    final canPlace = !_checked && _selectedStep != null && placed == null;
+    final isRight = placed == slotIndex;
+    final Color filledColor = _checked
+        ? (isRight ? BioColors.correct : BioColors.danger)
+        : BioColors.forest;
 
-    return AnimatedBuilder(
-      animation: _shake,
-      builder: (context, child) {
-        final dx = shaking && _shake.isAnimating
-            ? math.sin(_shake.value * math.pi * 4) * 8 * (1 - _shake.value)
-            : 0.0;
-        return Transform.translate(offset: Offset(dx, 0), child: child);
-      },
-      child: Material(
-        color: placed != null
-            ? BioColors.correct.withValues(alpha: 0.12)
-            : canPlace
-                ? BioColors.paleLeaf.withValues(alpha: 0.35)
-                : Colors.white.withValues(alpha: 0.85),
+    return Material(
+      color: placed != null
+          ? filledColor.withValues(alpha: 0.12)
+          : canPlace
+          ? BioColors.paleLeaf.withValues(alpha: 0.35)
+          : Colors.white.withValues(alpha: 0.85),
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: placed != null ? null : () => _tapSlot(slotIndex),
-          child: Container(
-            height: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: placed != null
-                    ? BioColors.correct
-                    : canPlace
-                        ? BioColors.forest
-                        : BioColors.bark.withValues(alpha: 0.4),
-                width: canPlace || placed != null ? 2 : 1.5,
-                style: placed == null && !canPlace
-                    ? BorderStyle.solid
-                    : BorderStyle.solid,
-              ),
+        onTap: _checked ? null : () => _tapSlot(slotIndex),
+        child: Container(
+          height: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: placed != null
+                  ? filledColor
+                  : canPlace
+                  ? BioColors.forest
+                  : BioColors.bark.withValues(alpha: 0.4),
+              width: canPlace || placed != null ? 2 : 1.5,
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: BioColors.forest,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${slotIndex + 1}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
-                    ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: BioColors.forest,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '${slotIndex + 1}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: label == null
-                      ? Text(
-                          'Drop a step here.',
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontStyle: FontStyle.italic,
-                            color: BioColors.ink.withValues(alpha: 0.55),
-                          ),
-                        )
-                      : Row(
-                          children: [
-                            if (style != null) ...[
-                              Icon(style.icon, size: 16, color: style.color),
-                              const SizedBox(width: 6),
-                            ],
-                            Expanded(
-                              child: Text(
-                                label,
-                                style: const TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.25,
-                                  color: BioColors.ink,
-                                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: label == null
+                    ? Text(
+                        'Drop a step here.',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontStyle: FontStyle.italic,
+                          color: BioColors.ink.withValues(alpha: 0.55),
+                        ),
+                      )
+                    : Row(
+                        children: [
+                          if (style != null) ...[
+                            Icon(style.icon, size: 16, color: style.color),
+                            const SizedBox(width: 6),
+                          ],
+                          Expanded(
+                            child: Text(
+                              label,
+                              style: const TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                height: 1.25,
+                                color: BioColors.ink,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
+              ),
+              if (_checked)
+                Icon(
+                  isRight ? Icons.check_circle : Icons.cancel,
+                  color: filledColor,
+                  size: 22,
                 ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
@@ -401,7 +435,9 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity>
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.92),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: BioColors.forest.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: BioColors.forest.withValues(alpha: 0.3),
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,7 +458,37 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity>
             ),
           ),
         ),
-        if (_allFilled && widget.onNext != null) ...[
+        if (_allFilled && !_checked) ...[
+          const SizedBox(width: 8),
+          PrimaryButton(
+            label: 'Check Answers',
+            icon: Icons.fact_check,
+            color: BioColors.sun,
+            fontSize: 13,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            onTap: _check,
+          ),
+        ],
+        if (_checked) ...[
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.95),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: BioColors.forest),
+            ),
+            child: Text(
+              'Score: $_correctCount / ${kStation5Steps.length}',
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: BioColors.forest,
+              ),
+            ),
+          ),
+        ],
+        if (_checked && widget.onNext != null) ...[
           const SizedBox(width: 8),
           PrimaryButton(
             label: 'Next Activity',

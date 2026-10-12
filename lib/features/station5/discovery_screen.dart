@@ -164,55 +164,55 @@ class _Station5DiscoveryScreenState extends State<Station5DiscoveryScreen>
     const gap = 8.0;
 
     Text bodyText(String text) => Text.rich(
-          readingTextSpan(
-            text,
-            fontSize: fontSize,
-            color: BioColors.ink,
-            indentFirstLine: true,
-          ),
-          style: const TextStyle(height: 1.35),
-        );
+      readingTextSpan(
+        text,
+        fontSize: fontSize,
+        color: BioColors.ink,
+        indentFirstLine: true,
+      ),
+      style: const TextStyle(height: 1.35),
+    );
 
     Text noteText(String text) => Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize - 1.5,
-            height: 1.35,
-            color: BioColors.ink.withValues(alpha: 0.85),
-            fontStyle: FontStyle.italic,
-          ),
-        );
+      text,
+      style: TextStyle(
+        fontSize: fontSize - 1.5,
+        height: 1.35,
+        color: BioColors.ink.withValues(alpha: 0.85),
+        fontStyle: FontStyle.italic,
+      ),
+    );
 
     Widget kirbyBauerSection() => Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: bodyText(kStation5DiscoveryPart2)),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: maxWidth * 0.32,
-              child: GameImage(
-                asset: kStation5DiscoveryContentImageAsset,
-                label: 'Kirby-Bauer disk diffusion',
-                fit: BoxFit.contain,
-                color: BioColors.moss,
-                icon: Icons.biotech,
-                cacheWidth: 480,
-              ),
-            ),
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: bodyText(kStation5DiscoveryPart2)),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: maxWidth * 0.32,
+          child: GameImage(
+            asset: kStation5DiscoveryContentImageAsset,
+            label: 'Kirby-Bauer disk diffusion',
+            fit: BoxFit.contain,
+            color: BioColors.moss,
+            icon: Icons.biotech,
+            cacheWidth: 480,
+          ),
+        ),
+      ],
+    );
 
     Widget barGraphImage() => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: GameImage(
-            asset: kStation5DiscoveryGraphicalAsset,
-            label: 'Graphical presentation of antibacterial activity',
-            fit: BoxFit.fitWidth,
-            color: BioColors.moss,
-            icon: Icons.bar_chart,
-            cacheWidth: 960,
-          ),
-        );
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: GameImage(
+        asset: kStation5DiscoveryGraphicalAsset,
+        label: 'Graphical presentation of antibacterial activity',
+        fit: BoxFit.fitWidth,
+        color: BioColors.moss,
+        icon: Icons.bar_chart,
+        cacheWidth: 960,
+      ),
+    );
 
     return [
       bodyText(kStation5DiscoveryPart1),

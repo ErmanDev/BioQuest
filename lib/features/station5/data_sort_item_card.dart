@@ -30,10 +30,7 @@ class DataSortItemCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            SizedBox(
-              width: 48,
-              child: DataSortItemArt(index: itemIndex),
-            ),
+            SizedBox(width: 48, child: DataSortItemArt(index: itemIndex)),
             Container(
               width: 1.5,
               height: 36,

@@ -135,7 +135,11 @@ class _Station5TakeawayScreenState extends State<Station5TakeawayScreen> {
         maxLines: null,
         expands: true,
         textAlignVertical: TextAlignVertical.top,
-        style: const TextStyle(fontSize: 17, height: 1.45, color: BioColors.ink),
+        style: const TextStyle(
+          fontSize: 17,
+          height: 1.45,
+          color: BioColors.ink,
+        ),
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: 'Write your answer here...',

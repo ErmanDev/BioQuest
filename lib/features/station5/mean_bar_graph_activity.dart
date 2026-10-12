@@ -181,7 +181,11 @@ class _MeanBarGraphActivityState extends State<MeanBarGraphActivity>
       ),
       child: Text(
         'SUPPOSE… $kStation5MeanBarSuppose',
-        style: const TextStyle(fontSize: 11.5, height: 1.35, color: BioColors.ink),
+        style: const TextStyle(
+          fontSize: 11.5,
+          height: 1.35,
+          color: BioColors.ink,
+        ),
       ),
     );
   }
@@ -217,30 +221,30 @@ class _MeanBarGraphActivityState extends State<MeanBarGraphActivity>
   }
 
   Widget _tableHead(String text) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 9.5,
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+    child: Text(
+      text,
+      textAlign: TextAlign.center,
+      style: const TextStyle(
+        fontSize: 9.5,
+        fontWeight: FontWeight.w900,
+        color: Colors.white,
+      ),
+    ),
+  );
 
   Widget _tableCell(String text, {bool bold = false}) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-            color: BioColors.ink,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+    child: Text(
+      text,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 10,
+        fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
+        color: BioColors.ink,
+      ),
+    ),
+  );
 
   Widget _meanSection() {
     return Container(
@@ -332,7 +336,10 @@ class _MeanBarGraphActivityState extends State<MeanBarGraphActivity>
   }) {
     return Row(
       children: [
-        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(width: 4),
         Expanded(
           child: TextField(
@@ -341,7 +348,10 @@ class _MeanBarGraphActivityState extends State<MeanBarGraphActivity>
             style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
             decoration: InputDecoration(
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 6,
+                vertical: 6,
+              ),
               border: const UnderlineInputBorder(),
               suffixText: suffix.isEmpty ? null : suffix,
               suffixStyle: const TextStyle(fontSize: 9),
@@ -405,7 +415,10 @@ class _MeanBarGraphActivityState extends State<MeanBarGraphActivity>
                   for (var v = 30; v >= 0; v -= 5)
                     Text(
                       '$v',
-                      style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        fontSize: 8,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                 ],
               ),
@@ -419,14 +432,18 @@ class _MeanBarGraphActivityState extends State<MeanBarGraphActivity>
                       children: [
                         Positioned.fill(
                           child: CustomPaint(
-                            painter: _GridPainter(maxY: kStation5MeanBarGraphMax),
+                            painter: _GridPainter(
+                              maxY: kStation5MeanBarGraphMax,
+                            ),
                           ),
                         ),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Expanded(child: _graphSlot(0, chartH, _bar50Color)),
-                            Expanded(child: _graphSlot(1, chartH, _bar100Color)),
+                            Expanded(
+                              child: _graphSlot(1, chartH, _bar100Color),
+                            ),
                           ],
                         ),
                       ],
@@ -439,14 +456,20 @@ class _MeanBarGraphActivityState extends State<MeanBarGraphActivity>
                         child: Text(
                           '50%',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                       Expanded(
                         child: Text(
                           '100%',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800),
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ],
@@ -454,7 +477,10 @@ class _MeanBarGraphActivityState extends State<MeanBarGraphActivity>
                   const Text(
                     'CONCENTRATION',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ],
               ),
@@ -470,7 +496,8 @@ class _MeanBarGraphActivityState extends State<MeanBarGraphActivity>
     final mean = slotIndex == 0
         ? double.tryParse(_mean50Ctrl.text.trim())
         : double.tryParse(_mean100Ctrl.text.trim());
-    final displayMean = mean ??
+    final displayMean =
+        mean ??
         (slotIndex == 0 ? kStation5MeanBar50Mean : kStation5MeanBar100Mean);
     final barH = _barHeight(displayMean, chartH - 8);
     final shaking = _shakingSlot == slotIndex;

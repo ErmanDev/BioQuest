@@ -9,7 +9,7 @@ import '../../core/widgets/forest_image_button.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/guide_hint.dart';
 import '../../core/widgets/station_progress_bar.dart';
-import '../../data/references_data.dart';
+import '../../core/widgets/references_panel.dart';
 import '../../data/stations.dart';
 import '../../models/station_info.dart';
 import '../../models/station_progress.dart';
@@ -120,8 +120,7 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
     return progress.completedCount == 0 ? 'basecamp' : 'summit';
   }
 
-  bool _showPretestGuide(ProgressService progress) =>
-      !progress.hasTakenPretest;
+  bool _showPretestGuide(ProgressService progress) => !progress.hasTakenPretest;
 
   bool _showStation1Guide(ProgressService progress) =>
       progress.hasTakenPretest && !progress.isCompleted('station1');
@@ -173,22 +172,19 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
                         width: size.width,
                         height: size.height,
                         child: _mapContent(
-                            context, size, progress, reached, activeKey),
+                          context,
+                          size,
+                          progress,
+                          reached,
+                          activeKey,
+                        ),
                       ),
                     ),
                   ),
                 ),
                 // Fixed overlays (do not zoom/pan with the map).
-                Positioned(
-                  left: 14,
-                  top: 12,
-                  child: _hintChip(),
-                ),
-                Positioned(
-                  left: 14,
-                  top: 52,
-                  child: _legendButton(),
-                ),
+                Positioned(left: 14, top: 12, child: _hintChip()),
+                Positioned(left: 14, top: 52, child: _legendButton()),
                 Positioned(
                   left: 14,
                   top: 92,
@@ -225,7 +221,7 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
                     ),
                   ),
                   Center(
-                    child: _referencesOverlay(
+                    child: ReferencesPanel(
                       onClose: () => setState(() => _referencesOpen = false),
                     ),
                   ),
@@ -241,8 +237,7 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
                     child: _infoOverlay(
                       title: 'AI Use Declaration',
                       icon: Icons.memory_rounded,
-                      onClose: () =>
-                          setState(() => _aiDeclarationOpen = false),
+                      onClose: () => setState(() => _aiDeclarationOpen = false),
                       body:
                           'Artificial Intelligence (AI) tools were utilized in '
                           'the development of this instructional material to '
@@ -278,8 +273,13 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
     );
   }
 
-  Widget _mapContent(BuildContext context, Size size,
-      ProgressService progress, int reached, String activeKey) {
+  Widget _mapContent(
+    BuildContext context,
+    Size size,
+    ProgressService progress,
+    int reached,
+    String activeKey,
+  ) {
     final showStationGuide = _showStation1Guide(progress);
     final basecampPos = _at(_basecampSpot, size);
     final station1Pos = _at(_spots.first, size);
@@ -288,9 +288,7 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
       children: [
         // The winding ascent trail with the completed portion highlighted.
         Positioned.fill(
-          child: CustomPaint(
-            painter: _TrailPainter(_trail, reached),
-          ),
+          child: CustomPaint(painter: _TrailPainter(_trail, reached)),
         ),
         if (showStationGuide)
           Positioned.fill(
@@ -299,12 +297,7 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
         // Compass rose baked into the map.
         Positioned(top: 14, right: 16, child: _compass()),
         // Markers.
-        _basecampPanel(
-          context,
-          basecampPos,
-          activeKey == 'basecamp',
-          progress,
-        ),
+        _basecampPanel(context, basecampPos, activeKey == 'basecamp', progress),
         for (var i = 0; i < kStations.length; i++)
           _marker(
             context,
@@ -315,7 +308,11 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
             showGuide: showStationGuide && kStations[i].key == 'station1',
           ),
         _summitMarker(
-            context, _at(_summitSpot, size), progress, activeKey == 'summit'),
+          context,
+          _at(_summitSpot, size),
+          progress,
+          activeKey == 'summit',
+        ),
       ],
     );
   }
@@ -398,103 +395,6 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
     );
   }
 
-  Widget _referencesOverlay({required VoidCallback onClose}) {
-    const bodyStyle = TextStyle(
-      fontSize: 18,
-      height: 1.45,
-      fontWeight: FontWeight.w500,
-      color: BioColors.ink,
-    );
-
-    return Material(
-      color: Colors.transparent,
-      elevation: 12,
-      shadowColor: Colors.black45,
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        width: 720,
-        constraints: const BoxConstraints(maxHeight: 520),
-        padding: const EdgeInsets.fromLTRB(28, 22, 16, 24),
-        decoration: BoxDecoration(
-          color: BioColors.parchment,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: BioColors.forest, width: 4),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black38,
-              blurRadius: 28,
-              offset: Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.menu_book_rounded,
-                  color: BioColors.forest,
-                  size: 34,
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'References',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: BioColors.forest,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: onClose,
-                  icon: const Icon(
-                    Icons.close,
-                    color: BioColors.forest,
-                    size: 30,
-                  ),
-                  tooltip: 'Close',
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Scrollbar(
-                thumbVisibility: true,
-                child: ListView.separated(
-                  padding: const EdgeInsets.only(right: 12, top: 4, bottom: 8),
-                  itemCount: kReferences.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 20),
-                  itemBuilder: (context, index) {
-                    final entry = kReferences[index];
-                    return Text.rich(
-                      TextSpan(
-                        style: bodyStyle,
-                        children: [
-                          for (final run in entry)
-                            TextSpan(
-                              text: run.text,
-                              style: run.italic
-                                  ? bodyStyle.copyWith(
-                                      fontStyle: FontStyle.italic,
-                                    )
-                                  : null,
-                            ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _infoOverlay({
     required String title,
     required IconData icon,
@@ -542,7 +442,11 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
                 ),
                 IconButton(
                   onPressed: onClose,
-                  icon: const Icon(Icons.close, color: BioColors.forest, size: 30),
+                  icon: const Icon(
+                    Icons.close,
+                    color: BioColors.forest,
+                    size: 30,
+                  ),
                   tooltip: 'Close',
                 ),
               ],
@@ -599,10 +503,7 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
           BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
-      child: CustomPaint(
-        size: const Size(48, 48),
-        painter: _CompassPainter(),
-      ),
+      child: CustomPaint(size: const Size(48, 48), painter: _CompassPainter()),
     );
   }
 
@@ -661,7 +562,11 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.military_tech, size: 18, color: BioColors.forest),
+              const Icon(
+                Icons.military_tech,
+                size: 18,
+                color: BioColors.forest,
+              ),
               const SizedBox(width: 6),
               const Text(
                 'Badges',
@@ -674,8 +579,10 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
               if (earnedCount > 0) ...[
                 const SizedBox(width: 6),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: BioColors.sun,
                     borderRadius: BorderRadius.circular(10),
@@ -699,32 +606,32 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
 
   Widget _legendOverlay() {
     Widget row(Color color, String label) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2.5),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: BioColors.ink,
-                  ),
-                ),
-              ),
-            ],
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2.5),
+            ),
           ),
-        );
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: BioColors.ink,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
 
     return Material(
       color: Colors.transparent,
@@ -752,7 +659,11 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.legend_toggle, color: BioColors.forest, size: 34),
+                const Icon(
+                  Icons.legend_toggle,
+                  color: BioColors.forest,
+                  size: 34,
+                ),
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
@@ -766,7 +677,11 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
                 ),
                 IconButton(
                   onPressed: () => setState(() => _legendOpen = false),
-                  icon: const Icon(Icons.close, color: BioColors.forest, size: 30),
+                  icon: const Icon(
+                    Icons.close,
+                    color: BioColors.forest,
+                    size: 30,
+                  ),
                   tooltip: 'Close',
                 ),
               ],
@@ -833,9 +748,14 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
     );
   }
 
-  Widget _marker(BuildContext context, StationInfo s, Offset pos,
-      ProgressService progress, bool active,
-      {bool showGuide = false}) {
+  Widget _marker(
+    BuildContext context,
+    StationInfo s,
+    Offset pos,
+    ProgressService progress,
+    bool active, {
+    bool showGuide = false,
+  }) {
     final status = progress.progressOf(s.key).status;
     final locked = status == StationStatus.locked;
     final completed = status == StationStatus.completed;
@@ -858,13 +778,17 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
       sublabel: completed
           ? 'Cleared'
           : locked
-              ? 'Locked'
-              : 'Ready',
+          ? 'Locked'
+          : 'Ready',
     );
   }
 
   Widget _summitMarker(
-      BuildContext context, Offset pos, ProgressService progress, bool active) {
+    BuildContext context,
+    Offset pos,
+    ProgressService progress,
+    bool active,
+  ) {
     final unlocked = progress.isUnlocked('summit');
     return _markerShell(
       pos: pos,
@@ -911,16 +835,16 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
             if (showGuide) _GuideRing(child: circle) else circle,
             const SizedBox(height: 4),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.92),
                 borderRadius: BorderRadius.circular(9),
                 boxShadow: const [
                   BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                      offset: Offset(0, 2)),
+                    color: Colors.black26,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
                 ],
               ),
               child: Column(
@@ -974,10 +898,26 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
     if (locked) {
       logo = ColorFiltered(
         colorFilter: const ColorFilter.matrix([
-          0.35, 0.35, 0.35, 0, 0,
-          0.35, 0.35, 0.35, 0, 0,
-          0.35, 0.35, 0.35, 0, 0,
-          0, 0, 0, 0.75, 0,
+          0.35,
+          0.35,
+          0.35,
+          0,
+          0,
+          0.35,
+          0.35,
+          0.35,
+          0,
+          0,
+          0.35,
+          0.35,
+          0.35,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.75,
+          0,
         ]),
         child: logo,
       );
@@ -1281,9 +1221,10 @@ class _PulseState extends State<_Pulse> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     if (!widget.enabled) return widget.child;
     return ScaleTransition(
-      scale: Tween(begin: 1.0, end: 1.12).animate(
-        CurvedAnimation(parent: _c, curve: Curves.easeInOut),
-      ),
+      scale: Tween(
+        begin: 1.0,
+        end: 1.12,
+      ).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut)),
       child: widget.child,
     );
   }
@@ -1362,8 +1303,14 @@ class _TrailGuidePainter extends CustomPainter {
       final wing = normal * 8;
       final arrow = Path()
         ..moveTo(tip.dx, tip.dy)
-        ..lineTo(center.dx - unit.dx * 6 + wing.dx, center.dy - unit.dy * 6 + wing.dy)
-        ..lineTo(center.dx - unit.dx * 6 - wing.dx, center.dy - unit.dy * 6 - wing.dy)
+        ..lineTo(
+          center.dx - unit.dx * 6 + wing.dx,
+          center.dy - unit.dy * 6 + wing.dy,
+        )
+        ..lineTo(
+          center.dx - unit.dx * 6 - wing.dx,
+          center.dy - unit.dy * 6 - wing.dy,
+        )
         ..close();
       canvas.drawPath(
         arrow,

@@ -34,7 +34,9 @@ class StationDiscoveryScreen extends StatelessWidget {
           fontSize: 24,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           onTap: () async {
-            await context.read<ProgressService>().markDiscoveryComplete(stationKey);
+            await context.read<ProgressService>().markDiscoveryComplete(
+              stationKey,
+            );
             if (context.mounted) context.go('/$stationKey/mission');
           },
         ),

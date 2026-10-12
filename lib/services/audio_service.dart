@@ -3,11 +3,15 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
-/// Single looping background-music stream (low-end friendly: only one player).
-/// If the track is missing, playback fails silently so the game still runs.
+/// Looping background music plus a short sound-effect player for answer
+/// feedback. If an asset is missing, playback fails silently so the game
+/// still runs.
 class AudioService extends ChangeNotifier {
   final AudioPlayer _player = AudioPlayer(playerId: 'bgm');
+  final AudioPlayer _sfx = AudioPlayer(playerId: 'sfx');
   static const String _track = 'audio/theme.mp3';
+  static const String _wrongSound = 'audio/wrong_soft.wav';
+  static const double _sfxVolume = 0.5;
   static const double _normalVolume = 0.85;
   static const double _duckedVolume = 0.3;
 
@@ -28,6 +32,8 @@ class AudioService extends ChangeNotifier {
       await _player.setAudioContext(audioContext);
       await _player.setReleaseMode(ReleaseMode.loop);
       await _player.setVolume(_normalVolume);
+      await _sfx.setAudioContext(audioContext);
+      await _sfx.setReleaseMode(ReleaseMode.stop);
       _stateSub = _player.onPlayerStateChanged.listen(_onPlayerStateChanged);
     } catch (_) {}
   }
@@ -94,10 +100,19 @@ class AudioService extends ChangeNotifier {
     } catch (_) {}
   }
 
+  /// Plays the soft warning tone used for wrong answers.
+  Future<void> playWrong() async {
+    try {
+      await _sfx.stop();
+      await _sfx.play(AssetSource(_wrongSound), volume: _sfxVolume);
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
     _stateSub?.cancel();
     _player.dispose();
+    _sfx.dispose();
     super.dispose();
   }
 }

@@ -10,11 +10,7 @@ class DataSortActivity extends StatefulWidget {
   final void Function(bool allCorrect) onCompleted;
   final VoidCallback? onNext;
 
-  const DataSortActivity({
-    super.key,
-    required this.onCompleted,
-    this.onNext,
-  });
+  const DataSortActivity({super.key, required this.onCompleted, this.onNext});
 
   @override
   State<DataSortActivity> createState() => _DataSortActivityState();
@@ -25,8 +21,10 @@ class _DataSortActivityState extends State<DataSortActivity> {
   static const _notNeedZone = 1;
 
   /// `null` = still in the tray; otherwise folder zone index.
-  late final List<int?> _placement =
-      List<int?>.filled(kStation5DataItems.length, null);
+  late final List<int?> _placement = List<int?>.filled(
+    kStation5DataItems.length,
+    null,
+  );
   int? _selectedItem;
 
   bool get _allPlaced => _placement.every((zone) => zone != null);
@@ -43,14 +41,14 @@ class _DataSortActivityState extends State<DataSortActivity> {
   }
 
   List<int> _itemsInZone(int zone) => [
-        for (var i = 0; i < _placement.length; i++)
-          if (_placement[i] == zone) i,
-      ];
+    for (var i = 0; i < _placement.length; i++)
+      if (_placement[i] == zone) i,
+  ];
 
   List<int> get _trayItems => [
-        for (var i = 0; i < _placement.length; i++)
-          if (_placement[i] == null) i,
-      ];
+    for (var i = 0; i < _placement.length; i++)
+      if (_placement[i] == null) i,
+  ];
 
   void _selectItem(int index) {
     setState(() {
@@ -173,8 +171,7 @@ class _DataSortActivityState extends State<DataSortActivity> {
     final items = _itemsInZone(zone);
     final canDrop = _selectedItem != null;
     final accent = need ? const Color(0xFF2E7D32) : const Color(0xFFC62828);
-    final label =
-        need ? kStation5SortNeedLabel : kStation5SortNotNeedLabel;
+    final label = need ? kStation5SortNeedLabel : kStation5SortNotNeedLabel;
 
     return DragTarget<int>(
       onWillAcceptWithDetails: (_) => true,
@@ -182,9 +179,7 @@ class _DataSortActivityState extends State<DataSortActivity> {
       builder: (context, candidate, rejected) {
         final highlight = candidate.isNotEmpty || canDrop;
         return Material(
-          color: need
-              ? const Color(0xFFE8F5E9)
-              : const Color(0xFFFFEBEE),
+          color: need ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE),
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),

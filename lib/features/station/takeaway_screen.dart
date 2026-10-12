@@ -31,7 +31,9 @@ class _StationTakeawayScreenState extends State<StationTakeawayScreen> {
   int _scoreAnswer(String text, List<String> keywords) {
     final lower = text.toLowerCase();
     final words = lower.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
-    final matched = keywords.where((k) => lower.contains(k.toLowerCase())).length;
+    final matched = keywords
+        .where((k) => lower.contains(k.toLowerCase()))
+        .length;
     int s;
     if (matched >= 4) {
       s = 5;
@@ -52,9 +54,11 @@ class _StationTakeawayScreenState extends State<StationTakeawayScreen> {
     final content = contentOf(widget.stationKey);
     final s = _scoreAnswer(_controller.text, content.takeawayKeywords);
     setState(() => _score = s);
-    await context
-        .read<ProgressService>()
-        .recordAssessment('${widget.stationKey}_takeaway', s, 5);
+    await context.read<ProgressService>().recordAssessment(
+      '${widget.stationKey}_takeaway',
+      s,
+      5,
+    );
   }
 
   @override
@@ -145,15 +149,18 @@ class _StationTakeawayScreenState extends State<StationTakeawayScreen> {
               Text(
                 'Your score: $_score / 5',
                 style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: BioColors.forest),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: BioColors.forest,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Text('Sample answer:',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+          const Text(
+            'Sample answer:',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          ),
           const SizedBox(height: 6),
           Expanded(
             child: SingleChildScrollView(

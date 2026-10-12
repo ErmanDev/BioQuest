@@ -11,6 +11,7 @@ import '../../core/widgets/primary_button.dart';
 import '../../data/basecamp_data.dart';
 import '../../services/narration_helper.dart';
 import '../../services/progress_service.dart';
+import '../../services/settings_service.dart';
 
 class BasecampScreen extends StatefulWidget {
   /// When true, opened from the Expedition Map — skip the entrance tap and
@@ -25,6 +26,12 @@ class BasecampScreen extends StatefulWidget {
 class _BasecampScreenState extends State<BasecampScreen>
     with SingleTickerProviderStateMixin, RouteAware, AutoNarrateOnEnter {
   late bool _entered = widget.fromMap;
+
+  /// The orientation icons stay hidden until the avatar finishes the welcome
+  /// message on a learner's first visit (per the design doc).
+  late bool _iconsRevealed = widget.fromMap;
+  int _welcomeGeneration = 0;
+
   late final AnimationController _bob = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 900),
@@ -63,8 +70,46 @@ class _BasecampScreenState extends State<BasecampScreen>
   }
 
   Future<void> _enter() async {
-    setState(() => _entered = true);
-    scheduleAutoNarrate();
+    final progress = context.read<ProgressService>();
+    final firstVisit =
+        !progress.hasReadOverview &&
+        !progress.hasReadInstructions &&
+        !progress.hasReadObjectives &&
+        !progress.orientationComplete;
+    setState(() {
+      _entered = true;
+      _iconsRevealed = !firstVisit;
+    });
+    if (!firstVisit) {
+      scheduleAutoNarrate();
+      return;
+    }
+
+    // Speak the welcome, then reveal the icons. With voiceover off, give the
+    // learner a moment with the avatar before the icons appear.
+    final generation = ++_welcomeGeneration;
+    final voiceOn = context.read<SettingsService>().voiceoverOn;
+    try {
+      if (voiceOn) {
+        await autoNarrateIfEnabled(
+          context,
+          kBasecampWelcome,
+        ).timeout(const Duration(seconds: 90));
+      } else {
+        await Future<void>.delayed(const Duration(milliseconds: 2500));
+      }
+    } catch (_) {}
+    if (mounted && generation == _welcomeGeneration) _revealIcons();
+  }
+
+  void _revealIcons() {
+    _welcomeGeneration++;
+    if (!_iconsRevealed) setState(() => _iconsRevealed = true);
+  }
+
+  Future<void> _skipWelcome() async {
+    await stopNarration(context);
+    if (mounted) _revealIcons();
   }
 
   @override
@@ -207,8 +252,8 @@ class _BasecampScreenState extends State<BasecampScreen>
               final avatarSize = bodyH * 0.42;
               const avatarScale = 1.75;
               const menuWidth = 220.0;
-              final speechMaxWidth =
-                  (totalW - avatarSize - menuWidth - 56).clamp(260.0, 500.0);
+              final speechMaxWidth = (totalW - avatarSize - menuWidth - 56)
+                  .clamp(260.0, 500.0);
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -232,24 +277,25 @@ class _BasecampScreenState extends State<BasecampScreen>
                                 avatarOffsetY: 22,
                                 speechMaxWidth: speechMaxWidth,
                                 fontSize: 24,
-                                speechBackground:
-                                    BioColors.parchment.withValues(
-                                  alpha: 0.94,
+                                speechBackground: BioColors.parchment
+                                    .withValues(alpha: 0.94),
+                                speechBorderColor: BioColors.forest.withValues(
+                                  alpha: 0.35,
                                 ),
-                                speechBorderColor: BioColors.forest
-                                    .withValues(alpha: 0.35),
                                 speechBorderWidth: 1.5,
                                 speechShadow: _speechShadow,
                               ),
                               const SizedBox(width: 16),
-                              _menuPanel(
-                                context,
-                                buttonWidth: menuWidth,
-                                progress: progress,
-                                sequential: sequential,
-                                showOverviewGuide: showOverviewGuide,
-                                showInstructionsGuide: showInstructionsGuide,
-                                showObjectivesGuide: showObjectivesGuide,
+                              _revealable(
+                                _menuPanel(
+                                  context,
+                                  buttonWidth: menuWidth,
+                                  progress: progress,
+                                  sequential: sequential,
+                                  showOverviewGuide: showOverviewGuide,
+                                  showInstructionsGuide: showInstructionsGuide,
+                                  showObjectivesGuide: showObjectivesGuide,
+                                ),
                               ),
                             ],
                           ),
@@ -257,31 +303,56 @@ class _BasecampScreenState extends State<BasecampScreen>
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Center(
-                      child: GuideHint(
-                        enabled: showPretestGuide,
-                        label: 'Take the Pretest next',
-                        child: PrimaryButton(
-                          label: widget.fromMap
-                              ? 'Back to Expedition Map'
-                              : 'Proceed to Pretest',
-                          icon: widget.fromMap
-                              ? Icons.map
-                              : Icons.arrow_forward,
-                          color: BioColors.sun,
-                          fontSize: 25,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 26,
-                            vertical: 13,
+                    if (!_iconsRevealed)
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: _skipWelcome,
+                          style: TextButton.styleFrom(
+                            backgroundColor: BioColors.parchment.withValues(
+                              alpha: 0.9,
+                            ),
+                            foregroundColor: BioColors.forest,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 10,
+                            ),
                           ),
-                          onTap: canProceedToPretest
-                              ? () => context.go(
-                                  widget.fromMap ? '/map' : '/pretest',
-                                )
-                              : null,
+                          icon: const Icon(Icons.skip_next),
+                          label: const Text(
+                            'Skip',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      Center(
+                        child: GuideHint(
+                          enabled: showPretestGuide,
+                          label: 'Take the Pretest next',
+                          child: PrimaryButton(
+                            label: widget.fromMap
+                                ? 'Back to Expedition Map'
+                                : 'Proceed to Pretest',
+                            icon: widget.fromMap
+                                ? Icons.map
+                                : Icons.arrow_forward,
+                            color: BioColors.sun,
+                            fontSize: 25,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 26,
+                              vertical: 13,
+                            ),
+                            onTap: canProceedToPretest
+                                ? () => context.go(
+                                    widget.fromMap ? '/map' : '/pretest',
+                                  )
+                                : null,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               );
@@ -289,6 +360,20 @@ class _BasecampScreenState extends State<BasecampScreen>
           ),
         ),
       ],
+    );
+  }
+
+  /// Fades [child] in once the welcome message is done; keeps its space so
+  /// the avatar and speech bubble don't shift when it appears.
+  Widget _revealable(Widget child) {
+    return IgnorePointer(
+      ignoring: !_iconsRevealed,
+      child: AnimatedOpacity(
+        opacity: _iconsRevealed ? 1 : 0,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOut,
+        child: child,
+      ),
     );
   }
 
@@ -438,7 +523,11 @@ class _BasecampScreenState extends State<BasecampScreen>
                       const Positioned(
                         right: -10,
                         top: -6,
-                        child: Icon(Icons.lock, size: 16, color: Colors.white70),
+                        child: Icon(
+                          Icons.lock,
+                          size: 16,
+                          color: Colors.white70,
+                        ),
                       ),
                     if (completed)
                       const Positioned(
