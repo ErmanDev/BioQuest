@@ -1,4 +1,5 @@
 import '../models/mc_question.dart';
+import '../models/vocab_word.dart';
 
 const String kStation5DiscoveryBackgroundAsset =
     'assets/images/station5/discovery_stop_station_5.png';
@@ -41,6 +42,67 @@ const String kStation5Activity1Tip =
     'making a conclusion based on evidence.';
 
 /// Welcome script for Station 5 (spoken by the avatar when the station opens).
+/// Word Quest vocabulary shown in the Discovery Stop overlay. Context
+/// sentences use **bold** and *italic* markup.
+const List<VocabWord> kStation5Vocabulary = [
+  VocabWord(
+    term: 'Antibacterial Assay',
+    definition:
+        'A laboratory test used to determine whether a substance can prevent '
+        'or stop the growth of bacteria.',
+    context:
+        'Scientists use an **antibacterial assay** to determine whether moss '
+        'extracts can inhibit the growth of harmful bacteria.',
+  ),
+  VocabWord(
+    term: 'Zone of Inhibition',
+    definition: 'The clear area around a substance where bacteria do not grow.',
+    context:
+        'After incubation, a **zone of inhibition** may appear around the '
+        'paper disk containing moss extract, indicating antibacterial '
+        'activity.',
+  ),
+  VocabWord(
+    term: 'Hypothesis',
+    definition:
+        'A testable prediction about the possible outcome of a research '
+        'investigation.',
+    context:
+        'The researcher formulates a **hypothesis** to predict whether '
+        '*Pyrrhobryum* and *Ectropothecium* will have different antibacterial '
+        'effects.',
+  ),
+  VocabWord(
+    term: 'Replicate',
+    definition:
+        'A repeated trial or measurement of the same treatment in an '
+        'experiment.',
+    context:
+        'Researchers conducted five **replicates** for each treatment to make '
+        'the results more reliable.',
+  ),
+  VocabWord(
+    term: 'Statistical Significance',
+    definition:
+        'A result that shows a difference is unlikely to have occurred simply '
+        'by chance.',
+    context:
+        'A statistical test is used to determine whether the difference in '
+        'antibacterial activity between the two moss genera is '
+        '**statistically significant**.',
+  ),
+  VocabWord(
+    term: 'Null Hypothesis',
+    definition:
+        'A statement that predicts there is no significant difference or '
+        'effect between groups being studied.',
+    context:
+        'The **null hypothesis** states that there is no significant '
+        'difference between the antibacterial effects of *Pyrrhobryum* and '
+        '*Ectropothecium*.',
+  ),
+];
+
 const String kStation5Intro =
     'Welcome, young researchers! In this station, you will enter the Defense '
     'Laboratory, where scientists investigate the antibacterial properties of '

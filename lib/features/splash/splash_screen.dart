@@ -31,18 +31,22 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        const ColoredBox(color: Color(0xFFF4EFE4)),
-        Positioned.fill(
-          child: Semantics(
-            button: true,
-            label: 'Tap to start',
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _continue,
-              child: const GameImage(
+    // The tap handler wraps the whole screen: the GameCanvas layer below is
+    // drawn on top of the artwork and its ColoredBox absorbs hits, so a
+    // handler on the artwork alone never fires. The music toggle inside the
+    // canvas still wins its own taps.
+    return Semantics(
+      button: true,
+      label: 'Tap to start',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _continue,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const ColoredBox(color: Color(0xFFF4EFE4)),
+            const Positioned.fill(
+              child: GameImage(
                 asset: _splashAsset,
                 label: 'BioQuest splash',
                 fit: BoxFit.contain,
@@ -51,22 +55,22 @@ class _SplashScreenState extends State<SplashScreen> {
                 cacheWidth: 1280,
               ),
             ),
-          ),
-        ),
-        GameCanvas(
-          letterboxColor: Colors.transparent,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned(
-                right: 24,
-                bottom: 20,
-                child: _musicToggle(context),
+            GameCanvas(
+              letterboxColor: Colors.transparent,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned(
+                    right: 24,
+                    bottom: 20,
+                    child: _musicToggle(context),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

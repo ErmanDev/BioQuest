@@ -5,9 +5,11 @@ import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
 import '../../core/mixins/auto_narrate_on_enter.dart';
 import '../../core/text_format.dart';
+import '../../core/widgets/artwork_stage.dart';
 import '../../core/widgets/game_image.dart';
-import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/trail_button.dart';
 import '../../core/widgets/voiceover_toggle.dart';
+import '../../core/widgets/word_quest.dart';
 import '../../data/station3_data.dart';
 import '../../data/stations.dart';
 import '../../models/explorer_avatar.dart';
@@ -28,11 +30,13 @@ class Station3DiscoveryScreen extends StatefulWidget {
 
 class _Station3DiscoveryScreenState extends State<Station3DiscoveryScreen>
     with RouteAware, AutoNarrateOnEnter {
-  /// Inner parchment margins on [kStation3DiscoveryBackgroundAsset].
-  static const _parchmentContentLeft = 0.345;
-  static const _parchmentContentRight = 0.725;
-  static const _parchmentContentTop = 0.20;
-  static const _parchmentContentHeight = 0.55;
+  /// Background aspect and regions (fractions of the artwork) so the
+  /// text and avatar stay on the same spot of the picture on any screen.
+  static const double _artAspect = 3072 / 1376;
+  static const Rect _textRegion = Rect.fromLTRB(0.325, 0.26, 0.69, 0.74);
+  static const Rect _avatarRegion = Rect.fromLTRB(0.05, 0.3, 0.25, 0.9);
+  static const double _textWidth =
+      ArtworkOverlay.defaultDesignWidth * (0.69 - 0.325);
 
   @override
   String? get autoNarrateText => stripReadingMarkup(kStation3Content);
@@ -58,13 +62,10 @@ class _Station3DiscoveryScreenState extends State<Station3DiscoveryScreen>
       children: [
         const ColoredBox(color: BioColors.forest),
         Positioned.fill(
-          child: GameImage(
+          child: ArtworkBackdrop(
             asset: kStation3DiscoveryBackgroundAsset,
+            aspect: _artAspect,
             label: 'Discovery Stop',
-            fit: BoxFit.cover,
-            color: BioColors.forest,
-            icon: Icons.landscape,
-            cacheWidth: 1280,
           ),
         ),
         GameCanvas(
@@ -97,71 +98,70 @@ class _Station3DiscoveryScreenState extends State<Station3DiscoveryScreen>
                   ],
                 ),
                 const SizedBox(height: 12),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final w = constraints.maxWidth;
-                      final h = constraints.maxHeight;
-                      final avatarW = w * 0.19;
-                      const avatarScale = 1.4;
-
-                      final textLeft = w * _parchmentContentLeft;
-                      final textW =
-                          w * (_parchmentContentRight - _parchmentContentLeft);
-                      final textTop = h * _parchmentContentTop;
-                      final textH = h * _parchmentContentHeight;
-
-                      return Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Positioned(
-                            left: 0,
-                            bottom: 0,
-                            width: avatarW,
-                            child: _guideAvatar(avatarW, avatarScale),
-                          ),
-                          Positioned(
-                            left: textLeft,
-                            top: textTop,
-                            width: textW,
-                            height: textH,
-                            child: ClipRect(
-                              clipBehavior: Clip.hardEdge,
-                              child: ListView(
-                                padding: const EdgeInsets.only(right: 4),
-                                children: _discoveryContent(textW),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                Center(
-                  child: PrimaryButton(
-                    label: 'Proceed',
-                    icon: Icons.arrow_forward_rounded,
-                    color: BioColors.forest,
-                    fontSize: 22,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 28,
-                      vertical: 14,
+                const Expanded(child: SizedBox.shrink()),
+                Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Center(
+                      child: TrailButton(
+                        label: 'Proceed',
+                        icon: Icons.arrow_forward_rounded,
+                        fontSize: 22,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 28,
+                          vertical: 14,
+                        ),
+                        onTap: () async {
+                          await stopNarration(context);
+                          if (!context.mounted) return;
+                          await context
+                              .read<ProgressService>()
+                              .markDiscoveryComplete('station3');
+                          if (context.mounted) {
+                            context.go(stationHubRoute('station3'));
+                          }
+                        },
+                      ),
                     ),
-                    onTap: () async {
-                      await stopNarration(context);
-                      if (!context.mounted) return;
-                      await context
-                          .read<ProgressService>()
-                          .markDiscoveryComplete('station3');
-                      if (context.mounted) {
-                        context.go(stationHubRoute('station3'));
-                      }
-                    },
-                  ),
+                    // A normal (non-positioned) child so the row grows to fit
+                    // the whole button; overflowing parts don't receive taps.
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 48, bottom: 20),
+                        child: WordQuestButton(
+                          onTap: () => showWordQuestOverlay(
+                            context,
+                            kStation3Vocabulary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
+          ),
+        ),
+        Positioned.fill(
+          child: ArtworkOverlay(
+            aspect: _artAspect,
+            slots: [
+              ArtworkSlot(
+                region: _avatarRegion,
+                interactive: false,
+                child: _guideAvatar(),
+              ),
+              ArtworkSlot(
+                region: _textRegion,
+                child: ClipRect(
+                  child: ListView(
+                    padding: const EdgeInsets.only(right: 4),
+                    children: _discoveryContent(_textWidth),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -173,32 +173,32 @@ class _Station3DiscoveryScreenState extends State<Station3DiscoveryScreen>
     const gap = 12.0;
 
     Text bodyText(String text) => Text.rich(
-          readingTextSpan(
-            text,
-            fontSize: fontSize,
-            color: BioColors.ink,
-            indentFirstLine: true,
-          ),
-          style: const TextStyle(height: 1.4),
-        );
+      readingTextSpan(
+        text,
+        fontSize: fontSize,
+        color: BioColors.ink,
+        indentFirstLine: true,
+      ),
+      style: const TextStyle(height: 1.4),
+    );
 
     Widget jarIllustration() => Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: SizedBox(
-              width: maxWidth * 0.42,
-              height: maxWidth * 0.55,
-              child: GameImage(
-                asset: kStation3JarAsset,
-                label: 'In vitro moss jar',
-                fit: BoxFit.contain,
-                color: BioColors.moss,
-                icon: Icons.science,
-                cacheWidth: 512,
-              ),
-            ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: SizedBox(
+          width: maxWidth * 0.42,
+          height: maxWidth * 0.55,
+          child: GameImage(
+            asset: kStation3JarAsset,
+            label: 'In vitro moss jar',
+            fit: BoxFit.contain,
+            color: BioColors.moss,
+            icon: Icons.science,
+            cacheWidth: 512,
           ),
-        );
+        ),
+      ),
+    );
 
     return [
       bodyText(kStation3DiscoveryPart1),
@@ -218,33 +218,9 @@ class _Station3DiscoveryScreenState extends State<Station3DiscoveryScreen>
     ];
   }
 
-  Widget _guideAvatar(double width, double scale) {
+  Widget _guideAvatar() {
     final id = context.watch<AuthService>().currentUser?.avatarId ?? 0;
     final explorer = ExplorerAvatar.fromId(id);
-    final height = width * scale;
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: OverflowBox(
-          alignment: Alignment.bottomCenter,
-          maxHeight: height,
-          minHeight: height,
-          maxWidth: height,
-          child: SizedBox(
-            height: height,
-            child: GameImage(
-              asset: explorer.assetPath,
-              label: explorer.label,
-              color: BioColors.moss,
-              fit: BoxFit.fitHeight,
-              icon: Icons.emoji_people,
-              cacheWidth: (height * 2).round(),
-            ),
-          ),
-        ),
-      ),
-    );
+    return SlotFigure(asset: explorer.assetPath, label: explorer.label);
   }
 }

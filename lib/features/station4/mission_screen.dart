@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
 import '../../core/text_format.dart';
+import '../../core/widgets/artwork_stage.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station4_data.dart';
@@ -31,14 +32,21 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
   static const _activityBackgroundAsset =
       'assets/images/backgrounds/mission_forest_bg.png';
 
-  /// Inner parchment text bounds on [kStation4MissionBackgroundAsset].
-  static const _storyContentLeft = 0.31;
-  static const _storyContentRight = 0.69;
-  static const _storyContentTop = 0.32;
-  static const _storyContentBottom = 0.78;
+  /// Mission Story parchment on [kStation4MissionBackgroundAsset], as
+  /// fractions of the artwork, so the story stays on the parchment on any
+  /// screen shape.
+  static const double _storyArtAspect = 3072 / 1376;
+  static const Rect _storyTextRegion = Rect.fromLTRB(0.345, 0.37, 0.69, 0.70);
+  static const Rect _storyButtonRegion = Rect.fromLTRB(
+    0.36,
+    0.715,
+    0.675,
+    0.79,
+  );
   static const _storyHorizontalPad = 18.0;
 
-  int _phase = 0; // 0 story, 1 graph, 2 overview, 3 instructions, 4 screening, 5 analysis, 6 done
+  int _phase =
+      0; // 0 story, 1 graph, 2 overview, 3 instructions, 4 screening, 5 analysis, 6 done
   bool _graphActivityDone = false;
   bool _screeningDone = false;
   int _score = 0;
@@ -50,10 +58,7 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
   late final Animation<double> _scrollHintBounce = Tween<double>(
     begin: 0,
     end: 10,
-  ).animate(CurvedAnimation(
-    parent: _scrollHintCtrl,
-    curve: Curves.easeInOut,
-  ));
+  ).animate(CurvedAnimation(parent: _scrollHintCtrl, curve: Curves.easeInOut));
   bool _showScrollHint = true;
 
   @override
@@ -86,7 +91,8 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
   void _onStoryScroll() {
     if (!_storyScrollCtrl.hasClients) return;
     final canScroll = _storyScrollCtrl.position.maxScrollExtent > 8;
-    final atBottom = _storyScrollCtrl.position.pixels >=
+    final atBottom =
+        _storyScrollCtrl.position.pixels >=
         _storyScrollCtrl.position.maxScrollExtent - 16;
     _setScrollHintVisible(canScroll && !atBottom);
   }
@@ -112,14 +118,20 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
       children: [
         const ColoredBox(color: BioColors.forest),
         Positioned.fill(
-          child: GameImage(
-            asset: bgAsset,
-            label: 'Research Mission',
-            fit: BoxFit.cover,
-            color: BioColors.forest,
-            icon: Icons.landscape,
-            cacheWidth: 1280,
-          ),
+          child: _phase == 0
+              ? ArtworkBackdrop(
+                  asset: bgAsset,
+                  aspect: _storyArtAspect,
+                  label: 'Research Mission',
+                )
+              : GameImage(
+                  asset: bgAsset,
+                  label: 'Research Mission',
+                  fit: BoxFit.cover,
+                  color: BioColors.forest,
+                  icon: Icons.landscape,
+                  cacheWidth: 1280,
+                ),
         ),
         GameCanvas(
           letterboxColor: Colors.transparent,
@@ -128,28 +140,31 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (_phase != 2 && _phase != 3 && _phase != 4 && _phase != 5) ...[
+                if (_phase != 2 &&
+                    _phase != 3 &&
+                    _phase != 4 &&
+                    _phase != 5) ...[
                   _topBar(context),
                   SizedBox(height: _phase == 0 ? 12 : 6),
                 ],
                 Expanded(
                   child: switch (_phase) {
-                    0 => _story(),
+                    0 => const SizedBox.shrink(),
                     1 => _graphMatch(),
                     2 => Activity2Overview(
-                          onBack: () {
-                            stopNarration(context).then((_) {
-                              if (context.mounted) {
-                                context.go(stationHubRoute('station4'));
-                              }
-                            });
-                          },
-                          onContinue: () => setState(() => _phase = 3),
-                        ),
+                      onBack: () {
+                        stopNarration(context).then((_) {
+                          if (context.mounted) {
+                            context.go(stationHubRoute('station4'));
+                          }
+                        });
+                      },
+                      onContinue: () => setState(() => _phase = 3),
+                    ),
                     3 => Activity2Instructions(
-                          onBack: () => setState(() => _phase = 2),
-                          onContinue: () => setState(() => _phase = 4),
-                        ),
+                      onBack: () => setState(() => _phase = 2),
+                      onContinue: () => setState(() => _phase = 4),
+                    ),
                     4 => _screening(),
                     5 => _analysis(),
                     _ => _done(),
@@ -159,6 +174,19 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
             ),
           ),
         ),
+        if (_phase == 0)
+          Positioned.fill(
+            child: ArtworkOverlay(
+              aspect: _storyArtAspect,
+              slots: [
+                ArtworkSlot(region: _storyTextRegion, child: _storyText()),
+                ArtworkSlot(
+                  region: _storyButtonRegion,
+                  child: Center(child: _startButton()),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -190,83 +218,55 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
     );
   }
 
-  Widget _story() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final w = constraints.maxWidth;
-        final h = constraints.maxHeight;
-
-        final textLeft = w * _storyContentLeft;
-        final textW = w * (_storyContentRight - _storyContentLeft);
-        final textTop = h * _storyContentTop;
-        final textH = h * _storyContentBottom - textTop;
-
-        return Stack(
-          clipBehavior: Clip.none,
+  Widget _storyText() {
+    return ClipRect(
+      clipBehavior: Clip.hardEdge,
+      child: NotificationListener<ScrollMetricsNotification>(
+        onNotification: (_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _onStoryScroll();
+          });
+          return false;
+        },
+        child: Stack(
           children: [
-            Positioned(
-              left: textLeft,
-              top: textTop,
-              width: textW,
-              height: textH,
-              child: ClipRect(
-                clipBehavior: Clip.hardEdge,
-                child: NotificationListener<ScrollMetricsNotification>(
-                  onNotification: (_) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) _onStoryScroll();
-                    });
-                    return false;
-                  },
-                  child: Stack(
-                    children: [
-                      Scrollbar(
-                        controller: _storyScrollCtrl,
-                        child: SingleChildScrollView(
-                          controller: _storyScrollCtrl,
-                          padding: const EdgeInsets.fromLTRB(
-                            _storyHorizontalPad,
-                            0,
-                            _storyHorizontalPad,
-                            8,
-                          ),
-                          child: Text.rich(
-                            readingTextSpan(
-                              kStation4MissionStory,
-                              fontSize: 16,
-                              color: BioColors.ink,
-                            ),
-                            style: const TextStyle(height: 1.45),
-                          ),
-                        ),
-                      ),
-                      if (_showScrollHint) _scrollDownHint(),
-                    ],
+            Scrollbar(
+              controller: _storyScrollCtrl,
+              child: SingleChildScrollView(
+                controller: _storyScrollCtrl,
+                padding: const EdgeInsets.fromLTRB(
+                  _storyHorizontalPad,
+                  0,
+                  _storyHorizontalPad,
+                  8,
+                ),
+                child: Text.rich(
+                  readingTextSpan(
+                    kStation4MissionStory,
+                    fontSize: 16,
+                    color: BioColors.ink,
                   ),
+                  style: const TextStyle(height: 1.45),
                 ),
               ),
             ),
-            Positioned(
-              left: textLeft + _storyHorizontalPad,
-              bottom: h * 0.08,
-              width: textW - _storyHorizontalPad * 2,
-              child: PrimaryButton(
-                label: 'Start Activity',
-                color: BioColors.forest,
-                fontSize: 20,
-                expand: true,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 14,
-                ),
-                onTap: () async {
-                  await stopNarration(context);
-                  if (mounted) setState(() => _phase = 1);
-                },
-              ),
-            ),
+            if (_showScrollHint) _scrollDownHint(),
           ],
-        );
+        ),
+      ),
+    );
+  }
+
+  Widget _startButton() {
+    return PrimaryButton(
+      label: 'Start Activity',
+      color: BioColors.forest,
+      fontSize: 20,
+      expand: true,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      onTap: () async {
+        await stopNarration(context);
+        if (mounted) setState(() => _phase = 1);
       },
     );
   }
@@ -365,11 +365,11 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
       continueLabel: 'Continue to Takeaway',
       message: _score == 3
           ? 'Brilliant! You matched the data displays, completed the screening '
-              'table, and interpreted every guide question correctly.'
+                'table, and interpreted every guide question correctly.'
           : _score >= 2
-              ? 'Good work on the investigation. Review the official results '
-                  'if any guide questions were missed.'
-              : 'Good effort decoding the data. Continue to the takeaway.',
+          ? 'Good work on the investigation. Review the official results '
+                'if any guide questions were missed.'
+          : 'Good effort decoding the data. Continue to the takeaway.',
       onContinue: () async {
         final progress = context.read<ProgressService>();
         final router = GoRouter.of(context);

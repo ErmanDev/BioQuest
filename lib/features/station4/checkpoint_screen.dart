@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
-import '../../core/widgets/game_image.dart';
+import '../../core/widgets/artwork_stage.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station4_data.dart';
 import '../../data/stations.dart';
@@ -20,14 +20,15 @@ class Station4CheckpointScreen extends StatefulWidget {
 }
 
 class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
-  static const _contentLeft = 0.205;
-  static const _contentRight = 0.795;
-  static const _contentTop = 0.365;
-  static const _contentBottom = 0.835;
+  /// Background artwork aspect; panels are placed as fractions of the
+  /// artwork so they stay on the drawn frame on any screen shape.
+  static const double _artAspect = 3072 / 1376;
 
   int _index = 0;
-  late final List<int?> _answers =
-      List<int?>.filled(kStation4Checkpoint.length, null);
+  late final List<int?> _answers = List<int?>.filled(
+    kStation4Checkpoint.length,
+    null,
+  );
   bool _finished = false;
 
   int get _score {
@@ -70,13 +71,10 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
       children: [
         const ColoredBox(color: BioColors.forest),
         Positioned.fill(
-          child: GameImage(
+          child: ArtworkBackdrop(
             asset: kStation4TrailCheckpointBackgroundAsset,
-            label: 'Trail Checkpoint',
-            fit: BoxFit.cover,
-            color: BioColors.forest,
-            icon: Icons.landscape,
-            cacheWidth: 1280,
+            aspect: _artAspect,
+            label: 'Background',
           ),
         ),
         GameCanvas(
@@ -87,33 +85,20 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
               children: [
                 _topBar(context),
                 const SizedBox(height: 6),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final w = constraints.maxWidth;
-                      final h = constraints.maxHeight;
-                      final left = w * _contentLeft;
-                      final width = w * (_contentRight - _contentLeft);
-                      final top = h * _contentTop;
-                      final height = h * _contentBottom - top;
-
-                      return Stack(
-                        clipBehavior: Clip.hardEdge,
-                        children: [
-                          Positioned(
-                            left: left,
-                            top: top,
-                            width: width,
-                            height: height,
-                            child: _finished ? _result() : _question(),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+                const Expanded(child: SizedBox.shrink()),
               ],
             ),
+          ),
+        ),
+        Positioned.fill(
+          child: ArtworkOverlay(
+            aspect: _artAspect,
+            slots: [
+              ArtworkSlot(
+                region: Rect.fromLTRB(0.25, 0.36, 0.75, 0.88),
+                child: _finished ? _result() : _question(),
+              ),
+            ],
           ),
         ),
       ],
@@ -206,9 +191,7 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
         Align(
           alignment: Alignment.center,
           child: PrimaryButton(
-            label: _index == kStation4Checkpoint.length - 1
-                ? 'Finish'
-                : 'Next',
+            label: _index == kStation4Checkpoint.length - 1 ? 'Finish' : 'Next',
             icon: Icons.arrow_forward,
             color: BioColors.forest,
             fontSize: 15,

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
-import '../../core/widgets/game_image.dart';
+import '../../core/widgets/artwork_stage.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station4_data.dart';
 import '../../data/stations.dart';
@@ -18,10 +18,9 @@ class Station4TakeawayScreen extends StatefulWidget {
 }
 
 class _Station4TakeawayScreenState extends State<Station4TakeawayScreen> {
-  static const _answerLeft = 0.265;
-  static const _answerRight = 0.735;
-  static const _answerTop = 0.62;
-  static const _answerBottom = 0.84;
+  /// Background artwork aspect; panels are placed as fractions of the
+  /// artwork so they stay on the drawn frame on any screen shape.
+  static const double _artAspect = 3072 / 1376;
 
   final _controller = TextEditingController();
 
@@ -52,13 +51,10 @@ class _Station4TakeawayScreenState extends State<Station4TakeawayScreen> {
       children: [
         const ColoredBox(color: BioColors.forest),
         Positioned.fill(
-          child: GameImage(
+          child: ArtworkBackdrop(
             asset: kStation4TakeawayBackgroundAsset,
-            label: 'Takeaway',
-            fit: BoxFit.cover,
-            color: BioColors.forest,
-            icon: Icons.landscape,
-            cacheWidth: 1280,
+            aspect: _artAspect,
+            label: 'Background',
           ),
         ),
         GameCanvas(
@@ -69,39 +65,24 @@ class _Station4TakeawayScreenState extends State<Station4TakeawayScreen> {
               children: [
                 _topBar(context),
                 const SizedBox(height: 8),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final w = constraints.maxWidth;
-                      final h = constraints.maxHeight;
-                      final left = w * _answerLeft;
-                      final width = w * (_answerRight - _answerLeft);
-                      final top = h * _answerTop;
-                      final height = h * _answerBottom - top;
-
-                      return Stack(
-                        clipBehavior: Clip.hardEdge,
-                        children: [
-                          Positioned(
-                            left: left,
-                            top: top,
-                            width: width,
-                            height: height,
-                            child: _answerField(),
-                          ),
-                          Positioned(
-                            left: w * 0.22,
-                            right: w * 0.22,
-                            bottom: 0,
-                            child: _footer(),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+                const Expanded(child: SizedBox.shrink()),
               ],
             ),
+          ),
+        ),
+        Positioned.fill(
+          child: ArtworkOverlay(
+            aspect: _artAspect,
+            slots: [
+              ArtworkSlot(
+                region: Rect.fromLTRB(0.315, 0.665, 0.75, 0.88),
+                child: _answerField(),
+              ),
+              ArtworkSlot(
+                region: Rect.fromLTRB(0.38, 0.885, 0.685, 0.97),
+                child: _footer(),
+              ),
+            ],
           ),
         ),
       ],
@@ -129,13 +110,17 @@ class _Station4TakeawayScreenState extends State<Station4TakeawayScreen> {
 
   Widget _answerField() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 40, 12, 52),
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
       child: TextField(
         controller: _controller,
         maxLines: null,
         expands: true,
         textAlignVertical: TextAlignVertical.top,
-        style: const TextStyle(fontSize: 17, height: 1.45, color: BioColors.ink),
+        style: const TextStyle(
+          fontSize: 17,
+          height: 1.45,
+          color: BioColors.ink,
+        ),
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: 'Write your answer here...',

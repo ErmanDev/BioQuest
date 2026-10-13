@@ -49,7 +49,39 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
   /// Default camera: slightly zoomed in, centered on Station 1.
   static const double _defaultScale = 1.38;
 
-  List<Offset> get _trail => [_basecampSpot, ..._spots, _summitSpot];
+  /// Basecamp panel geometry (see [_basecampPanel]): the panel starts 84
+  /// left of the basecamp spot and its signs are centered 200 into it; the
+  /// widest sign (Base Camp, 480x320 art at 108 tall) is 162 wide.
+  static const double _panelSignsRight = -84 + 200 + 162 / 2;
+
+  /// Minimum gap between the signs and the Station 1 circle, and between
+  /// neighbouring station centers.
+  static const double _signGap = 32;
+  static const double _markerRadius = 50;
+  static const double _minStationSpacing = 150;
+
+  /// Station spots for this map size. On narrow screens the fixed-size
+  /// basecamp signs would run into Station 1 (and Station 1 into Station 2),
+  /// so stations are nudged right just enough to keep clear gaps.
+  List<Offset> _stationSpots(Size size) {
+    final w = size.width;
+    if (w <= 0) return _spots;
+    var minX =
+        _basecampSpot.dx * w + _panelSignsRight + _signGap + _markerRadius;
+    final result = <Offset>[];
+    for (final spot in _spots) {
+      final x = math.max(spot.dx * w, minX);
+      result.add(Offset(x / w, spot.dy));
+      minX = x + _minStationSpacing;
+    }
+    return result;
+  }
+
+  List<Offset> _trail(Size size) => [
+    _basecampSpot,
+    ..._stationSpots(size),
+    _summitSpot,
+  ];
 
   @override
   void dispose() {
@@ -58,7 +90,7 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
   }
 
   void _applyDefaultView(Size viewportSize) {
-    final focus = _spots.first;
+    final focus = _stationSpots(viewportSize).first;
     final target = Offset(
       focus.dx * viewportSize.width,
       focus.dy * viewportSize.height,
@@ -282,13 +314,14 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
   ) {
     final showStationGuide = _showStation1Guide(progress);
     final basecampPos = _at(_basecampSpot, size);
-    final station1Pos = _at(_spots.first, size);
+    final spots = _stationSpots(size);
+    final station1Pos = _at(spots.first, size);
 
     return Stack(
       children: [
         // The winding ascent trail with the completed portion highlighted.
         Positioned.fill(
-          child: CustomPaint(painter: _TrailPainter(_trail, reached)),
+          child: CustomPaint(painter: _TrailPainter(_trail(size), reached)),
         ),
         if (showStationGuide)
           Positioned.fill(
@@ -302,7 +335,7 @@ class _ExpeditionMapScreenState extends State<ExpeditionMapScreen> {
           _marker(
             context,
             kStations[i],
-            _at(_spots[i], size),
+            _at(spots[i], size),
             progress,
             activeKey == kStations[i].key,
             showGuide: showStationGuide && kStations[i].key == 'station1',
