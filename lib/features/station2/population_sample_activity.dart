@@ -18,9 +18,14 @@ class PopulationSampleActivity extends StatefulWidget {
 
 class _PopulationSampleActivityState extends State<PopulationSampleActivity> {
   final List<PopulationSampleAnswer?> _picks =
-      List<PopulationSampleAnswer?>.filled(kStation2PopSampleCards.length, null);
-  final List<bool> _answered =
-      List<bool>.filled(kStation2PopSampleCards.length, false);
+      List<PopulationSampleAnswer?>.filled(
+        kStation2PopSampleCards.length,
+        null,
+      );
+  final List<bool> _answered = List<bool>.filled(
+    kStation2PopSampleCards.length,
+    false,
+  );
   int _score = 0;
 
   bool get _allAnswered => _answered.every((a) => a);
@@ -197,7 +202,7 @@ class _PopulationSampleActivityState extends State<PopulationSampleActivity> {
                   pick: pick,
                   answered: answered,
                   correctAnswer: card.answer,
-                  color: BioColors.moss,
+                  color: _populationColor,
                 ),
                 const SizedBox(height: 4),
                 _answerButton(
@@ -207,7 +212,7 @@ class _PopulationSampleActivityState extends State<PopulationSampleActivity> {
                   pick: pick,
                   answered: answered,
                   correctAnswer: card.answer,
-                  color: BioColors.bark,
+                  color: _sampleColor,
                 ),
               ],
             ),
@@ -216,6 +221,11 @@ class _PopulationSampleActivityState extends State<PopulationSampleActivity> {
       ),
     );
   }
+
+  // Neutral choice colors: green and red are reserved for the correct /
+  // wrong feedback shown after answering.
+  static const _populationColor = Color(0xFF1565C0);
+  static const _sampleColor = Color(0xFF6A1B9A);
 
   Widget _answerButton({
     required int index,
