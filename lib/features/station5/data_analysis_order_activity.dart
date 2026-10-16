@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import '../../core/text_format.dart';
+import '../../core/widgets/fit_text.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station5_data.dart';
 
@@ -201,7 +202,7 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity> {
         onTap: () => _selectStep(stepIndex),
         child: Container(
           height: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
@@ -211,31 +212,33 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity> {
               width: selected ? 2 : 1.5,
             ),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: style.color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
+          child: FitText(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: style.color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(style.icon, size: 20, color: style.color),
                 ),
-                child: Icon(style.icon, size: 20, color: style.color),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    height: 1.25,
-                    color: BioColors.ink,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      height: 1.25,
+                      color: BioColors.ink,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -255,34 +258,36 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: BioColors.correct, width: 1.5),
               ),
-              child: Row(
-                children: [
-                  Text(
-                    '${i + 1}.',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                      color: BioColors.forest,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    _stepStyles[i].icon,
-                    size: 18,
-                    color: _stepStyles[i].color,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      kStation5Steps[i],
+              child: FitText(
+                child: Row(
+                  children: [
+                    Text(
+                      '${i + 1}.',
                       style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: BioColors.ink,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                        color: BioColors.forest,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Icon(
+                      _stepStyles[i].icon,
+                      size: 18,
+                      color: _stepStyles[i].color,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        kStation5Steps[i],
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: BioColors.ink,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -349,7 +354,7 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity> {
         onTap: _checked ? null : () => _tapSlot(slotIndex),
         child: Container(
           height: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
@@ -361,64 +366,66 @@ class _DataAnalysisOrderActivityState extends State<DataAnalysisOrderActivity> {
               width: canPlace || placed != null ? 2 : 1.5,
             ),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: BioColors.forest,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  '${slotIndex + 1}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 14,
+          child: FitText(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: BioColors.forest,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${slotIndex + 1}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: label == null
-                    ? Text(
-                        'Drop a step here.',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontStyle: FontStyle.italic,
-                          color: BioColors.ink.withValues(alpha: 0.55),
-                        ),
-                      )
-                    : Row(
-                        children: [
-                          if (style != null) ...[
-                            Icon(style.icon, size: 16, color: style.color),
-                            const SizedBox(width: 6),
-                          ],
-                          Expanded(
-                            child: Text(
-                              label,
-                              style: const TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w700,
-                                height: 1.25,
-                                color: BioColors.ink,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: label == null
+                      ? Text(
+                          'Drop a step here.',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontStyle: FontStyle.italic,
+                            color: BioColors.ink.withValues(alpha: 0.55),
+                          ),
+                        )
+                      : Row(
+                          children: [
+                            if (style != null) ...[
+                              Icon(style.icon, size: 16, color: style.color),
+                              const SizedBox(width: 6),
+                            ],
+                            Expanded(
+                              child: Text(
+                                label,
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.25,
+                                  color: BioColors.ink,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-              ),
-              if (_checked)
-                Icon(
-                  isRight ? Icons.check_circle : Icons.cancel,
-                  color: filledColor,
-                  size: 22,
+                          ],
+                        ),
                 ),
-            ],
+                if (_checked)
+                  Icon(
+                    isRight ? Icons.check_circle : Icons.cancel,
+                    color: filledColor,
+                    size: 22,
+                  ),
+              ],
+            ),
           ),
         ),
       ),

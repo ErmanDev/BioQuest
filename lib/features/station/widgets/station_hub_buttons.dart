@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme.dart';
+import '../../../core/widgets/wooden_sign.dart';
 import '../../../data/station_content.dart';
 import '../../../services/narration_helper.dart';
 import '../../../services/progress_service.dart';
@@ -13,15 +14,11 @@ class StationHubButtons extends StatelessWidget {
     required this.stationKey,
     this.elevated = false,
     this.stopNarrationOnTap = false,
-    this.compact = false,
   });
 
   final String stationKey;
   final bool elevated;
   final bool stopNarrationOnTap;
-
-  /// Smaller buttons so a welcome panel above them has room.
-  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +31,7 @@ class StationHubButtons extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _MissionTargetsButton(stationKey: stationKey, elevated: elevated),
-        SizedBox(height: compact ? 8 : 16),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -46,7 +43,6 @@ class StationHubButtons extends StatelessWidget {
               enabled: true,
               elevated: elevated,
               stopNarrationOnTap: stopNarrationOnTap,
-              compact: compact,
             ),
             _SubpartButton(
               label: 'Research Mission',
@@ -57,7 +53,6 @@ class StationHubButtons extends StatelessWidget {
               lockedHint: 'Complete Discovery Stop first',
               elevated: elevated,
               stopNarrationOnTap: stopNarrationOnTap,
-              compact: compact,
             ),
             _SubpartButton(
               label: 'Trail Checkpoint',
@@ -68,7 +63,6 @@ class StationHubButtons extends StatelessWidget {
               lockedHint: 'Complete Takeaway Questions first',
               elevated: elevated,
               stopNarrationOnTap: stopNarrationOnTap,
-              compact: compact,
             ),
           ],
         ),
@@ -144,42 +138,58 @@ class _MissionTargetsButton extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
-                if (competency != null) ...[
-                  const _TargetSectionLabel(
-                    icon: Icons.gps_fixed,
-                    text: 'TARGET COMPETENCY',
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    competency,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: BioColors.ink,
-                      height: 1.35,
+                // The body scrolls so every objective stays readable when the
+                // pop-up is taller than a short landscape phone screen.
+                Flexible(
+                  child: Scrollbar(
+                    thumbVisibility: true,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (competency != null) ...[
+                            const _TargetSectionLabel(
+                              icon: Icons.gps_fixed,
+                              text: 'TARGET COMPETENCY',
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              competency,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: BioColors.ink,
+                                height: 1.35,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                          const _TargetSectionLabel(
+                            icon: Icons.checklist_rtl,
+                            text: 'TARGET OBJECTIVES',
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'By the end of this station, you should be able to:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: BioColors.ink,
+                              height: 1.3,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          for (final target in targets) ...[
+                            _TargetItem(text: target),
+                            const SizedBox(height: 10),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
-                const _TargetSectionLabel(
-                  icon: Icons.checklist_rtl,
-                  text: 'TARGET OBJECTIVES',
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'By the end of this station, you should be able to:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: BioColors.ink,
-                    height: 1.3,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                for (final target in targets) ...[
-                  _TargetItem(text: target),
-                  const SizedBox(height: 10),
-                ],
               ],
             ),
           ),
@@ -190,40 +200,11 @@ class _MissionTargetsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return WoodenSignButton(
+      badge: const SignBadge(size: 64, child: CompassFace()),
+      title: 'MISSION TARGETS',
+      titleSize: 25,
       onTap: () => _showOverlay(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        decoration: BoxDecoration(
-          color: BioColors.forest,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: elevated
-              ? const [
-                  BoxShadow(
-                    color: Colors.black38,
-                    blurRadius: 8,
-                    offset: Offset(0, 3),
-                  ),
-                ]
-              : null,
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.track_changes, color: Colors.white, size: 22),
-            SizedBox(width: 10),
-            Text(
-              'Mission Targets',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -293,7 +274,6 @@ class _SubpartButton extends StatelessWidget {
     required this.enabled,
     required this.elevated,
     required this.stopNarrationOnTap,
-    this.compact = false,
     this.lockedHint,
   });
 
@@ -305,7 +285,6 @@ class _SubpartButton extends StatelessWidget {
   final String? lockedHint;
   final bool elevated;
   final bool stopNarrationOnTap;
-  final bool compact;
 
   void _onTap(BuildContext context) {
     if (!enabled) return;
@@ -331,11 +310,8 @@ class _SubpartButton extends StatelessWidget {
       child: Opacity(
         opacity: enabled ? 1 : 0.55,
         child: Container(
-          width: compact ? 170 : 220,
-          padding: EdgeInsets.symmetric(
-            vertical: compact ? 10 : 26,
-            horizontal: 8,
-          ),
+          width: 220,
+          padding: EdgeInsets.symmetric(vertical: 26, horizontal: 8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -356,7 +332,7 @@ class _SubpartButton extends StatelessWidget {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Icon(icon, size: compact ? 34 : 60, color: iconColor),
+                  Icon(icon, size: 60, color: iconColor),
                   if (!enabled)
                     Positioned(
                       right: -6,
@@ -369,17 +345,17 @@ class _SubpartButton extends StatelessWidget {
                     ),
                 ],
               ),
-              SizedBox(height: compact ? 4 : 12),
+              const SizedBox(height: 12),
               Text(
                 label,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: compact ? 15 : 19,
+                  fontSize: 19,
                   fontWeight: FontWeight.bold,
                   color: enabled ? BioColors.ink : Colors.grey.shade600,
                 ),
               ),
-              if (!enabled && lockedHint != null && !compact) ...[
+              if (!enabled && lockedHint != null) ...[
                 const SizedBox(height: 6),
                 Text(
                   lockedHint!,

@@ -41,10 +41,7 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
   late final Animation<double> _scrollHintBounce = Tween<double>(
     begin: 0,
     end: 10,
-  ).animate(CurvedAnimation(
-    parent: _scrollHintCtrl,
-    curve: Curves.easeInOut,
-  ));
+  ).animate(CurvedAnimation(parent: _scrollHintCtrl, curve: Curves.easeInOut));
   int _score = 0;
   bool _showScrollHint = true;
 
@@ -71,7 +68,8 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
   void _onStoryScroll() {
     if (!_storyScrollCtrl.hasClients) return;
     final canScroll = _storyScrollCtrl.position.maxScrollExtent > 8;
-    final atBottom = _storyScrollCtrl.position.pixels >=
+    final atBottom =
+        _storyScrollCtrl.position.pixels >=
         _storyScrollCtrl.position.maxScrollExtent - 16;
     _setScrollHintVisible(canScroll && !atBottom);
   }
@@ -114,39 +112,32 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
                   // Story uses full-canvas fractions aligned to the BG parchment.
                   0 => _story(),
                   1 => Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 96, 4, 4),
-                      child: PopulationSampleActivity(
-                        onComplete: (cardScore) {
-                          setState(() {
-                            _score += cardScore;
-                            _phase = 2;
-                          });
-                        },
-                      ),
+                    padding: const EdgeInsets.fromLTRB(4, 96, 4, 4),
+                    child: PopulationSampleActivity(
+                      onComplete: (cardScore) {
+                        setState(() {
+                          _score += cardScore;
+                          _phase = 2;
+                        });
+                      },
                     ),
+                  ),
                   2 => Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 96, 4, 4),
-                      child: MountainDiversityActivity(
-                        onComplete: (activityScore) async {
-                          final progress = context.read<ProgressService>();
-                          final router = GoRouter.of(context);
-                          final finalScore = _score + activityScore;
-                          await progress.saveMissionScore(
-                            'station2',
-                            finalScore,
-                          );
-                          if (mounted) router.go('/station2/takeaway');
-                        },
-                      ),
+                    padding: const EdgeInsets.fromLTRB(4, 96, 4, 4),
+                    child: MountainDiversityActivity(
+                      onComplete: (activityScore) async {
+                        final progress = context.read<ProgressService>();
+                        final router = GoRouter.of(context);
+                        final finalScore = _score + activityScore;
+                        await progress.saveMissionScore('station2', finalScore);
+                        if (mounted) router.go('/station2/takeaway');
+                      },
                     ),
+                  ),
                   _ => const SizedBox.shrink(),
                 },
               ),
-              Positioned(
-                left: 24,
-                top: 12,
-                child: _backButton(context),
-              ),
+              Positioned(left: 24, top: 12, child: _backButton(context)),
             ],
           ),
         ),
@@ -181,8 +172,7 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
         final textLeft = w * _storyContentLeft;
         final textW = w * (_storyContentRight - _storyContentLeft);
         final textTop = h * _storyContentTop;
-        final textH =
-            (h * _storyContentBottom - textTop).clamp(80.0, h);
+        final textH = (h * _storyContentBottom - textTop).clamp(80.0, h);
 
         return Stack(
           clipBehavior: Clip.none,
@@ -215,35 +205,44 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
                           });
                           return false;
                         },
-                        child: Stack(
+                        child: Column(
+                          // Hint sits below the text so it never covers a line.
+
                           children: [
-                            Scrollbar(
-                              controller: _storyScrollCtrl,
-                              child: SingleChildScrollView(
+                            Expanded(
+                              child: Scrollbar(
                                 controller: _storyScrollCtrl,
-                                padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Text.rich(
-                                      readingTextSpan(
-                                        kStation2MissionStory,
-                                        fontSize: 30,
-                                        color: BioColors.ink,
+                                child: SingleChildScrollView(
+                                  controller: _storyScrollCtrl,
+                                  padding: const EdgeInsets.fromLTRB(
+                                    6,
+                                    0,
+                                    6,
+                                    8,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text.rich(
+                                        readingTextSpan(
+                                          kStation2MissionStory,
+                                          fontSize: 30,
+                                          color: BioColors.ink,
+                                        ),
+                                        style: const TextStyle(height: 1.45),
                                       ),
-                                      style: const TextStyle(height: 1.45),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    SizedBox(
-                                      width: textW,
-                                      height: textW * _yourMissionsAspect,
-                                      child: _zoomableImage(
-                                        asset: kStation2YourMissionsAsset,
-                                        label: 'Your missions',
+                                      const SizedBox(height: 12),
+                                      SizedBox(
+                                        width: textW,
+                                        height: textW * _yourMissionsAspect,
+                                        child: _zoomableImage(
+                                          asset: kStation2YourMissionsAsset,
+                                          label: 'Your missions',
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -279,10 +278,8 @@ class _Station2MissionScreenState extends State<Station2MissionScreen>
   }
 
   Widget _scrollDownHint() {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 6,
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
       child: IgnorePointer(
         child: AnimatedBuilder(
           animation: _scrollHintBounce,

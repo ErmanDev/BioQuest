@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
+import '../../core/widgets/fit_text.dart';
 import '../../core/game_canvas.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
@@ -456,21 +457,25 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
           const SizedBox(width: 6),
           Expanded(
             flex: 11,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (var i = 0; i < question.options.length; i++)
-                  _optionLine(
-                    questionIndex: questionIndex,
-                    question: question,
-                    optionIndex: i,
-                    selectedIndex: selected,
-                    locked: answered,
-                    fontSize: optionSize,
-                    compact: compact,
-                  ),
-              ],
+            // Shrinks the option list slightly if it would otherwise spill
+            // past the card (e.g. with larger text on short screens).
+            child: FitText(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < question.options.length; i++)
+                    _optionLine(
+                      questionIndex: questionIndex,
+                      question: question,
+                      optionIndex: i,
+                      selectedIndex: selected,
+                      locked: answered,
+                      fontSize: optionSize,
+                      compact: compact,
+                    ),
+                ],
+              ),
             ),
           ),
         ],
@@ -547,8 +552,8 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
               horizontal: 2,
               vertical: compact ? 2 : 4,
             ),
-            child: RichText(
-              text: TextSpan(
+            child: Text.rich(
+              TextSpan(
                 style: TextStyle(
                   fontSize: fontSize,
                   height: 1.2,

@@ -228,25 +228,29 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
           });
           return false;
         },
-        child: Stack(
+        // The hint sits below the text (not on top of it) so it never
+        // covers a line of the story.
+        child: Column(
           children: [
-            Scrollbar(
-              controller: _storyScrollCtrl,
-              child: SingleChildScrollView(
+            Expanded(
+              child: Scrollbar(
                 controller: _storyScrollCtrl,
-                padding: const EdgeInsets.fromLTRB(
-                  _storyHorizontalPad,
-                  0,
-                  _storyHorizontalPad,
-                  8,
-                ),
-                child: Text.rich(
-                  readingTextSpan(
-                    kStation4MissionStory,
-                    fontSize: 16,
-                    color: BioColors.ink,
+                child: SingleChildScrollView(
+                  controller: _storyScrollCtrl,
+                  padding: const EdgeInsets.fromLTRB(
+                    _storyHorizontalPad,
+                    0,
+                    _storyHorizontalPad,
+                    8,
                   ),
-                  style: const TextStyle(height: 1.45),
+                  child: Text.rich(
+                    readingTextSpan(
+                      kStation4MissionStory,
+                      fontSize: 16,
+                      color: BioColors.ink,
+                    ),
+                    style: const TextStyle(height: 1.45),
+                  ),
                 ),
               ),
             ),
@@ -263,7 +267,7 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
       color: BioColors.forest,
       fontSize: 20,
       expand: true,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       onTap: () async {
         await stopNarration(context);
         if (mounted) setState(() => _phase = 1);
@@ -272,10 +276,8 @@ class _Station4MissionScreenState extends State<Station4MissionScreen>
   }
 
   Widget _scrollDownHint() {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 6,
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
       child: IgnorePointer(
         child: AnimatedBuilder(
           animation: _scrollHintBounce,
