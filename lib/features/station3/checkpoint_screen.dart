@@ -298,7 +298,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
           Expanded(
             child: Text(
               kStation3CheckpointInstructions,
-              style: TextStyle(fontSize: 12.5, height: 1.3, color: BioColors.ink),
+              style: TextStyle(fontSize: 14.5, height: 1.3, color: BioColors.ink),
             ),
           ),
         ],
@@ -371,7 +371,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
       Text(
         question.prompt,
         style: const TextStyle(
-          fontSize: 12.5,
+          fontSize: 15.5,
           fontWeight: FontWeight.w800,
           height: 1.25,
           color: BioColors.ink,
@@ -472,7 +472,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
       ),
       child: Text(
         question.stimulus!,
-        style: const TextStyle(fontSize: 11, height: 1.3),
+        style: const TextStyle(fontSize: 13, height: 1.3),
       ),
     );
   }
@@ -521,7 +521,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
         child: Container(
           padding: EdgeInsets.symmetric(
             horizontal: compact ? 6 : 8,
-            vertical: compact ? 5 : 7,
+            vertical: compact ? 3 : 4,
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -531,8 +531,8 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
             mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
             children: [
               Container(
-                width: compact ? 20 : 22,
-                height: compact ? 20 : 22,
+                width: compact ? 24 : 26,
+                height: compact ? 24 : 26,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: locked && (isCorrect || isSelected)
@@ -543,7 +543,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
                 child: Text(
                   String.fromCharCode(65 + displayIndex),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w900,
                     color: locked && (isCorrect || isSelected)
                         ? (isCorrect ? BioColors.correct : BioColors.danger)
@@ -556,7 +556,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
                 Text(
                   question.options[optionIndex],
                   style: TextStyle(
-                    fontSize: 11.5,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: text,
                     height: 1.2,
@@ -567,7 +567,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
                   child: Text(
                     question.options[optionIndex],
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14.5,
                       fontWeight: FontWeight.w600,
                       color: text,
                       height: 1.2,
@@ -583,7 +583,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
     );
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 5),
+      padding: const EdgeInsets.only(bottom: 4),
       child: compact
           ? Align(
               alignment: Alignment.centerLeft,

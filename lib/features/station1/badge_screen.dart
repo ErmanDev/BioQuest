@@ -13,8 +13,11 @@ class Station1BadgeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final info = stationByKey('station1');
     return BioScaffold(
+      backgroundAsset: 'assets/images/backgrounds/mission_forest_bg.png',
+      backgroundLabel: 'Badge Earned',
+      fullBleedBackground: true,
       gradient: const [BioColors.forest, BioColors.sun],
-      scrimOpacity: 0.12,
+      scrimOpacity: 0.35,
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
       body: LayoutBuilder(
         builder: (context, constraints) {

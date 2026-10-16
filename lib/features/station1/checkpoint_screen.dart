@@ -13,12 +13,16 @@ class Station1CheckpointScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return QuizScreen(
       title: 'Trail Checkpoint: Station 1',
+      backgroundAsset: 'assets/images/backgrounds/mission_forest_bg.png',
+      backgroundLabel: 'Trail Checkpoint',
+      fullBleedBackground: true,
       questions: kStation1Checkpoint,
       continueLabel: 'Claim My Badge',
       showAnswerFeedback: true,
       titleFontSize: 28,
-      promptFontSize: 28,
-      optionFontSize: 26,
+      promptFontSize: 32,
+      optionFontSize: 30,
+      optionVerticalPadding: 7,
       nextFontSize: 26,
       showNextIcon: false,
       backButtonSize: 72,

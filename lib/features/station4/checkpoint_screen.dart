@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
 import '../../core/widgets/artwork_stage.dart';
+import '../../core/widgets/fit_text.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station4_data.dart';
 import '../../data/stations.dart';
@@ -144,46 +145,27 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: SingleChildScrollView(
+          // Shrinks the question slightly (instead of hiding answers below
+          // the fold) when long answers don't fit the scroll.
+          child: Padding(
             padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (q.stimulus != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.92),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: BioColors.forest.withValues(alpha: 0.35),
-                      ),
+            child: FitText(
+              alignment: Alignment.topCenter,
+              // With a results block, show it beside the question so all four
+              // answers stay visible without scrolling.
+              child: q.stimulus == null
+                  ? _promptAndOptions(q, selected, answered)
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 3, child: _stimulusBox(q.stimulus!)),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 7,
+                          child: _promptAndOptions(q, selected, answered),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      q.stimulus!,
-                      style: const TextStyle(fontSize: 12.5, height: 1.3),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                Text(
-                  q.prompt,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    height: 1.3,
-                    color: BioColors.ink,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                for (var i = 0; i < q.options.length; i++)
-                  _optionTile(
-                    question: q,
-                    optionIndex: i,
-                    selectedIndex: selected,
-                    locked: answered,
-                  ),
-              ],
             ),
           ),
         ),
@@ -199,6 +181,43 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
             onTap: answered ? _next : null,
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _stimulusBox(String text) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: BioColors.forest.withValues(alpha: 0.35)),
+      ),
+      child: Text(text, style: const TextStyle(fontSize: 13.5, height: 1.25)),
+    );
+  }
+
+  Widget _promptAndOptions(McQuestion q, int? selected, bool answered) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          q.prompt,
+          style: const TextStyle(
+            fontSize: 19.5,
+            fontWeight: FontWeight.w800,
+            height: 1.3,
+            color: BioColors.ink,
+          ),
+        ),
+        const SizedBox(height: 8),
+        for (var i = 0; i < q.options.length; i++)
+          _optionTile(
+            question: q,
+            optionIndex: i,
+            selectedIndex: selected,
+            locked: answered,
+          ),
       ],
     );
   }
@@ -275,7 +294,7 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
                   child: Text(
                     question.options[optionIndex],
                     style: TextStyle(
-                      fontSize: 15.5,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: text,
                       height: 1.25,

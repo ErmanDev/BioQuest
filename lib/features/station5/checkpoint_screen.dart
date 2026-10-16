@@ -185,7 +185,9 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
           child: Column(
             children: [
               if (_showsSharedTable) ...[
-                Flexible(flex: 2, child: _sharedTablePanel(compact: true)),
+                // The table keeps its full height so every row stays visible;
+                // the question cards share whatever space is left.
+                _sharedTablePanel(compact: true),
                 const SizedBox(height: 6),
               ],
               Expanded(
@@ -326,7 +328,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             '$kStation5CheckpointTableNote ${kStation5CheckpointTable.intro}',
@@ -340,7 +342,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
             ),
           ),
           SizedBox(height: compact ? 4 : 6),
-          Expanded(child: _compactDataTable(fontSize: compact ? 9.5 : 11.5)),
+          _compactDataTable(fontSize: compact ? 9.5 : 11.5),
         ],
       ),
     );
@@ -350,7 +352,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
     final table = kStation5CheckpointTable;
     final cellPadding = EdgeInsets.symmetric(
       horizontal: compactCellPadding(fontSize),
-      vertical: fontSize * 0.35,
+      vertical: fontSize * 0.2,
     );
 
     return Table(
@@ -408,8 +410,8 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
     final selected = _answers[questionIndex];
     final answered = selected != null;
 
-    final promptSize = compact ? 14.0 : 16.5;
-    final optionSize = compact ? 13.0 : 15.5;
+    final promptSize = compact ? 16.0 : 19.0;
+    final optionSize = compact ? 14.5 : 18.0;
     final badgeSize = compact ? 32.0 : 38.0;
     final cardPadding = compact ? 8.0 : 12.0;
 
@@ -538,7 +540,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: compact ? 1.5 : 3),
+      padding: EdgeInsets.symmetric(vertical: compact ? 0.5 : 1),
       child: Material(
         color: fill ?? Colors.transparent,
         borderRadius: BorderRadius.circular(6),
@@ -550,7 +552,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: 2,
-              vertical: compact ? 2 : 4,
+              vertical: compact ? 1 : 2,
             ),
             child: Text.rich(
               TextSpan(
