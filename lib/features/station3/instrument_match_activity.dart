@@ -129,7 +129,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
                 'PART II: MATCH THE INSTRUMENT TO THE TASK',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: BioColors.forest,
                   letterSpacing: 0.3,
@@ -149,7 +149,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
             Expanded(
               child: Text(
                 'Tap an instrument, then tap the laboratory task it matches.',
-                style: TextStyle(fontSize: 12.5, height: 1.35, color: BioColors.ink),
+                style: TextStyle(fontSize: 16.5, height: 1.3, color: BioColors.ink),
               ),
             ),
           ],
@@ -166,7 +166,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
           'LABORATORY TASKS',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 15,
             fontWeight: FontWeight.w900,
             color: BioColors.forest,
             letterSpacing: 0.4,
@@ -218,7 +218,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
           borderRadius: BorderRadius.circular(10),
           onTap: matched == null ? () => _tapTask(taskIndex) : null,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
@@ -243,8 +243,8 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width: 22,
-                  height: 22,
+                  width: 26,
+                  height: 26,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: BioColors.forest,
@@ -253,7 +253,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
                   child: Text(
                     '${taskIndex + 1}',
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
                     ),
@@ -264,7 +264,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
                   child: Text(
                     task.task,
                     style: const TextStyle(
-                      fontSize: 10.5,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       height: 1.2,
                       color: BioColors.ink,
@@ -319,7 +319,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
         'Tap\nhere',
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 8.5,
+          fontSize: 13,
           fontWeight: FontWeight.w700,
           height: 1.1,
           color: BioColors.ink.withValues(alpha: 0.55),
@@ -336,7 +336,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
           'INSTRUMENTS',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 15,
             fontWeight: FontWeight.w900,
             color: BioColors.forest,
             letterSpacing: 0.4,
@@ -429,7 +429,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 8.5,
+                    fontSize: 14.5,
                     fontWeight: FontWeight.w700,
                     height: 1.05,
                     color: used ? BioColors.correct : BioColors.ink,
@@ -465,7 +465,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
                     'TIP: Choose the instrument that best fits each '
                     'laboratory task!',
                     style: TextStyle(
-                      fontSize: 11.5,
+                      fontSize: 15.5,
                       fontWeight: FontWeight.w600,
                       height: 1.3,
                       color: BioColors.ink,
@@ -482,7 +482,7 @@ class _InstrumentMatchActivityState extends State<InstrumentMatchActivity>
             label: 'Proceed to Mission 3',
             icon: Icons.arrow_forward,
             color: BioColors.forest,
-            fontSize: 13,
+            fontSize: 15,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             onTap: widget.onNext,
           ),

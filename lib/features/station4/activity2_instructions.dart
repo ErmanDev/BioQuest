@@ -25,7 +25,9 @@ class Activity2Instructions extends StatelessWidget {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final boxWidth = constraints.maxWidth > 660 ? 620.0 : constraints.maxWidth;
+              final boxWidth = constraints.maxWidth > 1040
+                  ? 1000.0
+                  : constraints.maxWidth;
 
               return Align(
                 alignment: Alignment.topCenter,
@@ -50,13 +52,16 @@ class Activity2Instructions extends StatelessWidget {
                               'INSTRUCTIONS:',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 26,
                                 fontWeight: FontWeight.bold,
                                 color: BioColors.ink,
                               ),
                             ),
                             const SizedBox(height: 14),
-                            _numberedStep(1, kStation4Activity2InstructionsStep1),
+                            _numberedStep(
+                              1,
+                              kStation4Activity2InstructionsStep1,
+                            ),
                             const SizedBox(height: 16),
                             const Divider(color: BioColors.ink, thickness: 3),
                             const SizedBox(height: 16),
@@ -70,14 +75,15 @@ class Activity2Instructions extends StatelessWidget {
                               kStation4Activity2InstructionsSteps[1],
                             ),
                             const SizedBox(height: 8),
-                            for (final level in kStation4Activity2PhytochemicalLevels)
+                            for (final level
+                                in kStation4Activity2PhytochemicalLevels)
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 6),
                                 child: Text(
                                   '• $level',
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 22,
                                     height: 1.4,
                                     color: BioColors.ink,
                                   ),
@@ -115,10 +121,7 @@ class Activity2Instructions extends StatelessWidget {
             icon: Icons.science,
             color: BioColors.forest,
             fontSize: 20,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 28,
-              vertical: 14,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
             onTap: onContinue,
           ),
         ),
@@ -131,18 +134,11 @@ class Activity2Instructions extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            BioColors.forest,
-            BioColors.forest.withValues(alpha: 0.85),
-          ],
+          colors: [BioColors.forest, BioColors.forest.withValues(alpha: 0.85)],
         ),
         borderRadius: BorderRadius.circular(14),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
       child: Row(
@@ -205,11 +201,7 @@ class Activity2Instructions extends StatelessWidget {
     return Text(
       '$number. $text',
       textAlign: TextAlign.center,
-      style: const TextStyle(
-        fontSize: 18,
-        height: 1.45,
-        color: BioColors.ink,
-      ),
+      style: const TextStyle(fontSize: 22, height: 1.45, color: BioColors.ink),
     );
   }
 }

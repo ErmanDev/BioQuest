@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
+import '../../core/widgets/fit_text.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station3_data.dart';
@@ -25,12 +26,13 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
   static const _contentRight = 0.945;
   static const _contentTop = 0.215;
   static const _contentBottom = 0.875;
-  static const _compactPanelMaxWidth = 840.0;
   static const _tableMaxWidth = 620.0;
 
   int _page = 0;
-  late final List<int?> _answers =
-      List<int?>.filled(kStation3Checkpoint.length, null);
+  late final List<int?> _answers = List<int?>.filled(
+    kStation3Checkpoint.length,
+    null,
+  );
   late final List<TextEditingController> _heightDiffControllers = [
     for (var _ in kStation3CheckpointTableRows) TextEditingController(),
   ];
@@ -43,21 +45,14 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
     super.dispose();
   }
 
-  int get _pageCount => (kStation3Checkpoint.length / 2).ceil();
+  /// One question per page.
+  int get _pageCount => kStation3Checkpoint.length;
 
-  int get _firstIndex => _page * 2;
+  /// Questions that refer to the replicate data table show it above them.
+  bool get _isSharedTablePage =>
+      kStation3Checkpoint[_page].tableStimulus == kStation3CheckpointTable;
 
-  /// Questions 7–8 share one data table above both cards.
-  bool get _isSharedTablePage => _firstIndex == 6;
-
-  bool get _pageComplete {
-    for (var i = _firstIndex;
-        i < _firstIndex + 2 && i < kStation3Checkpoint.length;
-        i++) {
-      if (_answers[i] == null) return false;
-    }
-    return true;
-  }
+  bool get _pageComplete => _answers[_page] != null;
 
   int get _answeredCount => _answers.where((a) => a != null).length;
 
@@ -181,14 +176,12 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _isSharedTablePage
-            ? _compactPanel(_instructionsBar())
-            : _instructionsBar(),
+        _instructionsBar(),
         const SizedBox(height: 8),
         Expanded(
           child: _isSharedTablePage
               ? _sharedTablePageLayout()
-              : _dualQuestionLayout(),
+              : _singleQuestionLayout(),
         ),
         const SizedBox(height: 8),
         Align(
@@ -206,37 +199,16 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
     );
   }
 
-  Widget _dualQuestionLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(child: _questionCard(_firstIndex)),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _firstIndex + 1 < kStation3Checkpoint.length
-              ? _questionCard(_firstIndex + 1)
-              : const SizedBox.shrink(),
-        ),
-        const SizedBox(width: 6),
-        _pageNav(),
-      ],
-    );
-  }
-
-  Widget _sharedTablePageLayout() {
+  Widget _singleQuestionLayout() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              _compactPanel(_sharedTablePanel()),
-              const SizedBox(height: 8),
-              _compactPanel(_questionCard(6, shrinkWrap: true)),
-              const SizedBox(height: 8),
-              _compactPanel(_questionCard(7, shrinkWrap: true)),
-            ],
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 980),
+              child: _questionCard(_page, large: true),
+            ),
           ),
         ),
         const SizedBox(width: 6),
@@ -245,13 +217,21 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
     );
   }
 
-  Widget _compactPanel(Widget child) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: _compactPanelMaxWidth),
-        child: child,
-      ),
+  /// Data table on the left, the question on the right, so both are
+  /// visible together without scrolling.
+  Widget _sharedTablePageLayout() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          flex: 5,
+          child: SingleChildScrollView(child: _sharedTablePanel()),
+        ),
+        const SizedBox(width: 8),
+        Expanded(flex: 6, child: _questionCard(_page, large: true)),
+        const SizedBox(width: 6),
+        _pageNav(),
+      ],
     );
   }
 
@@ -259,18 +239,18 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        decoration: BoxDecoration(
-          color: BioColors.parchment.withValues(alpha: 0.97),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: BioColors.forest.withValues(alpha: 0.4)),
-        ),
-        child: Station3CheckpointDataTable(
-          heightControllers: _heightDiffControllers,
-          fontSize: 11,
-          compact: true,
-          compactMaxWidth: _tableMaxWidth,
-          onHeightChanged: () => setState(() {}),
-        ),
+      decoration: BoxDecoration(
+        color: BioColors.parchment.withValues(alpha: 0.97),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: BioColors.forest.withValues(alpha: 0.4)),
+      ),
+      child: Station3CheckpointDataTable(
+        heightControllers: _heightDiffControllers,
+        fontSize: 11,
+        compact: true,
+        compactMaxWidth: _tableMaxWidth,
+        onHeightChanged: () => setState(() {}),
+      ),
     );
   }
 
@@ -298,7 +278,11 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
           Expanded(
             child: Text(
               kStation3CheckpointInstructions,
-              style: TextStyle(fontSize: 14.5, height: 1.3, color: BioColors.ink),
+              style: TextStyle(
+                fontSize: 14.5,
+                height: 1.3,
+                color: BioColors.ink,
+              ),
             ),
           ),
         ],
@@ -317,7 +301,9 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
               decoration: BoxDecoration(
                 color: BioColors.paleLeaf,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: BioColors.forest.withValues(alpha: 0.35)),
+                border: Border.all(
+                  color: BioColors.forest.withValues(alpha: 0.35),
+                ),
               ),
               child: Align(
                 alignment: Alignment.topCenter,
@@ -353,7 +339,11 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
     );
   }
 
-  Widget _questionCard(int questionIndex, {bool shrinkWrap = false}) {
+  Widget _questionCard(
+    int questionIndex, {
+    bool shrinkWrap = false,
+    bool large = false,
+  }) {
     if (questionIndex >= kStation3Checkpoint.length) {
       return const SizedBox.shrink();
     }
@@ -370,16 +360,17 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
       ],
       Text(
         question.prompt,
-        style: const TextStyle(
-          fontSize: 15.5,
+        style: TextStyle(
+          fontSize: large ? 19 : 15.5,
           fontWeight: FontWeight.w800,
           height: 1.25,
           color: BioColors.ink,
         ),
       ),
-      const SizedBox(height: 6),
+      SizedBox(height: large ? 8 : 6),
       for (var i = 0; i < question.options.length; i++)
         _optionTile(
+          large: large,
           questionIndex: questionIndex,
           question: question,
           optionIndex: i,
@@ -398,8 +389,9 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
         border: Border.all(color: BioColors.forest.withValues(alpha: 0.4)),
       ),
       child: Column(
-        crossAxisAlignment:
-            shrinkWrap ? CrossAxisAlignment.start : CrossAxisAlignment.stretch,
+        crossAxisAlignment: shrinkWrap
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.stretch,
         mainAxisSize: shrinkWrap ? MainAxisSize.min : MainAxisSize.max,
         children: [
           Row(
@@ -427,10 +419,21 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
             ...promptAndOptions
           else
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: promptAndOptions,
-              ),
+              // A single question shrinks slightly if needed so all four
+              // answers always show inside the frame.
+              child: large
+                  ? FitText(
+                      alignment: Alignment.topCenter,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: promptAndOptions,
+                      ),
+                    )
+                  : ListView(
+                      padding: EdgeInsets.zero,
+                      children: promptAndOptions,
+                    ),
             ),
         ],
       ),
@@ -485,6 +488,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
     required int? selectedIndex,
     required bool locked,
     bool compact = false,
+    bool large = false,
   }) {
     final isSelected = selectedIndex == optionIndex;
     final isCorrect = optionIndex == question.correctIndex;
@@ -515,13 +519,11 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
-        onTap: locked
-            ? null
-            : () => _selectAnswer(questionIndex, optionIndex),
+        onTap: locked ? null : () => _selectAnswer(questionIndex, optionIndex),
         child: Container(
           padding: EdgeInsets.symmetric(
             horizontal: compact ? 6 : 8,
-            vertical: compact ? 3 : 4,
+            vertical: large ? 6 : (compact ? 3 : 4),
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -531,8 +533,8 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
             mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
             children: [
               Container(
-                width: compact ? 24 : 26,
-                height: compact ? 24 : 26,
+                width: large ? 32 : (compact ? 24 : 26),
+                height: large ? 32 : (compact ? 24 : 26),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: locked && (isCorrect || isSelected)
@@ -543,7 +545,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
                 child: Text(
                   String.fromCharCode(65 + displayIndex),
                   style: TextStyle(
-                    fontSize: 13.5,
+                    fontSize: large ? 16 : 13.5,
                     fontWeight: FontWeight.w900,
                     color: locked && (isCorrect || isSelected)
                         ? (isCorrect ? BioColors.correct : BioColors.danger)
@@ -567,7 +569,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
                   child: Text(
                     question.options[optionIndex],
                     style: TextStyle(
-                      fontSize: 14.5,
+                      fontSize: large ? 18 : 14.5,
                       fontWeight: FontWeight.w600,
                       color: text,
                       height: 1.2,
@@ -583,7 +585,7 @@ class _Station3CheckpointScreenState extends State<Station3CheckpointScreen> {
     );
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: EdgeInsets.only(bottom: large ? 6 : 4),
       child: compact
           ? Align(
               alignment: Alignment.centerLeft,

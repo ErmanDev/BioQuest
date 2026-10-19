@@ -196,7 +196,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
               Text(
                 'INSTRUCTIONS',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 17,
                   fontWeight: FontWeight.w900,
                   color: BioColors.forest,
                 ),
@@ -204,17 +204,17 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
               SizedBox(height: 6),
               Text(
                 '1. Tap each moss replicate, then tap its matching slot below.',
-                style: TextStyle(fontSize: 13, height: 1.35, color: BioColors.ink),
+                style: TextStyle(fontSize: 15, height: 1.35, color: BioColors.ink),
               ),
               SizedBox(height: 4),
               Text(
                 '2. Tap the ruler, then tap each moss to measure its shoot height.',
-                style: TextStyle(fontSize: 13, height: 1.35, color: BioColors.ink),
+                style: TextStyle(fontSize: 15, height: 1.35, color: BioColors.ink),
               ),
               SizedBox(height: 4),
               Text(
                 '3. Record the height in centimeters (cm) in the data table.',
-                style: TextStyle(fontSize: 13, height: 1.35, color: BioColors.ink),
+                style: TextStyle(fontSize: 15, height: 1.35, color: BioColors.ink),
               ),
             ],
           ),
@@ -224,7 +224,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
           'MOSS REPLICATES',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w900,
             color: BioColors.forest,
             letterSpacing: 0.4,
@@ -281,7 +281,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
               Text(
                 replicate.label,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w900,
                   color: BioColors.forest,
                 ),
@@ -313,7 +313,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
           'AVAILABLE INSTRUMENT',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w900,
             color: BioColors.forest,
             letterSpacing: 0.4,
@@ -321,10 +321,10 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
         ),
         const SizedBox(height: 6),
         SizedBox(
-          height: 110,
+          height: 122,
           child: Center(
             child: SizedBox(
-              width: 200,
+              width: 260,
               child: _instrumentTile(kStation3Mission3Instruments.first),
             ),
           ),
@@ -334,7 +334,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
           'TAP THE REPLICATES HERE',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w900,
             color: BioColors.forest,
             letterSpacing: 0.4,
@@ -410,7 +410,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
                   instrument.label,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 15,
                     fontWeight: FontWeight.w800,
                     color: BioColors.ink,
                   ),
@@ -421,7 +421,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 12.5,
                     height: 1.15,
                     color: BioColors.ink.withValues(alpha: 0.75),
                   ),
@@ -476,7 +476,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
                 Text(
                   replicate.label,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.w900,
                     color: BioColors.forest,
                   ),
@@ -492,7 +492,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
                             'Tap here',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
                               color: BioColors.ink.withValues(alpha: 0.5),
                             ),
@@ -503,7 +503,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
                   Text(
                     '${replicate.afterHarvestHeight} cm',
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: BioColors.correct,
                     ),
@@ -611,7 +611,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
               'DATA TABLE',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w900,
                 color: BioColors.forest,
                 letterSpacing: 0.4,
@@ -662,7 +662,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
           text,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: FontWeight.w900,
             color: Colors.white,
             height: 1.15,
@@ -691,7 +691,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
             replicate.label,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.w900,
               color: BioColors.forest,
             ),
@@ -702,7 +702,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
           child: Text(
             '${replicate.initialHeight} cm',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13, color: BioColors.ink),
+            style: const TextStyle(fontSize: 15, color: BioColors.ink),
           ),
         ),
         _tableCell(
@@ -712,13 +712,13 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
             enabled: canEnter,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             decoration: InputDecoration(
               isDense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               hintText: canEnter ? 'cm' : '—',
               hintStyle: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: BioColors.ink.withValues(alpha: 0.4),
               ),
               filled: true,
@@ -754,7 +754,7 @@ class _MossShootHeightActivityState extends State<MossShootHeightActivity>
             diff != null ? '${diff.toStringAsFixed(1)} cm' : '—',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 15,
               fontWeight: recorded ? FontWeight.w700 : FontWeight.w500,
               color: recorded ? BioColors.correct : BioColors.ink,
             ),

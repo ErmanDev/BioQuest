@@ -123,7 +123,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
               'PART I: ORGANIZE THE DATA COLLECTION PROCEDURE',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 20,
                 fontWeight: FontWeight.w900,
                 color: BioColors.forest,
                 letterSpacing: 0.3,
@@ -143,7 +143,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
               child: Text(
                 'Tap a research step, then tap the numbered slot where it '
                 'belongs to build the correct data collection procedure.',
-                style: TextStyle(fontSize: 12.5, height: 1.35, color: BioColors.ink),
+                style: TextStyle(fontSize: 16.5, height: 1.3, color: BioColors.ink),
               ),
             ),
           ],
@@ -190,7 +190,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
           borderRadius: BorderRadius.circular(10),
           onTap: () => _selectStep(stepIndex),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
@@ -218,7 +218,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
                   child: Text(
                     step.label,
                     style: const TextStyle(
-                      fontSize: 11.5,
+                      fontSize: 18.5,
                       fontWeight: FontWeight.w600,
                       height: 1.25,
                       color: BioColors.ink,
@@ -247,7 +247,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
           for (var i = 0; i < kStation3ProcedureSteps.length; i++) ...[
             _slot(i),
             if (i < kStation3ProcedureSteps.length - 1)
-              const Icon(Icons.arrow_downward, color: BioColors.moss, size: 16),
+              const Icon(Icons.arrow_downward, color: BioColors.moss, size: 13),
           ],
         ],
       ),
@@ -280,7 +280,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
           onTap: placed == null ? () => _tapSlot(slotIndex) : null,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
@@ -304,8 +304,8 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
             child: Row(
               children: [
                 Container(
-                  width: 24,
-                  height: 24,
+                  width: 28,
+                  height: 28,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: placed != null ? Colors.white : BioColors.forest,
@@ -314,7 +314,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
                   child: Text(
                     '${slotIndex + 1}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 16,
                       fontWeight: FontWeight.w900,
                       color: placed != null ? BioColors.correct : Colors.white,
                     ),
@@ -329,7 +329,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
                   child: Text(
                     step?.label ?? 'Tap step here',
                     style: TextStyle(
-                      fontSize: 11.5,
+                      fontSize: 18.5,
                       fontWeight: FontWeight.w600,
                       height: 1.2,
                       color: placed != null
@@ -368,7 +368,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
                     'TIP: Follow the correct order to collect accurate and '
                     'reliable data!',
                     style: TextStyle(
-                      fontSize: 11.5,
+                      fontSize: 15.5,
                       fontWeight: FontWeight.w600,
                       height: 1.3,
                       color: BioColors.ink,
@@ -385,7 +385,7 @@ class _ProcedureOrderActivityState extends State<ProcedureOrderActivity>
             label: 'PART II NEXT ACTIVITY',
             icon: Icons.arrow_forward,
             color: BioColors.forest,
-            fontSize: 13,
+            fontSize: 15,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             onTap: widget.onNext,
           ),
