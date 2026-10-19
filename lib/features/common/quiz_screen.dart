@@ -23,6 +23,9 @@ class QuizScreen extends StatefulWidget {
   final double optionFontSize;
   final double stimulusFontSize;
   final double nextFontSize;
+
+  /// Vertical padding inside each answer row.
+  final double optionVerticalPadding;
   final bool showNextIcon;
   final double titleFontSize;
   final double backButtonSize;
@@ -44,6 +47,7 @@ class QuizScreen extends StatefulWidget {
     this.optionFontSize = 17,
     this.stimulusFontSize = 15,
     this.nextFontSize = 22,
+    this.optionVerticalPadding = 14,
     this.showNextIcon = true,
     this.titleFontSize = 20,
     this.backButtonSize = 46,
@@ -282,7 +286,10 @@ class _QuizScreenState extends State<QuizScreen> {
           borderRadius: BorderRadius.circular(12),
           onTap: locked ? null : () => _selectAnswer(optionIndex),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: widget.optionVerticalPadding,
+            ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: style.border, width: 2),

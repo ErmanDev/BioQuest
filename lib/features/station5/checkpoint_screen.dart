@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
+import '../../core/widgets/fit_text.dart';
 import '../../core/game_canvas.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
@@ -27,17 +28,21 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
   static const _contentBottom = 0.94;
 
   int _page = 0;
-  late final List<int?> _answers =
-      List<int?>.filled(kStation5Checkpoint.length, null);
+  late final List<int?> _answers = List<int?>.filled(
+    kStation5Checkpoint.length,
+    null,
+  );
 
   int get _pageCount => (kStation5Checkpoint.length / 2).ceil();
   int get _firstIndex => _page * 2;
   bool get _isLastPage => _page >= _pageCount - 1;
 
   bool get _pageComplete {
-    for (var i = _firstIndex;
-        i < _firstIndex + 2 && i < kStation5Checkpoint.length;
-        i++) {
+    for (
+      var i = _firstIndex;
+      i < _firstIndex + 2 && i < kStation5Checkpoint.length;
+      i++
+    ) {
       if (_answers[i] == null) return false;
     }
     return true;
@@ -180,10 +185,9 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
           child: Column(
             children: [
               if (_showsSharedTable) ...[
-                Flexible(
-                  flex: 2,
-                  child: _sharedTablePanel(compact: true),
-                ),
+                // The table keeps its full height so every row stays visible;
+                // the question cards share whatever space is left.
+                _sharedTablePanel(compact: true),
                 const SizedBox(height: 6),
               ],
               Expanded(
@@ -324,7 +328,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             '$kStation5CheckpointTableNote ${kStation5CheckpointTable.intro}',
@@ -338,9 +342,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
             ),
           ),
           SizedBox(height: compact ? 4 : 6),
-          Expanded(
-            child: _compactDataTable(fontSize: compact ? 9.5 : 11.5),
-          ),
+          _compactDataTable(fontSize: compact ? 9.5 : 11.5),
         ],
       ),
     );
@@ -350,7 +352,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
     final table = kStation5CheckpointTable;
     final cellPadding = EdgeInsets.symmetric(
       horizontal: compactCellPadding(fontSize),
-      vertical: fontSize * 0.35,
+      vertical: fontSize * 0.2,
     );
 
     return Table(
@@ -408,13 +410,18 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
     final selected = _answers[questionIndex];
     final answered = selected != null;
 
-    final promptSize = compact ? 14.0 : 16.5;
-    final optionSize = compact ? 13.0 : 15.5;
+    final promptSize = compact ? 16.0 : 19.0;
+    final optionSize = compact ? 14.5 : 18.0;
     final badgeSize = compact ? 32.0 : 38.0;
     final cardPadding = compact ? 8.0 : 12.0;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(cardPadding, cardPadding, cardPadding, cardPadding),
+      padding: EdgeInsets.fromLTRB(
+        cardPadding,
+        cardPadding,
+        cardPadding,
+        cardPadding,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xFFF7F1E4).withValues(alpha: 0.98),
         borderRadius: BorderRadius.circular(14),
@@ -452,21 +459,25 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
           const SizedBox(width: 6),
           Expanded(
             flex: 11,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (var i = 0; i < question.options.length; i++)
-                  _optionLine(
-                    questionIndex: questionIndex,
-                    question: question,
-                    optionIndex: i,
-                    selectedIndex: selected,
-                    locked: answered,
-                    fontSize: optionSize,
-                    compact: compact,
-                  ),
-              ],
+            // Shrinks the option list slightly if it would otherwise spill
+            // past the card (e.g. with larger text on short screens).
+            child: FitText(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < question.options.length; i++)
+                    _optionLine(
+                      questionIndex: questionIndex,
+                      question: question,
+                      optionIndex: i,
+                      selectedIndex: selected,
+                      locked: answered,
+                      fontSize: optionSize,
+                      compact: compact,
+                    ),
+                ],
+              ),
             ),
           ),
         ],
@@ -529,7 +540,7 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: compact ? 1.5 : 3),
+      padding: EdgeInsets.symmetric(vertical: compact ? 0.5 : 1),
       child: Material(
         color: fill ?? Colors.transparent,
         borderRadius: BorderRadius.circular(6),
@@ -541,10 +552,10 @@ class _Station5CheckpointScreenState extends State<Station5CheckpointScreen> {
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: 2,
-              vertical: compact ? 2 : 4,
+              vertical: compact ? 1 : 2,
             ),
-            child: RichText(
-              text: TextSpan(
+            child: Text.rich(
+              TextSpan(
                 style: TextStyle(
                   fontSize: fontSize,
                   height: 1.2,
@@ -579,9 +590,7 @@ class _DashedDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return const SizedBox(
       width: 10,
-      child: CustomPaint(
-        painter: _DashedLinePainter(),
-      ),
+      child: CustomPaint(painter: _DashedLinePainter()),
     );
   }
 }

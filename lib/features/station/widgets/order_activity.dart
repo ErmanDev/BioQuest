@@ -70,20 +70,21 @@ class _OrderActivityState extends State<OrderActivity>
   }
 
   Widget _bank() {
-    final remaining =
-        _shuffled.where((s) => !_placed.contains(s)).toList(growable: false);
+    final remaining = _shuffled
+        .where((s) => !_placed.contains(s))
+        .toList(growable: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Tap the steps in the correct order',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        const Text(
+          'Tap the steps in the correct order',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
-              children: [
-                for (final step in remaining) _bankChip(step),
-              ],
+              children: [for (final step in remaining) _bankChip(step)],
             ),
           ),
         ),
@@ -135,15 +136,16 @@ class _OrderActivityState extends State<OrderActivity>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Correct sequence',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        const Text(
+          'Correct sequence',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
               children: [
-                for (var i = 0; i < widget.correctOrder.length; i++)
-                  _slot(i),
+                for (var i = 0; i < widget.correctOrder.length; i++) _slot(i),
               ],
             ),
           ),
@@ -174,9 +176,13 @@ class _OrderActivityState extends State<OrderActivity>
             CircleAvatar(
               radius: 14,
               backgroundColor: filled ? Colors.white : BioColors.paleLeaf,
-              child: Text('${i + 1}',
-                  style: const TextStyle(
-                      color: BioColors.forest, fontWeight: FontWeight.bold)),
+              child: Text(
+                '${i + 1}',
+                style: const TextStyle(
+                  color: BioColors.forest,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(

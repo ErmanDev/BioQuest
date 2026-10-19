@@ -105,7 +105,11 @@ class BadgeWardrobeOverlay extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: onClose,
-                        icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 30,
+                        ),
                         tooltip: 'Close',
                       ),
                     ],
@@ -129,11 +133,11 @@ class BadgeWardrobeOverlay extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 8,
-                          childAspectRatio: 0.72,
-                        ),
+                              crossAxisCount: 5,
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 8,
+                              childAspectRatio: 0.72,
+                            ),
                         itemCount: kExpeditionBadges.length,
                         itemBuilder: (context, index) {
                           final badge = kExpeditionBadges[index];

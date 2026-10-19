@@ -6,9 +6,11 @@ import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
 import '../../core/mixins/auto_narrate_on_enter.dart';
 import '../../core/text_format.dart';
+import '../../core/widgets/artwork_stage.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/voiceover_toggle.dart';
+import '../../core/widgets/word_quest.dart';
 import '../../data/station5_data.dart';
 import '../../services/narration_helper.dart';
 import '../../services/progress_service.dart';
@@ -25,11 +27,12 @@ class Station5DiscoveryScreen extends StatefulWidget {
 
 class _Station5DiscoveryScreenState extends State<Station5DiscoveryScreen>
     with RouteAware, AutoNarrateOnEnter {
-  /// Inner panel margins on [kStation5DiscoveryBackgroundAsset].
-  static const _contentLeft = 0.305;
-  static const _contentRight = 0.692;
-  static const _contentTop = 0.165;
-  static const _contentHeight = 0.59;
+  /// Background aspect and regions (fractions of the artwork) so the
+  /// text and avatar stay on the same spot of the picture on any screen.
+  static const double _artAspect = 3072 / 1376;
+  static const Rect _textRegion = Rect.fromLTRB(0.29, 0.19, 0.745, 0.78);
+  static const double _textWidth =
+      ArtworkOverlay.defaultDesignWidth * (0.745 - 0.29);
 
   @override
   String? get autoNarrateText => stripReadingMarkup(kStation5Content);
@@ -63,13 +66,10 @@ class _Station5DiscoveryScreenState extends State<Station5DiscoveryScreen>
       children: [
         const ColoredBox(color: BioColors.forest),
         Positioned.fill(
-          child: GameImage(
+          child: ArtworkBackdrop(
             asset: kStation5DiscoveryBackgroundAsset,
+            aspect: _artAspect,
             label: 'Discovery Stop',
-            fit: BoxFit.cover,
-            color: BioColors.forest,
-            icon: Icons.landscape,
-            cacheWidth: 1280,
           ),
         ),
         GameCanvas(
@@ -102,56 +102,54 @@ class _Station5DiscoveryScreenState extends State<Station5DiscoveryScreen>
                   ],
                 ),
                 const SizedBox(height: 12),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final w = constraints.maxWidth;
-                      final h = constraints.maxHeight;
-                      final textLeft = w * _contentLeft;
-                      final textW = w * (_contentRight - _contentLeft);
-                      final textTop = h * _contentTop;
-                      final textH = h * _contentHeight;
-
-                      return Stack(
-                        clipBehavior: Clip.hardEdge,
-                        children: [
-                          Positioned(
-                            left: textLeft,
-                            top: textTop,
-                            width: textW,
-                            height: textH,
-                            child: ClipRect(
-                              clipBehavior: Clip.hardEdge,
-                              child: ListView(
-                                padding: const EdgeInsets.fromLTRB(6, 4, 18, 6),
-                                children: [
-                                  ..._discoveryContent(textW),
-                                  const SizedBox(height: 12),
-                                  Center(
-                                    child: PrimaryButton(
-                                      label: 'Go to Research Mission',
-                                      icon: Icons.science,
-                                      color: BioColors.sun,
-                                      fontSize: 16,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 22,
-                                        vertical: 12,
-                                      ),
-                                      onTap: _goToResearchMission,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+                const Expanded(child: SizedBox.shrink()),
               ],
             ),
+          ),
+        ),
+        Positioned.fill(
+          child: ArtworkOverlay(
+            aspect: _artAspect,
+            slots: [
+              // The research-mission button scrolls with the text, so
+              // Word Quest sits on the open countertop corner.
+              ArtworkSlot(
+                region: const Rect.fromLTRB(0.74, 0.80, 0.985, 0.975),
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: WordQuestButton(
+                    onTap: () =>
+                        showWordQuestOverlay(context, kStation5Vocabulary),
+                  ),
+                ),
+              ),
+              ArtworkSlot(
+                region: _textRegion,
+                child: ClipRect(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(6, 4, 18, 6),
+                    children: [
+                      ..._discoveryContent(_textWidth),
+                      const SizedBox(height: 12),
+                      Center(
+                        child: PrimaryButton(
+                          label: 'Go to Research Mission',
+                          icon: Icons.science,
+                          color: BioColors.sun,
+                          fontSize: 16,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 12,
+                          ),
+                          onTap: _goToResearchMission,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -164,55 +162,55 @@ class _Station5DiscoveryScreenState extends State<Station5DiscoveryScreen>
     const gap = 8.0;
 
     Text bodyText(String text) => Text.rich(
-          readingTextSpan(
-            text,
-            fontSize: fontSize,
-            color: BioColors.ink,
-            indentFirstLine: true,
-          ),
-          style: const TextStyle(height: 1.35),
-        );
+      readingTextSpan(
+        text,
+        fontSize: fontSize,
+        color: BioColors.ink,
+        indentFirstLine: true,
+      ),
+      style: const TextStyle(height: 1.35),
+    );
 
     Text noteText(String text) => Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize - 1.5,
-            height: 1.35,
-            color: BioColors.ink.withValues(alpha: 0.85),
-            fontStyle: FontStyle.italic,
-          ),
-        );
+      text,
+      style: TextStyle(
+        fontSize: fontSize - 1.5,
+        height: 1.35,
+        color: BioColors.ink.withValues(alpha: 0.85),
+        fontStyle: FontStyle.italic,
+      ),
+    );
 
     Widget kirbyBauerSection() => Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: bodyText(kStation5DiscoveryPart2)),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: maxWidth * 0.32,
-              child: GameImage(
-                asset: kStation5DiscoveryContentImageAsset,
-                label: 'Kirby-Bauer disk diffusion',
-                fit: BoxFit.contain,
-                color: BioColors.moss,
-                icon: Icons.biotech,
-                cacheWidth: 480,
-              ),
-            ),
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: bodyText(kStation5DiscoveryPart2)),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: maxWidth * 0.32,
+          child: GameImage(
+            asset: kStation5DiscoveryContentImageAsset,
+            label: 'Kirby-Bauer disk diffusion',
+            fit: BoxFit.contain,
+            color: BioColors.moss,
+            icon: Icons.biotech,
+            cacheWidth: 480,
+          ),
+        ),
+      ],
+    );
 
     Widget barGraphImage() => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: GameImage(
-            asset: kStation5DiscoveryGraphicalAsset,
-            label: 'Graphical presentation of antibacterial activity',
-            fit: BoxFit.fitWidth,
-            color: BioColors.moss,
-            icon: Icons.bar_chart,
-            cacheWidth: 960,
-          ),
-        );
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: GameImage(
+        asset: kStation5DiscoveryGraphicalAsset,
+        label: 'Graphical presentation of antibacterial activity',
+        fit: BoxFit.fitWidth,
+        color: BioColors.moss,
+        icon: Icons.bar_chart,
+        cacheWidth: 960,
+      ),
+    );
 
     return [
       bodyText(kStation5DiscoveryPart1),

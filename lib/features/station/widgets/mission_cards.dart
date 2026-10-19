@@ -21,7 +21,7 @@ class MissionStoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: 760,
+        constraints: const BoxConstraints(maxWidth: 760),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: BioColors.parchment.withValues(alpha: 0.97),
@@ -35,14 +35,17 @@ class MissionStoryCard extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: BioColors.forest),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: BioColors.forest,
+              ),
             ),
             const SizedBox(height: 12),
-            Text(story,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, height: 1.4)),
+            Text(
+              story,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, height: 1.4),
+            ),
             const SizedBox(height: 20),
             PrimaryButton(
               label: startLabel,
@@ -89,15 +92,20 @@ class MissionCompleteCard extends StatelessWidget {
           children: [
             const Icon(Icons.verified, color: BioColors.correct, size: 60),
             const SizedBox(height: 8),
-            Text('Activity Score: $score / $total',
-                style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    color: BioColors.forest)),
+            Text(
+              'Activity Score: $score / $total',
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: BioColors.forest,
+              ),
+            ),
             const SizedBox(height: 10),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, height: 1.35)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, height: 1.35),
+            ),
             const SizedBox(height: 20),
             PrimaryButton(
               label: continueLabel,

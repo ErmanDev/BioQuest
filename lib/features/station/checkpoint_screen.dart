@@ -24,7 +24,11 @@ class StationCheckpointScreen extends StatelessWidget {
       onBack: () => context.go(stationHubRoute(stationKey)),
       onComplete: (score, total) async {
         final progress = context.read<ProgressService>();
-        await progress.recordAssessment('${stationKey}_checkpoint', score, total);
+        await progress.recordAssessment(
+          '${stationKey}_checkpoint',
+          score,
+          total,
+        );
         await progress.completeStation(stationKey, score);
         if (context.mounted) context.go('/$stationKey/badge');
       },

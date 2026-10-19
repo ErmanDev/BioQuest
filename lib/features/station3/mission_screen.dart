@@ -55,10 +55,7 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
   late final Animation<double> _scrollHintBounce = Tween<double>(
     begin: 0,
     end: 10,
-  ).animate(CurvedAnimation(
-    parent: _scrollHintCtrl,
-    curve: Curves.easeInOut,
-  ));
+  ).animate(CurvedAnimation(parent: _scrollHintCtrl, curve: Curves.easeInOut));
   bool _showScrollHint = true;
 
   @override
@@ -91,7 +88,8 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
   void _onStoryScroll() {
     if (!_storyScrollCtrl.hasClients) return;
     final canScroll = _storyScrollCtrl.position.maxScrollExtent > 8;
-    final atBottom = _storyScrollCtrl.position.pixels >=
+    final atBottom =
+        _storyScrollCtrl.position.pixels >=
         _storyScrollCtrl.position.maxScrollExtent - 16;
     _setScrollHintVisible(canScroll && !atBottom);
   }
@@ -138,17 +136,12 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
                   2 => _match(),
                   3 => _mission3(),
                   _ => Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 72, 4, 4),
-                      child: _done(),
-                    ),
+                    padding: const EdgeInsets.fromLTRB(4, 72, 4, 4),
+                    child: _done(),
+                  ),
                 },
               ),
-              Positioned(
-                left: 8,
-                top: 8,
-                right: 8,
-                child: _topBar(context),
-              ),
+              Positioned(left: 8, top: 8, right: 8, child: _topBar(context)),
             ],
           ),
         ),
@@ -195,10 +188,7 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(26),
-        child: child,
-      ),
+      child: ClipRRect(borderRadius: BorderRadius.circular(26), child: child),
     );
   }
 
@@ -246,18 +236,26 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
                             });
                             return false;
                           },
-                          child: Stack(
+                          child: Column(
+                            // Hint sits below the text so it never covers a line.
+
                             children: [
-                              Scrollbar(
-                                controller: _storyScrollCtrl,
-                                child: SingleChildScrollView(
+                              Expanded(
+                                child: Scrollbar(
                                   controller: _storyScrollCtrl,
-                                  padding:
-                                      const EdgeInsets.fromLTRB(2, 0, 4, 12),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: _storyContent(),
+                                  child: SingleChildScrollView(
+                                    controller: _storyScrollCtrl,
+                                    padding: const EdgeInsets.fromLTRB(
+                                      2,
+                                      0,
+                                      4,
+                                      12,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: _storyContent(),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -294,7 +292,11 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
 
   List<Widget> _storyContent() {
     const fontSize = 18.0;
-    const bodyStyle = TextStyle(fontSize: fontSize, height: 1.4, color: BioColors.ink);
+    const bodyStyle = TextStyle(
+      fontSize: fontSize,
+      height: 1.4,
+      color: BioColors.ink,
+    );
 
     return [
       _storyPart(
@@ -327,9 +329,7 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const TextSpan(
-                text: ' and some laboratory instruments were ',
-              ),
+              const TextSpan(text: ' and some laboratory instruments were '),
               TextSpan(
                 text: 'misplaced',
                 style: bodyStyle.copyWith(
@@ -370,9 +370,7 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const TextSpan(
-                text: ' before the moss cultures are lost.',
-              ),
+              const TextSpan(text: ' before the moss cultures are lost.'),
             ],
           ),
         ),
@@ -479,7 +477,11 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
                   color: BioColors.forest,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.campaign, color: Colors.white, size: 18),
+                child: const Icon(
+                  Icons.campaign,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 8),
               Text(
@@ -520,10 +522,8 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
   }
 
   Widget _scrollDownHint() {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 6,
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
       child: IgnorePointer(
         child: AnimatedBuilder(
           animation: _scrollHintBounce,
@@ -658,9 +658,9 @@ class _Station3MissionScreenState extends State<Station3MissionScreen>
       total: 3,
       message: _score == 3
           ? 'Excellent! You organized the procedure, matched every '
-              'instrument, and measured each moss replicate accurately.'
+                'instrument, and measured each moss replicate accurately.'
           : 'Nice work! Review the procedure, instrument matches, and ruler '
-              'readings, then continue.',
+                'readings, then continue.',
       onContinue: () async {
         final progress = context.read<ProgressService>();
         final router = GoRouter.of(context);

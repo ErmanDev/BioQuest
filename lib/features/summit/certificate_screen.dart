@@ -30,8 +30,11 @@ class CertificateScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.workspace_premium,
-                  color: BioColors.sun, size: 56),
+              const Icon(
+                Icons.workspace_premium,
+                color: BioColors.sun,
+                size: 56,
+              ),
               const SizedBox(height: 6),
               const Text(
                 'CERTIFICATE OF ACHIEVEMENT',
@@ -43,8 +46,7 @@ class CertificateScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 14),
-              const Text('This certifies that',
-                  style: TextStyle(fontSize: 16)),
+              const Text('This certifies that', style: TextStyle(fontSize: 16)),
               const SizedBox(height: 6),
               Text(
                 name,
@@ -63,8 +65,10 @@ class CertificateScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: BioColors.forest,
                   borderRadius: BorderRadius.circular(30),

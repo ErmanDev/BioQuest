@@ -1,4 +1,5 @@
 import '../models/mc_question.dart';
+import '../models/vocab_word.dart';
 
 const String kStation4Intro =
     'Welcome, young researchers! In this station, you will enter the Bioactive '
@@ -166,14 +167,8 @@ const List<({String name, String function})> kStation4PhytochemicalRows = [
     name: 'Tannins',
     function: 'Provide defense against pathogens and herbivores',
   ),
-  (
-    name: 'Saponins',
-    function: 'Possess antimicrobial properties',
-  ),
-  (
-    name: 'Terpenoids',
-    function: 'Help mosses adapt to environmental stress',
-  ),
+  (name: 'Saponins', function: 'Possess antimicrobial properties'),
+  (name: 'Terpenoids', function: 'Help mosses adapt to environmental stress'),
   (
     name: 'Phenolic Compounds',
     function: 'Help protect cells from oxidative damage',
@@ -181,6 +176,51 @@ const List<({String name, String function})> kStation4PhytochemicalRows = [
 ];
 
 /// Discovery Stop reading content. Wrap key terms in ** for bold emphasis.
+/// Word Quest vocabulary shown in the Discovery Stop overlay.
+const List<VocabWord> kStation4Vocabulary = [
+  VocabWord(
+    term: 'Phytochemical Screening',
+    definition:
+        'A laboratory process used to identify chemical compounds present in '
+        'a plant sample.',
+    context:
+        'Scientists use phytochemical screening to identify the bioactive '
+        'compounds found in moss samples.',
+  ),
+  VocabWord(
+    term: 'Bioactive Compounds',
+    definition:
+        'Chemical substances that can produce an effect on living organisms.',
+    context:
+        'Mosses contain bioactive compounds that may help protect them from '
+        'microorganisms and environmental stress.',
+  ),
+  VocabWord(
+    term: 'Reagent',
+    definition:
+        'A chemical substance used to detect or cause a chemical reaction.',
+    context:
+        'When a reagent is added to a moss extract, reactions such as color '
+        'changes, foam, or precipitate formation may occur.',
+  ),
+  VocabWord(
+    term: 'Precipitate',
+    definition:
+        'A solid substance that forms during a chemical reaction in a liquid.',
+    context:
+        'A reddish-brown precipitate forms when alkaloids are detected using '
+        'Wagner\u2019s test.',
+  ),
+  VocabWord(
+    term: 'Intensity',
+    definition: 'The strength or degree of something.',
+    context:
+        'Students analyze the intensity of the laboratory reaction to '
+        'determine whether a phytochemical is weakly, moderately, or strongly '
+        'present.',
+  ),
+];
+
 const String kStation4Content =
     '$kStation4DiscoveryPart1\n\n'
     '$kStation4DiscoveryPart2\n\n'
@@ -320,8 +360,7 @@ const Map<String, String> kStation4GraphFormAssets = {
 const String kStation4Activity2Title =
     'Activity 2: Phytochemical Screening Laboratory';
 
-const String kStation4Activity2Subtitle =
-    'Analyze. Observe. Record. Discover.';
+const String kStation4Activity2Subtitle = 'Analyze. Observe. Record. Discover.';
 
 const String kStation4Activity2OverviewPart1 =
     'In this activity, you will analyze the phytochemical screening results '
@@ -357,7 +396,7 @@ const List<String> kStation4Activity2Goals = [
 
 /// General guidelines for interpreting phytochemical screening reactions.
 const List<({String symbol, String observation})>
-    kStation4InterpretationGuidelines = [
+kStation4InterpretationGuidelines = [
   (symbol: '-', observation: 'No visible reaction'),
   (symbol: '+', observation: 'Weak or faint reaction observed'),
   (symbol: '++', observation: 'Clear and noticeable reaction'),
@@ -427,7 +466,8 @@ const List<({String label, String asset})> kStation4FlavonoidsReactionAssets = [
   ),
   (
     label: 'Strongly Positive',
-    asset: 'assets/images/phytochem/flavonoids/flavonoids_strongly_positive.png',
+    asset:
+        'assets/images/phytochem/flavonoids/flavonoids_strongly_positive.png',
   ),
 ];
 
@@ -483,24 +523,29 @@ const List<({String label, String asset})> kStation4GlycosidesReactionAssets = [
   ),
   (
     label: 'Moderately Positive',
-    asset: 'assets/images/phytochem/glycosides/glycosides_moderately_positive.png',
+    asset:
+        'assets/images/phytochem/glycosides/glycosides_moderately_positive.png',
   ),
   (
     label: 'Strongly Positive',
-    asset: 'assets/images/phytochem/glycosides/glycosides_strongly_positive.png',
+    asset:
+        'assets/images/phytochem/glycosides/glycosides_strongly_positive.png',
   ),
 ];
 
 const List<String> kStation4RatingTokens = ['-', '+', '++', '+++'];
 
 /// One phytochemical screening test (Activity 2 main task).
-const List<({
-  String compound,
-  String testName,
-  String observation,
-  String pyrrhobryumAnswer,
-  String ectropotheciumAnswer,
-})> kStation4ScreeningTests = [
+const List<
+  ({
+    String compound,
+    String testName,
+    String observation,
+    String pyrrhobryumAnswer,
+    String ectropotheciumAnswer,
+  })
+>
+kStation4ScreeningTests = [
   (
     compound: "Alkaloid's Test",
     testName: "Wagner's Test",
@@ -539,7 +584,8 @@ const List<({
 ];
 
 /// Reaction tube illustrations per screening test (same order as [kStation4ScreeningTests]).
-const List<List<({String label, String asset})>> kStation4ScreeningReactionSets = [
+const List<List<({String label, String asset})>>
+kStation4ScreeningReactionSets = [
   kStation4AlkaloidsReactionAssets,
   kStation4FlavonoidsReactionAssets,
   kStation4TanninsReactionAssets,
@@ -607,7 +653,9 @@ int station4RatingToBarValue(String rating) {
 
 /// Expected bar heights per test index for each moss genus.
 int station4ExpectedPyrrhobryumBarValue(int testIndex) =>
-    station4RatingToBarValue(kStation4ScreeningTests[testIndex].pyrrhobryumAnswer);
+    station4RatingToBarValue(
+      kStation4ScreeningTests[testIndex].pyrrhobryumAnswer,
+    );
 
 int station4ExpectedEctropotheciumBarValue(int testIndex) =>
     station4RatingToBarValue(
@@ -615,12 +663,10 @@ int station4ExpectedEctropotheciumBarValue(int testIndex) =>
     );
 
 /// Guide questions 2–5: written answers checked against sample-answer keywords.
-const List<({
-  String prompt,
-  List<String> keywords,
-  String modelAnswer,
-  int minMatches,
-})> kStation4ScreeningGuideQuestions = [
+const List<
+  ({String prompt, List<String> keywords, String modelAnswer, int minMatches})
+>
+kStation4ScreeningGuideQuestions = [
   (
     prompt:
         'Which phytochemicals showed moderately present results in both moss samples?',
@@ -685,31 +731,31 @@ bool station4GuideAnswerMatches(
 }
 
 const List<({String phytochemical, String observation, String answer})>
-    kStation4Reactions = [
+kStation4Reactions = [
   (
     phytochemical: 'Alkaloids (Wagner\'s Test)',
     observation: 'A faint reddish-brown precipitate barely forms.',
-    answer: '+'
+    answer: '+',
   ),
   (
     phytochemical: 'Flavonoids (Alkaline Reagent Test)',
     observation: 'A clear and noticeable yellow coloration develops.',
-    answer: '++'
+    answer: '++',
   ),
   (
     phytochemical: 'Tannins (Ferric Chloride Test)',
     observation: 'A clear, noticeable blue-black coloration appears.',
-    answer: '++'
+    answer: '++',
   ),
   (
     phytochemical: 'Saponins (Foam Test)',
     observation: 'A weak, small amount of foam forms after shaking.',
-    answer: '+'
+    answer: '+',
   ),
   (
     phytochemical: 'Glycosides (Keller-Killiani Test)',
     observation: 'No visible reaction or ring is observed.',
-    answer: '-'
+    answer: '-',
   ),
 ];
 
@@ -745,8 +791,7 @@ const int kStation4TakeawayMinKeywordMatches = 3;
 /// Scores a takeaway answer by how many sample-answer keywords appear.
 int scoreStation4TakeawayAnswer(String text) {
   final lower = text.toLowerCase();
-  final hits =
-      kStation4TakeawayKeywords.where((k) => lower.contains(k)).length;
+  final hits = kStation4TakeawayKeywords.where((k) => lower.contains(k)).length;
   if (hits >= 5) return 5;
   if (hits >= 4) return 4;
   if (hits >= kStation4TakeawayMinKeywordMatches) return 3;
@@ -769,7 +814,8 @@ const String _s4Table =
 
 const List<McQuestion> kStation4Checkpoint = [
   McQuestion(
-    prompt: 'What laboratory process is used to identify bioactive compounds present in mosses?',
+    prompt:
+        'What laboratory process is used to identify bioactive compounds present in mosses?',
     options: [
       'Soil Profiling',
       'Ecological Mapping',
@@ -779,12 +825,14 @@ const List<McQuestion> kStation4Checkpoint = [
     correctIndex: 3,
   ),
   McQuestion(
-    prompt: 'Which type of graph is BEST used to compare phytochemical results between two moss species?',
+    prompt:
+        'Which type of graph is BEST used to compare phytochemical results between two moss species?',
     options: ['Pie Graph', 'Line Graph', 'Scatter Plot', 'Bar Graph'],
     correctIndex: 3,
   ),
   McQuestion(
-    prompt: 'Which type of graph is MOST suitable for showing changes or trends in data over time?',
+    prompt:
+        'Which type of graph is MOST suitable for showing changes or trends in data over time?',
     options: ['Pie Graph', 'Bar Graph', 'Line Graph', 'Pictograph'],
     correctIndex: 2,
   ),
@@ -809,7 +857,8 @@ const List<McQuestion> kStation4Checkpoint = [
     correctIndex: 3,
   ),
   McQuestion(
-    prompt: 'Which phytochemicals showed moderately present results in both moss samples?',
+    prompt:
+        'Which phytochemicals showed moderately present results in both moss samples?',
     stimulus: _s4Table,
     options: [
       'Alkaloids and Saponins',
@@ -837,7 +886,8 @@ const List<McQuestion> kStation4Checkpoint = [
     correctIndex: 0,
   ),
   McQuestion(
-    prompt: 'What can be concluded from the phytochemical results of the two moss species?',
+    prompt:
+        'What can be concluded from the phytochemical results of the two moss species?',
     stimulus: _s4Table,
     options: [
       'Only one moss species contains bioactive compounds',
@@ -848,7 +898,8 @@ const List<McQuestion> kStation4Checkpoint = [
     correctIndex: 2,
   ),
   McQuestion(
-    prompt: 'Why is it important to present scientific data in tabular or graphical form?',
+    prompt:
+        'Why is it important to present scientific data in tabular or graphical form?',
     options: [
       'To make the investigation more difficult',
       'To avoid drawing conclusions from evidence',

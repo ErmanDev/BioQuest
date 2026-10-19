@@ -225,7 +225,7 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
                   const Text(
                     'Part II. Identification',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: BioColors.forest,
                     ),
@@ -233,7 +233,7 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
                   const SizedBox(height: 8),
                   Text(
                     kStation2CheckpointPart1Directions,
-                    style: const TextStyle(fontSize: 15, height: 1.4),
+                    style: const TextStyle(fontSize: 18, height: 1.4),
                   ),
                   const SizedBox(height: 12),
                   if (q.tableStimulus != null || q.stimulus != null) ...[
@@ -243,7 +243,7 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
                   Text(
                     '${_part2Index + 1}. ${q.prompt}',
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: BioColors.ink,
                       height: 1.35,
@@ -290,7 +290,7 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
       ),
       child: q.tableStimulus != null
           ? QuizStimulusTable(table: q.tableStimulus!)
-          : Text(q.stimulus!, style: const TextStyle(fontSize: 15, height: 1.4)),
+          : Text(q.stimulus!, style: const TextStyle(fontSize: 18, height: 1.4)),
     );
   }
 
@@ -333,7 +333,7 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
           borderRadius: BorderRadius.circular(12),
           onTap: locked ? null : () => _selectPart2Answer(optionIndex),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: border, width: 2),
@@ -341,7 +341,7 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: 14,
+                  radius: 17,
                   backgroundColor:
                       locked && (isCorrect || isSelected)
                           ? Colors.white
@@ -353,7 +353,7 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
                           ? (isCorrect ? BioColors.correct : BioColors.danger)
                           : Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: 16,
                     ),
                   ),
                 ),
@@ -362,7 +362,7 @@ class _Station2CheckpointScreenState extends State<Station2CheckpointScreen> {
                   child: Text(
                     question.options[optionIndex],
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 21,
                       fontWeight: FontWeight.w600,
                       color: text,
                       height: 1.3,

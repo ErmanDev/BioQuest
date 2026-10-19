@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/text_format.dart';
 import '../models/mc_question.dart';
+import '../models/vocab_word.dart';
 
 /// Welcome script for Station 3 (shown + spoken on the station splash).
 const String kStation3Intro =
@@ -17,9 +18,8 @@ const String kStation3Intro =
     'planning and reliable data gathering.';
 
 /// Plain text for TTS (no bullet/markup symbols).
-String get kStation3IntroNarration => stripReadingMarkup(
-      kStation3Intro.replaceAll('• ', ''),
-    );
+String get kStation3IntroNarration =>
+    stripReadingMarkup(kStation3Intro.replaceAll('• ', ''));
 
 /// Discovery Stop reading content. Wrap key terms in ** for bold emphasis.
 const String kStation3DiscoveryBackgroundAsset =
@@ -205,6 +205,55 @@ const String _kStation3InstrumentsNarration =
     'Graduated cylinder: Measures volume of liquid accurately\n'
     'Microscope: Observes tiny moss structures';
 
+/// Word Quest vocabulary shown in the Discovery Stop overlay.
+const List<VocabWord> kStation3Vocabulary = [
+  VocabWord(
+    term: 'In Vitro Propagation',
+    definition:
+        'A technique of growing organisms or parts of organisms under '
+        'controlled laboratory conditions.',
+    context:
+        'In vitro propagation allows researchers to grow small moss parts, '
+        'such as spores, leaves, or stem fragments, inside sterile '
+        'containers under controlled conditions.',
+  ),
+  VocabWord(
+    term: 'Sterile',
+    definition: 'Free from living microorganisms or other unwanted organisms.',
+    context:
+        'Moss parts are grown under sterile conditions to prevent unwanted '
+        'microorganisms from affecting the experiment.',
+  ),
+  VocabWord(
+    term: 'Spores',
+    definition:
+        'Tiny reproductive structures that can develop into a new organism '
+        'under suitable conditions.',
+    context:
+        'During in vitro propagation, researchers can grow small moss parts '
+        'such as spores, leaves, or stem fragments under controlled '
+        'laboratory conditions.',
+  ),
+  VocabWord(
+    term: 'Biomass',
+    definition:
+        'The total mass of living biological material in a sample or '
+        'organism.',
+    context:
+        'A digital weighing scale can be used to measure the biomass or mass '
+        'of moss samples during the investigation.',
+  ),
+  VocabWord(
+    term: 'Validity',
+    definition:
+        'The extent to which a research method or instrument measures what '
+        'it is intended to measure.',
+    context:
+        'Using suitable research instruments helps improve the validity of '
+        'the collected information and makes the findings more accurate.',
+  ),
+];
+
 const String kStation3Content =
     '$kStation3DiscoveryPart1\n\n'
     '$kStation3DiscoveryPart2\n\n'
@@ -219,10 +268,7 @@ class Station3ProcedureStep {
   final String label;
   final IconData icon;
 
-  const Station3ProcedureStep({
-    required this.label,
-    required this.icon,
-  });
+  const Station3ProcedureStep({required this.label, required this.icon});
 }
 
 const List<Station3ProcedureStep> kStation3ProcedureSteps = [
@@ -238,10 +284,7 @@ const List<Station3ProcedureStep> kStation3ProcedureSteps = [
     label: 'Select the appropriate instruments',
     icon: Icons.science_outlined,
   ),
-  Station3ProcedureStep(
-    label: 'Observe the moss cultures',
-    icon: Icons.search,
-  ),
+  Station3ProcedureStep(label: 'Observe the moss cultures', icon: Icons.search),
   Station3ProcedureStep(
     label: 'Record observations in a data sheet',
     icon: Icons.edit_note,
@@ -427,8 +470,7 @@ const String kStation3TakeawayPrompt =
 const String kStation3TakeawayInstruction =
     'Explain your answer in 2–3 sentences.';
 
-const String kStation3TakeawayMaxSentencesNote =
-    'MAXIMUM OF 3 SENTENCES ONLY.';
+const String kStation3TakeawayMaxSentencesNote = 'MAXIMUM OF 3 SENTENCES ONLY.';
 
 const String kStation3TakeawayModel =
     'Choosing the correct instrument is important because it helps researchers '
@@ -489,7 +531,12 @@ const List<McQuestion> kStation3Checkpoint = [
   McQuestion(
     prompt:
         'During the investigation, the researcher wants to compare the mass of moss samples before and after harvest. Which instrument is most appropriate?',
-    options: ['Thermometer', 'Tape Measure', 'Digital caliper', 'Digital Balance'],
+    options: [
+      'Thermometer',
+      'Tape Measure',
+      'Digital caliper',
+      'Digital Balance',
+    ],
     correctIndex: 3,
   ),
   McQuestion(
@@ -499,7 +546,8 @@ const List<McQuestion> kStation3Checkpoint = [
     correctIndex: 3,
   ),
   McQuestion(
-    prompt: 'Why is choosing the correct instrument important in scientific investigations?',
+    prompt:
+        'Why is choosing the correct instrument important in scientific investigations?',
     options: [
       'To finish slowly',
       'To avoid observations',
@@ -538,7 +586,8 @@ const List<McQuestion> kStation3Checkpoint = [
     correctIndex: 0,
   ),
   McQuestion(
-    prompt: 'Based on the table, what can be concluded about the moss samples after one month?',
+    prompt:
+        'Based on the table, what can be concluded about the moss samples after one month?',
     tableStimulus: kStation3CheckpointTable,
     options: [
       'All moss samples died',
@@ -549,7 +598,8 @@ const List<McQuestion> kStation3Checkpoint = [
     correctIndex: 2,
   ),
   McQuestion(
-    prompt: 'Why is organizing collected data in tables important during scientific investigations?',
+    prompt:
+        'Why is organizing collected data in tables important during scientific investigations?',
     options: [
       'To analyze data easily',
       'To make the report longer',

@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
-import '../../core/widgets/game_image.dart';
+import '../../core/widgets/artwork_stage.dart';
+import '../../core/widgets/fit_text.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station4_data.dart';
 import '../../data/stations.dart';
@@ -20,14 +21,15 @@ class Station4CheckpointScreen extends StatefulWidget {
 }
 
 class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
-  static const _contentLeft = 0.205;
-  static const _contentRight = 0.795;
-  static const _contentTop = 0.365;
-  static const _contentBottom = 0.835;
+  /// Background artwork aspect; panels are placed as fractions of the
+  /// artwork so they stay on the drawn frame on any screen shape.
+  static const double _artAspect = 3072 / 1376;
 
   int _index = 0;
-  late final List<int?> _answers =
-      List<int?>.filled(kStation4Checkpoint.length, null);
+  late final List<int?> _answers = List<int?>.filled(
+    kStation4Checkpoint.length,
+    null,
+  );
   bool _finished = false;
 
   int get _score {
@@ -70,13 +72,10 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
       children: [
         const ColoredBox(color: BioColors.forest),
         Positioned.fill(
-          child: GameImage(
+          child: ArtworkBackdrop(
             asset: kStation4TrailCheckpointBackgroundAsset,
-            label: 'Trail Checkpoint',
-            fit: BoxFit.cover,
-            color: BioColors.forest,
-            icon: Icons.landscape,
-            cacheWidth: 1280,
+            aspect: _artAspect,
+            label: 'Background',
           ),
         ),
         GameCanvas(
@@ -87,33 +86,20 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
               children: [
                 _topBar(context),
                 const SizedBox(height: 6),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final w = constraints.maxWidth;
-                      final h = constraints.maxHeight;
-                      final left = w * _contentLeft;
-                      final width = w * (_contentRight - _contentLeft);
-                      final top = h * _contentTop;
-                      final height = h * _contentBottom - top;
-
-                      return Stack(
-                        clipBehavior: Clip.hardEdge,
-                        children: [
-                          Positioned(
-                            left: left,
-                            top: top,
-                            width: width,
-                            height: height,
-                            child: _finished ? _result() : _question(),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+                const Expanded(child: SizedBox.shrink()),
               ],
             ),
+          ),
+        ),
+        Positioned.fill(
+          child: ArtworkOverlay(
+            aspect: _artAspect,
+            slots: [
+              ArtworkSlot(
+                region: Rect.fromLTRB(0.25, 0.36, 0.75, 0.88),
+                child: _finished ? _result() : _question(),
+              ),
+            ],
           ),
         ),
       ],
@@ -159,46 +145,27 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: SingleChildScrollView(
+          // Shrinks the question slightly (instead of hiding answers below
+          // the fold) when long answers don't fit the scroll.
+          child: Padding(
             padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (q.stimulus != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.92),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: BioColors.forest.withValues(alpha: 0.35),
-                      ),
+            child: FitText(
+              alignment: Alignment.topCenter,
+              // With a results block, show it beside the question so all four
+              // answers stay visible without scrolling.
+              child: q.stimulus == null
+                  ? _promptAndOptions(q, selected, answered)
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 3, child: _stimulusBox(q.stimulus!)),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 7,
+                          child: _promptAndOptions(q, selected, answered),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      q.stimulus!,
-                      style: const TextStyle(fontSize: 12.5, height: 1.3),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                Text(
-                  q.prompt,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    height: 1.3,
-                    color: BioColors.ink,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                for (var i = 0; i < q.options.length; i++)
-                  _optionTile(
-                    question: q,
-                    optionIndex: i,
-                    selectedIndex: selected,
-                    locked: answered,
-                  ),
-              ],
             ),
           ),
         ),
@@ -206,9 +173,7 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
         Align(
           alignment: Alignment.center,
           child: PrimaryButton(
-            label: _index == kStation4Checkpoint.length - 1
-                ? 'Finish'
-                : 'Next',
+            label: _index == kStation4Checkpoint.length - 1 ? 'Finish' : 'Next',
             icon: Icons.arrow_forward,
             color: BioColors.forest,
             fontSize: 15,
@@ -216,6 +181,43 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
             onTap: answered ? _next : null,
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _stimulusBox(String text) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: BioColors.forest.withValues(alpha: 0.35)),
+      ),
+      child: Text(text, style: const TextStyle(fontSize: 13.5, height: 1.25)),
+    );
+  }
+
+  Widget _promptAndOptions(McQuestion q, int? selected, bool answered) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          q.prompt,
+          style: const TextStyle(
+            fontSize: 19.5,
+            fontWeight: FontWeight.w800,
+            height: 1.3,
+            color: BioColors.ink,
+          ),
+        ),
+        const SizedBox(height: 8),
+        for (var i = 0; i < q.options.length; i++)
+          _optionTile(
+            question: q,
+            optionIndex: i,
+            selectedIndex: selected,
+            locked: answered,
+          ),
       ],
     );
   }
@@ -292,7 +294,7 @@ class _Station4CheckpointScreenState extends State<Station4CheckpointScreen> {
                   child: Text(
                     question.options[optionIndex],
                     style: TextStyle(
-                      fontSize: 15.5,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: text,
                       height: 1.25,

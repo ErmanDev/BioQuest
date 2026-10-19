@@ -52,8 +52,9 @@ const Map<String, StationContent> kStationContent = {
     badgeAsset: 'badge_research_beginner.png',
     nextStationMessage:
         'Great work, Young Researcher! Station 2 is now unlocked on the Expedition Map.',
+    targetCompetency:
+        'Chooses appropriate quantitative research design (CS_RS12-IIa-c-1)',
     missionTargets: [
-      'Identify the characteristics, habitats, and ecological importance of mosses.',
       'Identify the characteristics and purposes of different quantitative research designs.',
       'Choose the appropriate quantitative research design for a given research situation.',
       'Recognize the importance of selecting an appropriate quantitative research design in conducting research.',

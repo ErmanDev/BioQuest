@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
+import '../../core/widgets/artwork_stage.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../data/station1_data.dart';
@@ -22,6 +23,12 @@ class Station1MissionScreen extends StatefulWidget {
 class _Station1MissionScreenState extends State<Station1MissionScreen>
     with SingleTickerProviderStateMixin {
   static const _backgroundAsset = 'assets/images/research_mission_bg.png';
+
+  /// Mission Story parchment on [_backgroundAsset], as fractions of the
+  /// artwork, so the story stays on the parchment on any screen shape.
+  static const double _storyArtAspect = 1024 / 458;
+  static const Rect _storyTextRegion = Rect.fromLTRB(0.29, 0.355, 0.715, 0.71);
+  static const Rect _storyButtonRegion = Rect.fromLTRB(0.36, 0.78, 0.64, 0.89);
   static const _activityBackgroundAsset =
       'assets/images/backgrounds/mission_forest_bg.png';
   static const _startButtonAsset = 'assets/images/ui/tap_here_to_start.png';
@@ -104,20 +111,27 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
 
   @override
   Widget build(BuildContext context) {
-    final bgAsset =
-        _started || _finished ? _activityBackgroundAsset : _backgroundAsset;
+    final bgAsset = _started || _finished
+        ? _activityBackgroundAsset
+        : _backgroundAsset;
     return Stack(
       fit: StackFit.expand,
       children: [
         const ColoredBox(color: BioColors.forest),
         Positioned.fill(
-          child: GameImage(
-            asset: bgAsset,
-            label: 'Research Mission',
-            fit: BoxFit.cover,
-            color: BioColors.forest,
-            icon: Icons.landscape,
-          ),
+          child: _onStory
+              ? ArtworkBackdrop(
+                  asset: bgAsset,
+                  aspect: _storyArtAspect,
+                  label: 'Research Mission',
+                )
+              : GameImage(
+                  asset: bgAsset,
+                  label: 'Research Mission',
+                  fit: BoxFit.cover,
+                  color: BioColors.forest,
+                  icon: Icons.landscape,
+                ),
         ),
         GameCanvas(
           letterboxColor: Colors.transparent,
@@ -134,8 +148,8 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
                   child: _finished
                       ? _result(context)
                       : _started
-                          ? _activity()
-                          : _story(),
+                      ? _activity()
+                      : const SizedBox.shrink(),
                 ),
               ),
               Positioned(
@@ -156,9 +170,24 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
             ],
           ),
         ),
+        if (_onStory)
+          Positioned.fill(
+            child: ArtworkOverlay(
+              aspect: _storyArtAspect,
+              slots: [
+                ArtworkSlot(region: _storyTextRegion, child: _storyText()),
+                ArtworkSlot(
+                  region: _storyButtonRegion,
+                  child: Center(child: _startButton()),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
+
+  bool get _onStory => !_started && !_finished;
 
   Widget _backButton(BuildContext context) {
     return Material(
@@ -178,81 +207,50 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
     );
   }
 
-  Widget _story() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final w = constraints.maxWidth;
-        final h = constraints.maxHeight;
-
-        // Bounds aligned to the empty parchment panel in research_mission_bg.png.
-        final panelLeft = w * 0.30;
-        final panelWidth = w * 0.47;
-        final panelTop = h * 0.20;
-        final panelHeight = h * 0.60;
-        final buttonWidth = panelWidth * 0.58;
-        const buttonHeight = 72.0;
-
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(
-              left: panelLeft,
-              top: panelTop,
-              width: panelWidth,
-              height: panelHeight - buttonHeight - 16,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Mission Story',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 45,
-                      fontWeight: FontWeight.bold,
-                      color: BioColors.forest,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: Scrollbar(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Text(
-                          kStation1MissionStory,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            height: 1.5,
-                            fontWeight: FontWeight.w500,
-                            color: BioColors.ink,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              left: panelLeft + (panelWidth - buttonWidth) / 2,
-              bottom: h * 0.08,
-              width: buttonWidth,
-              child: PrimaryButton(
-                label: 'Tap here to Start',
-                color: BioColors.forest,
-                fontSize: 26,
-                expand: true,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
+  Widget _storyText() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Mission Story',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+            color: BioColors.forest,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: Scrollbar(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(
+                kStation1MissionStory,
+                style: const TextStyle(
+                  fontSize: 25,
+                  height: 1.45,
+                  fontWeight: FontWeight.w500,
+                  color: BioColors.ink,
                 ),
-                onTap: () {
-                  _beginMission();
-                  setState(() => _started = true);
-                },
               ),
             ),
-          ],
-        );
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _startButton() {
+    return PrimaryButton(
+      label: 'Tap here to Start',
+      color: BioColors.forest,
+      fontSize: 26,
+      expand: true,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      onTap: () {
+        _beginMission();
+        setState(() => _started = true);
       },
     );
   }
@@ -311,10 +309,7 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
             ),
             child: Text(
               '${_index + 1}/$total',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 28,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
             ),
           ),
           const SizedBox(width: 12),
@@ -404,10 +399,7 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
                     size: 96,
                     color: BioColors.danger.withValues(alpha: 0.85),
                     shadows: const [
-                      Shadow(
-                        color: Colors.white,
-                        blurRadius: 12,
-                      ),
+                      Shadow(color: Colors.white, blurRadius: 12),
                     ],
                   ),
                 ),
@@ -500,11 +492,7 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
       child: Row(
@@ -536,8 +524,9 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
                 value: _correct / kStation1Mission.length,
                 minHeight: 16,
                 backgroundColor: BioColors.paleLeaf,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(BioColors.correct),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  BioColors.correct,
+                ),
               ),
             ),
           ),
@@ -625,9 +614,10 @@ class _Station1MissionScreenState extends State<Station1MissionScreen>
               icon: Icons.edit_note,
               color: BioColors.sun,
               onTap: () async {
-                await context
-                    .read<ProgressService>()
-                    .saveMissionScore('station1', _correct);
+                await context.read<ProgressService>().saveMissionScore(
+                  'station1',
+                  _correct,
+                );
                 if (context.mounted) context.go('/station1/takeaway');
               },
             ),

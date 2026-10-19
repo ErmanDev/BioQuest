@@ -295,10 +295,7 @@ class _FinalDecisionActivityState extends State<FinalDecisionActivity> {
                   height: 1.25,
                 ),
               ),
-              if (mark != null) ...[
-                const SizedBox(height: 6),
-                mark,
-              ],
+              if (mark != null) ...[const SizedBox(height: 6), mark],
             ],
           ),
         ),
@@ -343,7 +340,9 @@ class _FinalDecisionActivityState extends State<FinalDecisionActivity> {
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.92),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: BioColors.bark.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: BioColors.bark.withValues(alpha: 0.3),
+                ),
               ),
               child: TextField(
                 controller: _conclusionCtrl,

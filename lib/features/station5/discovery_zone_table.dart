@@ -33,27 +33,16 @@ class DiscoveryZoneTable extends StatelessWidget {
       children: [
         TableRow(
           decoration: const BoxDecoration(color: _headerColor),
-          children: [
-            for (final header in headers) _headerCell(header),
-          ],
+          children: [for (final header in headers) _headerCell(header)],
         ),
         for (var i = 0; i < rows.length; i++)
           TableRow(
-            decoration: BoxDecoration(
-              color: i.isEven ? Colors.white : _stripe,
-            ),
+            decoration: BoxDecoration(color: i.isEven ? Colors.white : _stripe),
             children: [
-              _bodyCell(
-                rows[i].treatment,
-                bold: boldTreatmentLabels,
-              ),
+              _bodyCell(rows[i].treatment, bold: boldTreatmentLabels),
               for (final value in rows[i].values) _bodyCell(value),
               if (headers.length == rows[i].values.length + 2)
-                _bodyCell(
-                  rows[i].mean ?? '',
-                  bold: true,
-                  color: _meanRed,
-                ),
+                _bodyCell(rows[i].mean ?? '', bold: true, color: _meanRed),
             ],
           ),
       ],
@@ -76,11 +65,7 @@ class DiscoveryZoneTable extends StatelessWidget {
     );
   }
 
-  Widget _bodyCell(
-    String label, {
-    bool bold = false,
-    Color? color,
-  }) {
+  Widget _bodyCell(String label, {bool bold = false, Color? color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
       child: Text(

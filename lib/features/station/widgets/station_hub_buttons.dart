@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme.dart';
+import '../../../core/widgets/wooden_sign.dart';
 import '../../../data/station_content.dart';
 import '../../../services/narration_helper.dart';
 import '../../../services/progress_service.dart';
@@ -137,42 +138,58 @@ class _MissionTargetsButton extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
-                if (competency != null) ...[
-                  const _TargetSectionLabel(
-                    icon: Icons.gps_fixed,
-                    text: 'TARGET COMPETENCY',
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    competency,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: BioColors.ink,
-                      height: 1.35,
+                // The body scrolls so every objective stays readable when the
+                // pop-up is taller than a short landscape phone screen.
+                Flexible(
+                  child: Scrollbar(
+                    thumbVisibility: true,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (competency != null) ...[
+                            const _TargetSectionLabel(
+                              icon: Icons.gps_fixed,
+                              text: 'TARGET COMPETENCY',
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              competency,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: BioColors.ink,
+                                height: 1.35,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                          const _TargetSectionLabel(
+                            icon: Icons.checklist_rtl,
+                            text: 'TARGET OBJECTIVES',
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'By the end of this station, you should be able to:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: BioColors.ink,
+                              height: 1.3,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          for (final target in targets) ...[
+                            _TargetItem(text: target),
+                            const SizedBox(height: 10),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
-                const _TargetSectionLabel(
-                  icon: Icons.checklist_rtl,
-                  text: 'TARGET OBJECTIVES',
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'By the end of this station, you should be able to:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: BioColors.ink,
-                    height: 1.3,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                for (final target in targets) ...[
-                  _TargetItem(text: target),
-                  const SizedBox(height: 10),
-                ],
               ],
             ),
           ),
@@ -183,40 +200,11 @@ class _MissionTargetsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return WoodenSignButton(
+      badge: const SignBadge(size: 64, child: CompassFace()),
+      title: 'MISSION TARGETS',
+      titleSize: 25,
       onTap: () => _showOverlay(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        decoration: BoxDecoration(
-          color: BioColors.forest,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: elevated
-              ? const [
-                  BoxShadow(
-                    color: Colors.black38,
-                    blurRadius: 8,
-                    offset: Offset(0, 3),
-                  ),
-                ]
-              : null,
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.track_changes, color: Colors.white, size: 22),
-            SizedBox(width: 10),
-            Text(
-              'Mission Targets',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -323,7 +311,7 @@ class _SubpartButton extends StatelessWidget {
         opacity: enabled ? 1 : 0.55,
         child: Container(
           width: 220,
-          padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 8),
+          padding: EdgeInsets.symmetric(vertical: 26, horizontal: 8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),

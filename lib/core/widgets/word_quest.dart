@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../app/theme.dart';
+import '../text_format.dart';
+import 'wooden_sign.dart';
 import '../../models/vocab_word.dart';
 
-/// Bottom-right button that opens the Word Quest vocabulary overlay.
+/// Bottom-right button that opens the Word Quest vocabulary overlay, styled as
+/// a wooden trail sign with a book-and-magnifier badge.
 class WordQuestButton extends StatelessWidget {
   const WordQuestButton({super.key, required this.onTap});
 
@@ -10,45 +13,28 @@ class WordQuestButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: BioColors.deepSky,
-      borderRadius: BorderRadius.circular(16),
-      elevation: 4,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.auto_stories, color: Colors.white, size: 24),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Text(
-                    'Word Quest',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                  Text(
-                    'Tap to learn new words!',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 10.5,
-                    ),
-                  ),
-                ],
+    return WoodenSignButton(
+      badge: const SignBadge(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(Icons.menu_book_rounded, color: Color(0xFFFFF3D6), size: 30),
+            Positioned(
+              right: 2,
+              bottom: 2,
+              child: Icon(
+                Icons.search_rounded,
+                color: Color(0xFFFFD54F),
+                size: 26,
+                shadows: [Shadow(color: Colors.black54, blurRadius: 2)],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+      title: 'WORD QUEST',
+      subtitle: 'Tap to learn new words!',
+      onTap: onTap,
     );
   }
 }
@@ -122,10 +108,8 @@ void showWordQuestOverlay(BuildContext context, List<VocabWord> words) {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: words.length,
-                  separatorBuilder: (_, _) => const Divider(
-                    height: 22,
-                    color: BioColors.leaf,
-                  ),
+                  separatorBuilder: (_, _) =>
+                      const Divider(height: 22, color: BioColors.leaf),
                   itemBuilder: (context, i) => _VocabItem(word: words[i]),
                 ),
               ),
@@ -186,7 +170,12 @@ class _VocabLine extends StatelessWidget {
             text: label,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          TextSpan(text: text),
+          readingTextSpan(
+            text,
+            fontSize: 14,
+            height: 1.35,
+            color: BioColors.ink,
+          ),
         ],
       ),
     );

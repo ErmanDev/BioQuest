@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import '../app/route_observer.dart';
+import '../core/widgets/station_text_scale.dart';
 import '../features/auth/auth_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/avatar/avatar_select_screen.dart';
@@ -64,7 +65,25 @@ Widget _missionFor(String key) {
   }
 }
 
-List<RouteBase> get _appRoutes => [
+/// Station pages get the larger small-text scaling ([StationTextScale]).
+List<RouteBase> get _appRoutes =>
+    [for (final r in _baseRoutes) _withStationText(r)];
+
+RouteBase _withStationText(RouteBase route) {
+  if (route is GoRoute &&
+      route.path.startsWith('/station') &&
+      route.builder != null &&
+      route.routes.isEmpty) {
+    final build = route.builder!;
+    return GoRoute(
+      path: route.path,
+      builder: (c, s) => StationTextScale(child: build(c, s)),
+    );
+  }
+  return route;
+}
+
+List<RouteBase> get _baseRoutes => [
     GoRoute(path: '/', builder: (c, s) => const SplashScreen()),
     GoRoute(path: '/auth', builder: (c, s) => const AuthScreen()),
     GoRoute(path: '/avatar', builder: (c, s) => const AvatarSelectScreen()),

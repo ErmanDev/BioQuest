@@ -146,9 +146,7 @@ class _InterpretationActivityState extends State<InterpretationActivity> {
           const SizedBox(height: 10),
           Container(
             width: double.infinity,
-            constraints: BoxConstraints(
-              minHeight: index == 1 ? 96 : 72,
-            ),
+            constraints: BoxConstraints(minHeight: index == 1 ? 96 : 72),
             decoration: BoxDecoration(
               color: const Color(0xFFF8F8F8),
               borderRadius: BorderRadius.circular(10),

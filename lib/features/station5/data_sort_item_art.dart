@@ -67,10 +67,7 @@ class DataSortItemArt extends StatelessWidget {
         for (var i = 0; i < 3; i++)
           Padding(
             padding: EdgeInsets.only(left: i == 0 ? 0 : 2),
-            child: _petriDish(
-              innerColor: const Color(0xFFE1BEE7),
-              size: 14,
-            ),
+            child: _petriDish(innerColor: const Color(0xFFE1BEE7), size: 14),
           ),
       ],
     );
@@ -140,10 +137,7 @@ class DataSortItemArt extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            height: 8,
-            color: const Color(0xFFBBDEFB),
-          ),
+          Container(height: 8, color: const Color(0xFFBBDEFB)),
           const SizedBox(height: 2),
           Expanded(
             child: GridView.count(
@@ -166,12 +160,7 @@ class DataSortItemArt extends StatelessWidget {
     return _petriDish(
       innerColor: const Color(0xFFFFF9C4),
       size: 34,
-      spots: const [
-        Offset(-6, -4),
-        Offset(4, 2),
-        Offset(-2, 6),
-        Offset(7, -5),
-      ],
+      spots: const [Offset(-6, -4), Offset(4, 2), Offset(-2, 6), Offset(7, -5)],
     );
   }
 
@@ -200,11 +189,7 @@ class DataSortItemArt extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Container(
-            width: 18,
-            height: 3,
-            color: const Color(0xFF5D4037),
-          ),
+          Container(width: 18, height: 3, color: const Color(0xFF5D4037)),
         ],
       ),
     );

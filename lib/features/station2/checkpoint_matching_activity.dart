@@ -39,22 +39,18 @@ class _Station2CheckpointMatchingActivityState
     )..shuffle(math.Random(311));
   }
 
-  Set<String> get _usedChoiceIds =>
-      _answers.values.whereType<String>().toSet();
+  Set<String> get _usedChoiceIds => _answers.values.whereType<String>().toSet();
 
-  bool get _allFilled =>
-      _answers.values.every((answer) => answer != null);
+  bool get _allFilled => _answers.values.every((answer) => answer != null);
 
-  List<Station2CheckpointChoice> get _availableChoices =>
-      _shuffledChoices
-          .where((choice) => !_usedChoiceIds.contains(choice.id))
-          .toList(growable: false);
+  List<Station2CheckpointChoice> get _availableChoices => _shuffledChoices
+      .where((choice) => !_usedChoiceIds.contains(choice.id))
+      .toList(growable: false);
 
   void _selectChoice(String choiceId) {
     if (_submitted) return;
     setState(() {
-      _selectedChoiceId =
-          _selectedChoiceId == choiceId ? null : choiceId;
+      _selectedChoiceId = _selectedChoiceId == choiceId ? null : choiceId;
     });
   }
 
@@ -166,19 +162,6 @@ class _Station2CheckpointMatchingActivityState
                 textAlign: TextAlign.right,
                 style: const TextStyle(fontSize: 20, height: 1.4),
               ),
-              if (!_submitted && _selectedChoiceId != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  'Selected: ${_choiceById(_selectedChoiceId)!.label} — tap a '
-                  'statement on the left',
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: BioColors.deepSky,
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -198,7 +181,7 @@ class _Station2CheckpointMatchingActivityState
         thumbVisibility: true,
         child: ListView.separated(
           itemCount: kStation2CheckpointPart2Items.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 10),
+          separatorBuilder: (context, index) => const SizedBox(height: 5),
           itemBuilder: (context, index) {
             final item = kStation2CheckpointPart2Items[index];
             return _statementRow(item);
@@ -219,20 +202,20 @@ class _Station2CheckpointMatchingActivityState
       borderRadius: BorderRadius.circular(10),
       onTap: () => _tapBlank(item.number),
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           color: isCorrect
               ? BioColors.correct.withValues(alpha: 0.15)
               : isWrong
-                  ? BioColors.danger.withValues(alpha: 0.12)
-                  : Colors.white.withValues(alpha: 0.85),
+              ? BioColors.danger.withValues(alpha: 0.12)
+              : Colors.white.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isCorrect
                 ? BioColors.correct
                 : isWrong
-                    ? BioColors.danger
-                    : BioColors.bark.withValues(alpha: 0.4),
+                ? BioColors.danger
+                : BioColors.bark.withValues(alpha: 0.4),
           ),
         ),
         child: Row(
@@ -255,8 +238,8 @@ class _Station2CheckpointMatchingActivityState
               child: Text(
                 item.statement,
                 style: const TextStyle(
-                  fontSize: 22,
-                  height: 1.3,
+                  fontSize: 20,
+                  height: 1.25,
                   fontWeight: FontWeight.w600,
                   color: BioColors.ink,
                 ),
@@ -273,14 +256,18 @@ class _Station2CheckpointMatchingActivityState
   Widget _blankSlot(String? label, {required bool highlighted}) {
     final filled = label != null;
     return Container(
-      constraints: const BoxConstraints(minWidth: 168, maxWidth: 210, minHeight: 44),
+      constraints: const BoxConstraints(
+        minWidth: 168,
+        maxWidth: 210,
+        minHeight: 44,
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: filled
             ? BioColors.moss.withValues(alpha: 0.18)
             : highlighted && _selectedChoiceId != null
-                ? BioColors.sun.withValues(alpha: 0.35)
-                : Colors.white,
+            ? BioColors.sun.withValues(alpha: 0.35)
+            : Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: highlighted && _selectedChoiceId != null
@@ -300,7 +287,9 @@ class _Station2CheckpointMatchingActivityState
           fontWeight: FontWeight.bold,
           letterSpacing: 0.3,
           height: 1.15,
-          color: filled ? BioColors.forest : BioColors.ink.withValues(alpha: 0.45),
+          color: filled
+              ? BioColors.forest
+              : BioColors.ink.withValues(alpha: 0.45),
         ),
       ),
     );
@@ -317,19 +306,42 @@ class _Station2CheckpointMatchingActivityState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Terms',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: BioColors.forest,
-            ),
+          // The "Selected" hint shares the heading line so picking a term
+          // never pushes the lists down.
+          Row(
+            children: [
+              const Text(
+                'Terms',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: BioColors.forest,
+                ),
+              ),
+              if (!_submitted && _selectedChoiceId != null) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Selected: ${_choiceById(_selectedChoiceId)!.label} — '
+                    'tap a statement',
+                    textAlign: TextAlign.right,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: BioColors.deepSky,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 8),
           Expanded(
             child: ListView.separated(
               itemCount: _availableChoices.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              separatorBuilder: (context, index) => const SizedBox(height: 5),
               itemBuilder: (context, index) {
                 final choice = _availableChoices[index];
                 final selected = _selectedChoiceId == choice.id;
@@ -341,10 +353,10 @@ class _Station2CheckpointMatchingActivityState
                     onTap: _submitted ? null : () => _selectChoice(choice.id),
                     child: Container(
                       width: double.infinity,
-                      constraints: const BoxConstraints(minHeight: 52),
+                      constraints: const BoxConstraints(minHeight: 44),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
-                        vertical: 14,
+                        vertical: 9,
                       ),
                       alignment: Alignment.center,
                       child: Text(

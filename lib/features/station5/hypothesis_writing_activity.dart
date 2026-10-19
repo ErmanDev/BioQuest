@@ -35,10 +35,7 @@ class _HypothesisWritingActivityState extends State<HypothesisWritingActivity> {
   void _submit() {
     if (_submitted) return;
     _submitted = true;
-    final score = scoreStation5HypothesisAnswers(
-      _nullCtrl.text,
-      _altCtrl.text,
-    );
+    final score = scoreStation5HypothesisAnswers(_nullCtrl.text, _altCtrl.text);
     widget.onCompleted(score);
     widget.onNext?.call();
   }
@@ -225,19 +222,23 @@ class _HypothesisWritingActivityState extends State<HypothesisWritingActivity> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(child: _hypothesisBox(
-          symbol: 'H₀',
-          label: kStation5NullHypothesisLabel,
-          accent: BioColors.deepSky,
-          controller: _nullCtrl,
-        )),
+        Expanded(
+          child: _hypothesisBox(
+            symbol: 'H₀',
+            label: kStation5NullHypothesisLabel,
+            accent: BioColors.deepSky,
+            controller: _nullCtrl,
+          ),
+        ),
         const SizedBox(width: 8),
-        Expanded(child: _hypothesisBox(
-          symbol: 'H₁',
-          label: kStation5AlternativeHypothesisLabel,
-          accent: BioColors.forest,
-          controller: _altCtrl,
-        )),
+        Expanded(
+          child: _hypothesisBox(
+            symbol: 'H₁',
+            label: kStation5AlternativeHypothesisLabel,
+            accent: BioColors.forest,
+            controller: _altCtrl,
+          ),
+        ),
       ],
     );
   }
@@ -330,4 +331,3 @@ class _HypothesisWritingActivityState extends State<HypothesisWritingActivity> {
     );
   }
 }
-

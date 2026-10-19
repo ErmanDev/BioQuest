@@ -15,9 +15,6 @@ const String kSummitCitation = 'Emerging Scientific Researcher';
 const String kSummitSummativeDirections =
     'Read each question carefully and choose the letter of the best answer.';
 
-const String kSummitSummativeTableNote =
-    'For numbers 17–20, refer to the hypothetical data table below.';
-
 const McTableStimulus kSummativeMossShootTable =
     kSummativeMossShootTableSource;
 

@@ -5,8 +5,9 @@ import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
 import '../../core/mixins/auto_narrate_on_enter.dart';
 import '../../core/text_format.dart';
+import '../../core/widgets/artwork_stage.dart';
 import '../../core/widgets/game_image.dart';
-import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/trail_button.dart';
 import '../../core/widgets/voiceover_toggle.dart';
 import '../../core/widgets/word_quest.dart';
 import '../../data/station2_data.dart';
@@ -28,13 +29,15 @@ class Station2DiscoveryScreen extends StatefulWidget {
 
 class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
     with RouteAware, AutoNarrateOnEnter {
-  static const _backgroundAsset = 'assets/images/discovery_stop.png';
+  /// Background aspect and regions (fractions of the artwork) so the
+  /// text and avatar stay on the same spot of the picture on any screen.
+  static const double _artAspect = 1024 / 458;
+  static const Rect _textRegion = Rect.fromLTRB(0.29, 0.29, 0.73, 0.7);
+  static const Rect _avatarRegion = Rect.fromLTRB(0.02, 0.16, 0.25, 0.94);
+  static const double _textWidth =
+      ArtworkOverlay.defaultDesignWidth * (0.73 - 0.29);
 
-  /// Inner parchment margins on [discovery_stop.png] (fractions of canvas size).
-  static const _parchmentContentLeft = 0.32;
-  static const _parchmentContentRight = 0.78;
-  static const _parchmentContentTop = 0.15;
-  static const _parchmentContentHeight = 0.53;
+  static const _backgroundAsset = 'assets/images/discovery_stop.png';
 
   @override
   String? get autoNarrateText => stripReadingMarkup(kStation2Content);
@@ -60,12 +63,10 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
       children: [
         const ColoredBox(color: BioColors.forest),
         Positioned.fill(
-          child: GameImage(
+          child: ArtworkBackdrop(
             asset: _backgroundAsset,
+            aspect: _artAspect,
             label: 'Discovery Stop',
-            fit: BoxFit.cover,
-            color: BioColors.forest,
-            icon: Icons.landscape,
           ),
         ),
         GameCanvas(
@@ -98,55 +99,14 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
                   ],
                 ),
                 const SizedBox(height: 12),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final w = constraints.maxWidth;
-                      final h = constraints.maxHeight;
-                      final avatarW = w * 0.24;
-                      const avatarScale = 1.75;
-
-                      final textLeft = w * _parchmentContentLeft;
-                      final textW =
-                          w * (_parchmentContentRight - _parchmentContentLeft);
-                      final textTop = h * _parchmentContentTop;
-                      final textH = h * _parchmentContentHeight;
-
-                      return Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Positioned(
-                            left: 0,
-                            bottom: 0,
-                            width: avatarW,
-                            child: _guideAvatar(avatarW, avatarScale),
-                          ),
-                          Positioned(
-                            left: textLeft,
-                            top: textTop,
-                            width: textW,
-                            height: textH,
-                            child: ClipRect(
-                              clipBehavior: Clip.hardEdge,
-                              child: ListView(
-                                padding: const EdgeInsets.only(right: 4),
-                                children: _discoveryContent(textW),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+                const Expanded(child: SizedBox.shrink()),
                 const SizedBox(height: 8),
                 Stack(
-                  alignment: Alignment.center,
+                  alignment: Alignment.bottomCenter,
                   children: [
                     Center(
-                      child: PrimaryButton(
+                      child: TrailButton(
                         label: 'Proceed',
-                        color: BioColors.forest,
                         fontSize: 34,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 40,
@@ -164,17 +124,45 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
                         },
                       ),
                     ),
-                    Positioned(
-                      right: 0,
-                      child: WordQuestButton(
-                        onTap: () =>
-                            showWordQuestOverlay(context, kStation2Vocabulary),
+                    // A normal (non-positioned) child so the row grows to fit
+                    // the whole button; overflowing parts don't receive taps.
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 48, bottom: 20),
+                        child: WordQuestButton(
+                          onTap: () => showWordQuestOverlay(
+                            context,
+                            kStation2Vocabulary,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ],
             ),
+          ),
+        ),
+        Positioned.fill(
+          child: ArtworkOverlay(
+            aspect: _artAspect,
+            slots: [
+              ArtworkSlot(
+                region: _avatarRegion,
+                interactive: false,
+                child: _guideAvatar(),
+              ),
+              ArtworkSlot(
+                region: _textRegion,
+                child: ClipRect(
+                  child: ListView(
+                    padding: const EdgeInsets.only(right: 4),
+                    children: _discoveryContent(_textWidth),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -186,35 +174,36 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
     const gap = 10.0;
 
     Text bodyText(String text) => Text.rich(
-          readingTextSpan(
-            text,
-            fontSize: fontSize,
-            color: BioColors.ink,
-            indentFirstLine: true,
-          ),
-          style: const TextStyle(height: 1.4),
-        );
+      readingTextSpan(
+        text,
+        fontSize: fontSize,
+        color: BioColors.ink,
+        indentFirstLine: true,
+      ),
+      style: const TextStyle(height: 1.4),
+    );
 
     Widget diagram(String asset, String label, double aspect) => Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: SizedBox(
-              width: maxWidth,
-              height: maxWidth * aspect,
-              child: _zoomableImage(
-                asset: asset,
-                label: label,
-              ),
-            ),
-          ),
-        );
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: SizedBox(
+          width: maxWidth,
+          height: maxWidth * aspect,
+          child: _zoomableImage(asset: asset, label: label),
+        ),
+      ),
+    );
 
     return [
       bodyText(kStation2DiscoveryPart1),
       const SizedBox(height: gap),
       bodyText(kStation2DiscoveryPart2),
       const SizedBox(height: gap),
-      diagram(kStation2ElevationDiagramAsset, 'Elevation zones diagram', 684 / 1024),
+      diagram(
+        kStation2ElevationDiagramAsset,
+        'Elevation zones diagram',
+        684 / 1024,
+      ),
       const SizedBox(height: gap),
       bodyText(kStation2DiscoveryPart3),
       const SizedBox(height: gap),
@@ -337,33 +326,9 @@ class _Station2DiscoveryScreenState extends State<Station2DiscoveryScreen>
     );
   }
 
-  Widget _guideAvatar(double width, double scale) {
+  Widget _guideAvatar() {
     final id = context.watch<AuthService>().currentUser?.avatarId ?? 0;
     final explorer = ExplorerAvatar.fromId(id);
-    final height = width * scale;
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: OverflowBox(
-          alignment: Alignment.bottomCenter,
-          maxHeight: height,
-          minHeight: height,
-          maxWidth: height,
-          child: SizedBox(
-            height: height,
-            child: GameImage(
-              asset: explorer.assetPath,
-              label: explorer.label,
-              color: BioColors.moss,
-              fit: BoxFit.fitHeight,
-              icon: Icons.emoji_people,
-              cacheWidth: (height * 2).round(),
-            ),
-          ),
-        ),
-      ),
-    );
+    return SlotFigure(asset: explorer.assetPath, label: explorer.label);
   }
 }
