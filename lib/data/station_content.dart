@@ -90,10 +90,13 @@ const Map<String, StationContent> kStationContent = {
     checkpoint: kStation3Checkpoint,
     badgeAsset: kStation3BadgeAsset,
     nextStationMessage: kStation3BadgeNextMessage,
+    targetCompetency:
+        'Plans data collection procedure (CS_RS12-IIa-c-5)\n'
+        'Collect data using appropriate research instruments (CS_RS12-IId-g-1)',
     missionTargets: [
-      'Explain the process of in vitro propagation of moss.',
-      'Plan a data collection procedure (CS_RS12-IIa-c-5).',
-      'Collect data using appropriate research instruments (CS_RS12-IId-g-1).',
+      '**Identify** appropriate research instruments and their purposes in data collection.',
+      '**Plan** an appropriate data collection procedure using suitable research instruments.',
+      '**Recognize** the importance of accurate and reliable data collection in scientific investigations.',
     ],
   ),
   'station4': StationContent(
@@ -106,10 +109,12 @@ const Map<String, StationContent> kStationContent = {
     checkpoint: kStation4Checkpoint,
     badgeAsset: kStation4BadgeAsset,
     nextStationMessage: kStation4BadgeNextMessage,
+    targetCompetency:
+        'Presents and interprets data in tabular and graphical forms (CS_RS12-IId-g-2)',
     missionTargets: [
-      'Explain the purpose of phytochemical screening in identifying bioactive compounds.',
-      'Organize and present scientific data using appropriate tables and graphs.',
-      'Interpret data based on observed patterns and results.',
+      'Identify appropriate tabular and graphical forms for presenting scientific data.',
+      'Present scientific data using appropriate tables and graphs.',
+      'Recognize the importance of accurate data presentation and interpretation in communicating scientific findings.',
     ],
   ),
   'station5': StationContent(
@@ -122,10 +127,12 @@ const Map<String, StationContent> kStationContent = {
     checkpoint: kStation5Checkpoint,
     badgeAsset: kStation5BadgeAsset,
     nextStationMessage: kStation5BadgeNextMessage,
+    targetCompetency:
+        'Plans data analysis using statistics and hypothesis testing (CS_RS12-IIa-c-6)',
     missionTargets: [
-      'Investigate the antibacterial activity of moss genera using scientific reasoning.',
-      'Apply statistics and hypothesis testing to analyze research data.',
-      'Decide whether to accept or reject a null hypothesis based on evidence.',
+      'Identify the steps involved in planning data analysis using statistics and hypothesis testing.',
+      'Analyze experimental data using appropriate statistical tools and hypothesis testing.',
+      'Recognize the importance of statistical analysis in making evidence-based scientific conclusions.',
     ],
   ),
 };

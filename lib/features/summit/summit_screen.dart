@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
 import '../../core/game_canvas.dart';
+import '../../core/widgets/fit_text.dart';
 import '../../core/widgets/game_image.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/references_panel.dart';
@@ -22,30 +23,23 @@ class SummitScreen extends StatefulWidget {
 }
 
 class _SummitScreenState extends State<SummitScreen> {
-  static const _contentLeft = 0.10;
-  static const _contentRight = 0.90;
-  static const _contentTop = 0.24;
+  static const _contentLeft = 0.05;
+  static const _contentRight = 0.95;
+  static const _contentTop = 0.13;
   static const _contentBottom = 0.94;
 
   int _page = 0;
   bool _showCertificate = false;
   late final List<int?> _answers = List<int?>.filled(kSummative.length, null);
 
-  int get _pageCount => (kSummative.length / 2).ceil();
-  int get _firstIndex => _page * 2;
+  /// One question per page.
+  int get _pageCount => kSummative.length;
   bool get _isLastPage => _page >= _pageCount - 1;
-  bool get _showsSharedTable => _firstIndex >= 16;
 
-  bool get _pageComplete {
-    for (
-      var i = _firstIndex;
-      i < _firstIndex + 2 && i < kSummative.length;
-      i++
-    ) {
-      if (_answers[i] == null) return false;
-    }
-    return true;
-  }
+  /// Questions 17–20 refer to the shared data table.
+  bool get _showsSharedTable => _page >= 16;
+
+  bool get _pageComplete => _answers[_page] != null;
 
   int get _answeredCount => _answers.where((answer) => answer != null).length;
 
@@ -184,50 +178,27 @@ class _SummitScreenState extends State<SummitScreen> {
   }
 
   Widget _quizView() {
-    final secondIndex = _firstIndex + 1;
-    final hasSecond = secondIndex < kSummative.length;
     final compact = _showsSharedTable;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _titleBanner(),
-        const SizedBox(height: 6),
+        // The background art already shows the "SUMMATIVE TEST" title.
         _directionsBar(compact: compact),
-        SizedBox(height: compact ? 4 : 8),
-        Expanded(
-          child: Column(
-            children: [
-              if (_showsSharedTable) ...[
-                _sharedTablePanel(),
-                const SizedBox(height: 6),
-              ],
-              Expanded(
-                flex: compact ? 3 : 1,
-                child: _questionCard(_firstIndex, compact: compact),
-              ),
-              SizedBox(height: compact ? 6 : 10),
-              Expanded(
-                flex: compact ? 3 : 1,
-                child: hasSecond
-                    ? _questionCard(secondIndex, compact: compact)
-                    : const SizedBox.shrink(),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: compact ? 4 : 8),
+        const SizedBox(height: 8),
+        if (_showsSharedTable) ...[
+          _sharedTablePanel(),
+          const SizedBox(height: 8),
+        ],
+        Expanded(child: _singleQuestion(_page, compact: compact)),
+        const SizedBox(height: 8),
         Align(
           alignment: Alignment.center,
           child: PrimaryButton(
             label: _isLastPage ? 'Submit Test' : 'Next',
             icon: _isLastPage ? Icons.check : Icons.arrow_forward,
             color: BioColors.deepSky,
-            fontSize: compact ? 15 : 16,
-            padding: EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: compact ? 9 : 11,
-            ),
+            fontSize: 20,
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 11),
             onTap: _pageComplete ? _next : null,
           ),
         ),
@@ -235,28 +206,143 @@ class _SummitScreenState extends State<SummitScreen> {
     );
   }
 
-  Widget _titleBanner() {
-    return const Column(
-      children: [
-        Text(
-          'SUMMATIVE TEST',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2,
-            color: BioColors.forest,
+  /// One question: the prompt on top, then four large tappable answers.
+  Widget _singleQuestion(int index, {required bool compact}) {
+    final question = kSummative[index];
+    final selected = _answers[index];
+    final promptSize = compact ? 22.0 : 27.0;
+    final optionSize = compact ? 20.0 : 24.0;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F1E4).withValues(alpha: 0.98),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: BioColors.forest.withValues(alpha: 0.35)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x33000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      // Shrinks slightly only if a long question would not fit.
+      child: FitText(
+        alignment: Alignment.topCenter,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _questionBadge(index + 1, size: compact ? 40 : 48),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    question.prompt,
+                    style: TextStyle(
+                      fontSize: promptSize,
+                      fontWeight: FontWeight.w800,
+                      height: 1.25,
+                      color: BioColors.forest,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: compact ? 8 : 14),
+            for (var i = 0; i < question.options.length; i++)
+              _bigOption(
+                questionIndex: index,
+                question: question,
+                optionIndex: i,
+                selectedIndex: selected,
+                fontSize: optionSize,
+                compact: compact,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bigOption({
+    required int questionIndex,
+    required McQuestion question,
+    required int optionIndex,
+    required int? selectedIndex,
+    required double fontSize,
+    required bool compact,
+  }) {
+    final isSelected = selectedIndex == optionIndex;
+    final locked = selectedIndex != null;
+    final letter = String.fromCharCode(65 + optionIndex);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: compact ? 6 : 10),
+      child: Material(
+        color: isSelected ? BioColors.paleLeaf : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: locked
+              ? null
+              : () => _selectAnswer(questionIndex, optionIndex),
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: compact ? 7 : 11,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected
+                    ? BioColors.forest
+                    : BioColors.bark.withValues(alpha: 0.35),
+                width: isSelected ? 2.5 : 1.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: fontSize * 0.75,
+                  backgroundColor: isSelected
+                      ? BioColors.forest
+                      : BioColors.deepSky,
+                  child: Text(
+                    letter,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: fontSize * 0.8,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    question.options[optionIndex],
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
+                      color: BioColors.ink,
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  Icon(
+                    Icons.check_circle,
+                    color: BioColors.forest,
+                    size: fontSize + 4,
+                  ),
+              ],
+            ),
           ),
         ),
-        SizedBox(height: 2),
-        Text(
-          'Discovery Summit',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: BioColors.ink,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -306,7 +392,7 @@ class _SummitScreenState extends State<SummitScreen> {
                     'DIRECTIONS:',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: compact ? 12 : 13,
+                      fontSize: compact ? 16 : 18,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -331,7 +417,7 @@ class _SummitScreenState extends State<SummitScreen> {
                     child: Text(
                       kSummitSummativeDirections,
                       style: TextStyle(
-                        fontSize: compact ? 12 : 13.5,
+                        fontSize: compact ? 16 : 19,
                         height: 1.25,
                         fontWeight: FontWeight.w600,
                         color: BioColors.ink,
@@ -363,14 +449,14 @@ class _SummitScreenState extends State<SummitScreen> {
           Text(
             table.intro.replaceAll('\n\n', ' '),
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 15.5,
               height: 1.2,
               fontWeight: FontWeight.w600,
               color: BioColors.ink,
             ),
           ),
           const SizedBox(height: 2),
-          _transposedDataTable(table, fontSize: 11),
+          _transposedDataTable(table, fontSize: 17),
         ],
       ),
     );
@@ -425,69 +511,6 @@ class _SummitScreenState extends State<SummitScreen> {
     );
   }
 
-  Widget _questionCard(int questionIndex, {bool compact = false}) {
-    final question = kSummative[questionIndex];
-    final selected = _answers[questionIndex];
-    final answered = selected != null;
-    final promptSize = compact ? 13.5 : 15.5;
-    final optionSize = compact ? 12.5 : 14.5;
-    final badgeSize = compact ? 30.0 : 36.0;
-    final cardPadding = compact ? 7.0 : 10.0;
-
-    return Container(
-      padding: EdgeInsets.all(cardPadding),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F1E4).withValues(alpha: 0.98),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: BioColors.forest.withValues(alpha: 0.35)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _questionBadge(questionIndex + 1, size: badgeSize),
-          SizedBox(width: compact ? 6 : 8),
-          Expanded(
-            flex: 11,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                question.prompt,
-                style: TextStyle(
-                  fontSize: promptSize,
-                  fontWeight: FontWeight.w800,
-                  height: 1.22,
-                  color: BioColors.forest,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          const _DashedDivider(),
-          const SizedBox(width: 6),
-          Expanded(
-            flex: 11,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < question.options.length; i++)
-                  _optionLine(
-                    questionIndex: questionIndex,
-                    question: question,
-                    optionIndex: i,
-                    selectedIndex: selected,
-                    locked: answered,
-                    fontSize: optionSize,
-                    compact: compact,
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _questionBadge(int number, {required double size}) {
     return Container(
       width: size,
@@ -503,72 +526,6 @@ class _SummitScreenState extends State<SummitScreen> {
           color: Colors.white,
           fontSize: size * 0.5,
           fontWeight: FontWeight.w900,
-        ),
-      ),
-    );
-  }
-
-  Widget _optionLine({
-    required int questionIndex,
-    required McQuestion question,
-    required int optionIndex,
-    required int? selectedIndex,
-    required bool locked,
-    required double fontSize,
-    bool compact = false,
-  }) {
-    final isSelected = selectedIndex == optionIndex;
-    final letter = String.fromCharCode(65 + optionIndex);
-    Color textColor = BioColors.ink;
-    Color letterColor = BioColors.deepSky;
-    Color? fill;
-
-    if (locked) {
-      if (isSelected) {
-        fill = BioColors.paleLeaf.withValues(alpha: 0.8);
-      }
-    } else if (isSelected) {
-      fill = BioColors.paleLeaf.withValues(alpha: 0.65);
-    }
-
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: compact ? 1 : 2),
-      child: Material(
-        color: fill ?? Colors.transparent,
-        borderRadius: BorderRadius.circular(6),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(6),
-          onTap: locked
-              ? null
-              : () => _selectAnswer(questionIndex, optionIndex),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 2,
-              vertical: compact ? 2 : 3,
-            ),
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  fontSize: fontSize,
-                  height: 1.18,
-                  color: textColor,
-                ),
-                children: [
-                  TextSpan(
-                    text: '$letter. ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      color: letterColor,
-                    ),
-                  ),
-                  TextSpan(
-                    text: question.options[optionIndex],
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );
@@ -705,37 +662,4 @@ class _SummitScreenState extends State<SummitScreen> {
       },
     );
   }
-}
-
-class _DashedDivider extends StatelessWidget {
-  const _DashedDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 8,
-      child: CustomPaint(painter: _DashedLinePainter()),
-    );
-  }
-}
-
-class _DashedLinePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = BioColors.forest.withValues(alpha: 0.45)
-      ..strokeWidth = 1.2;
-    const dash = 5.0;
-    const gap = 4.0;
-    var y = 0.0;
-    final x = size.width / 2;
-    while (y < size.height) {
-      final end = (y + dash).clamp(0.0, size.height);
-      canvas.drawLine(Offset(x, y), Offset(x, end), paint);
-      y += dash + gap;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

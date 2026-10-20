@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme.dart';
+import '../../../core/text_format.dart';
 import '../../../core/widgets/wooden_sign.dart';
 import '../../../data/station_content.dart';
 import '../../../services/narration_helper.dart';
@@ -251,9 +252,10 @@ class _TargetItem extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
+          // Objectives may mark words as **bold** / *italic*.
+          child: Text.rich(
+            readingTextSpan(
+              text,
               fontSize: 15,
               height: 1.35,
               color: BioColors.ink,
